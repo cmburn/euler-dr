@@ -45,6 +45,8 @@ read_cube(mrb_state *mrb, mrb_value value)
 {
 }
 
+void init(const util::Reference<util::MRubyState> &mrb);
+
 } /* namespace euler::math */
 
 #endif /* EULER_MATH_EXT_H */

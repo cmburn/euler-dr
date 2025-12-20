@@ -163,9 +163,7 @@ public:
 
 	[[nodiscard]] Kind
 	kind() const override
-	{
-		return nonscalar_kind_value<T>;
-	}
+	{ return nonscalar_kind_v<T>; }
 
 	[[nodiscard]] size_type
 	n_cols() const override
@@ -190,48 +188,137 @@ public:
 
 	[[nodiscard]] Type
 	type() const override
-	{
-		return Type::Matrix;
-	}
+	{ return Type::Matrix; }
 
 	value_type &
 	at(const size_type row, const size_type col)
-	{
-		return _matrix(row, col);
-	}
+	{ return _matrix(row, col); }
 
 	const value_type &
 	at(const size_type row, const size_type col) const
-	{
-		return _matrix(row, col);
-	}
+	{ return _matrix(row, col); }
 
 	const value_type &
 	at(const size_type index) const
+	{ return _matrix(index); }
+
+	template <typename U, size_type S>
+	static void
+	assert_size_vector(const util::Reference<Vector<U, S>> &size)
 	{
-		return _matrix(index);
+		static_assert(!is_complex<U>(),
+		    "size vector cannot be complex");
+		static_assert(S == 2 || S == dynamic_size,
+		    "size vector must have 2 elements");
+		if constexpr (S != dynamic_size) return;
+		if (size->n_elem() != 2) {
+			throw std::invalid_argument(
+			    "size vector must have 2 elements");
+		}
 	}
 
 	void
 	zeros()
+	{ _matrix.zeros(); }
+
+	template <std::enable_if_t<is_dynamic, int> = 0>
+	void
+	zeros(const size_type n_rows, const size_type n_cols)
+	{ _matrix.zeros(n_rows, n_cols); }
+
+	template <typename U, size_type S = dynamic_size>
+	void
+	zeros(const util::Reference<Vector<U, S>> &size)
 	{
-		_matrix.zeros();
+		assert_size_vector(size);
+		_matrix.zeros(size->at(0), size->at(1));
 	}
 
 	void
-	zeros(const size_type n_rows, const size_type n_cols,
-	    std::enable_if_t<is_dynamic, int> = 0)
+	ones()
+	{ _matrix.zeros(); }
+
+	template <std::enable_if_t<is_dynamic, int> = 0>
+	void
+	ones(const size_type n_rows, const size_type n_cols)
+	{ _matrix.ones(n_rows, n_cols); }
+
+	template <typename U, size_type S = dynamic_size>
+	void
+	ones(const util::Reference<Vector<U, S>> &size)
 	{
-		_matrix.zeros(n_rows, n_cols);
+		assert_size_vector(size);
+		_matrix.ones(size->at(0), size->at(1));
 	}
 
-	template <typename U>
 	void
-	zeros(const util::Reference<Vector<U, dynamic_size>> &size)
+	eye()
+	{ _matrix.eye(); }
+
+	template <std::enable_if_t<is_dynamic, int> = 0>
+	void
+	eye(const size_type n_rows, const size_type n_cols)
+	{ _matrix.eye(n_rows, n_cols); }
+
+	template <typename U, size_type S = dynamic_size>
+	void
+	eye(const util::Reference<Vector<U, S>> &size)
 	{
-		static_assert(!detail::is_complex<U>(),
+		static_assert(!is_complex<U>(),
 		    "size vector cannot be complex");
+		static_assert(S == 2 || S == dynamic_size,
+		    "size vector must have 2 elements");
+		if constexpr (S == dynamic_size) {
+			if (size->n_elem() != 2) {
+				throw std::invalid_argument(
+				    "Matrix::eye: size vector must have 2 "
+				    "elements");
+			}
+		}
+		_matrix.eye(size->at(0), size->at(1));
 	}
+
+	void
+	randu()
+	{ _matrix.randu(); }
+
+	template <std::enable_if_t<is_dynamic, int> = 0>
+	void
+	randu(const size_type n_rows, const size_type n_cols)
+	{ _matrix.randu(n_rows, n_cols); }
+
+	template <typename U, size_type S = dynamic_size>
+	void
+	randu(const util::Reference<Vector<U, S>> &size)
+	{
+		assert_size_vector(size);
+		_matrix.randu(size->at(0), size->at(1));
+	}
+
+	void
+	randn()
+	{ _matrix.randn(); }
+
+	template <std::enable_if_t<is_dynamic, int> = 0>
+	void
+	randn(const size_type n_rows, const size_type n_cols)
+	{ _matrix.randn(n_rows, n_cols); }
+
+	template <typename U, size_type S = dynamic_size>
+	void
+	randn(const util::Reference<Vector<U, S>> &size)
+	{
+		assert_size_vector(size);
+		_matrix.randn(size->at(0), size->at(1));
+	}
+
+	void
+	fill(const value_type v)
+	{ _matrix.fill(v); }
+
+	void
+	imbue(const std::function<value_type()> &fn)
+	{ _matrix.imbue(fn); }
 
 	explicit Matrix(const util::Reference<util::MRubyState> &mrb,
 	    const mrb_value v)
@@ -272,87 +359,13 @@ public:
 	{
 	}
 
-	static util::Reference<Matrix>
-	zeros()
-	{
-		return util::make_reference<Matrix>();
-	}
-
 	static RClass *
 	fetch_class(mrb_state *mrb)
-	{
-		return nullptr;
-	}
-
-	template <class_initializer_type Fn>
-	static mrb_value
-	wrap_initializer(mrb_state *mrb, const mrb_value self)
-	{
-		const auto state = util::MRubyState::unwrap(mrb);
-		auto mat = Fn();
-		auto ptr = mat.wrap();
-		auto cls = fetch_class(mrb);
-		return state->data_object_alloc(cls, ptr, datatype());
-	}
-
-	static util::Reference<Matrix>
-	ones()
-	{
-		auto mat = util::make_reference<Matrix>();
-		mat->_matrix.fill(arma::fill::ones);
-		return mat;
-	}
-
-	static util::Reference<Matrix>
-	eye()
-	{
-		auto mat = util::make_reference<Matrix>();
-		mat->_matrix.fill(arma::fill::eye);
-		return mat;
-	}
-
-	static util::Reference<Matrix>
-	randu()
-	{
-		auto mat = util::make_reference<Matrix>();
-		mat->_matrix.fill(arma::fill::randu);
-		return mat;
-	}
-
-	static util::Reference<Matrix>
-	randn()
-	{
-		auto mat = util::make_reference<Matrix>();
-		mat->_matrix.fill(arma::fill::randn);
-		return mat;
-	}
-
-	static util::Reference<Matrix>
-	fill(T value)
-	{
-		auto mat = util::make_reference<Matrix>();
-		mat->_matrix.fill(value);
-		return mat;
-	}
-
-	static mrb_value
-	class_fill(mrb_state *mrb, const mrb_value self_value)
-	{
-	}
-
-	static util::Reference<Matrix>
-	imbue(const std::function<T()> &fn)
-	{
-		auto mat = util::make_reference<Matrix>();
-		mat->_matrix.imbue(fn);
-		return mat;
-	}
+	{ return nullptr; }
 
 	[[nodiscard]] bool
 	is_fixed_size() const override
-	{
-		return (Rows != dynamic_size) && (Cols != dynamic_size);
-	}
+	{ return (Rows != dynamic_size) && (Cols != dynamic_size); }
 
 	[[nodiscard]] mrb_value
 	to_array(const util::Reference<util::MRubyState> &mrb) const override
@@ -382,18 +395,7 @@ public:
 		static const auto class_name = Matrix::class_name();
 		const auto cls
 		    = mrb->define_class_under(mod, class_name.c_str(), super);
-		mrb->define_class_method(cls, "zeros", wrap_initializer<zeros>,
-		    MRB_ARGS_NONE());
-		mrb->define_class_method(cls, "ones", wrap_initializer<ones>,
-		    MRB_ARGS_NONE());
-		mrb->define_class_method(cls, "eye", wrap_initializer<eye>,
-		    MRB_ARGS_NONE());
-		mrb->define_class_method(cls, "randu", wrap_initializer<randu>,
-		    MRB_ARGS_NONE());
-		mrb->define_class_method(cls, "randn", wrap_initializer<randn>,
-		    MRB_ARGS_NONE());
-		mrb->define_class_method(cls, "fill", class_fill,
-		    MRB_ARGS_REQ(1));
+
 	}
 
 private:

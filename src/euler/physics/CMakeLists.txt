@@ -38,3 +38,10 @@ add_library(euler_physics STATIC
         util.cpp
         util.h
 )
+
+target_link_libraries(euler_physics PUBLIC
+        box2d
+        euler_math
+        euler_util
+        dragonruby
+)

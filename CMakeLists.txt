@@ -37,9 +37,35 @@ set_target_properties(armadillo PROPERTIES
 
 add_dependencies(armadillo ${ARMADILLO_EXTERN_NAME})
 
+set(BOX2D_EXTERN_NAME box2d-extern)
+set(BOX2D_GIT_TAG 3.1.1)
+
+ExternalProject_Add(${BOX2D_EXTERN_NAME}
+        PREFIX ${PROJECT_BINARY_DIR}/${BOX2D_EXTERN_NAME}
+        GIT_REPOSITORY https://github.com/erincatto/box2d
+        GIT_TAG v${BOX2D_GIT_TAG}
+        UPDATE_COMMAND ""
+        CMAKE_ARGS
+        -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DBUILD_SHARED_LIBS=OFF
+        -DBOX2D_BUILD_UNIT_TESTS=OFF
+        -DBOX2D_AVX2=ON
+        BUILD_BYPRODUCTS <INSTALL_DIR>/lib/libbox2d.a
+)
+
+ExternalProject_Get_Property(${BOX2D_EXTERN_NAME} INSTALL_DIR)
+file(MAKE_DIRECTORY ${INSTALL_DIR}/include)
+add_library(box2d STATIC IMPORTED GLOBAL)
+set_target_properties(box2d PROPERTIES
+        IMPORTED_LOCATION "${INSTALL_DIR}/lib/libbox2d.a"
+        INTERFACE_INCLUDE_DIRECTORIES "${INSTALL_DIR}/include"
+)
+
 target_include_directories(dragonruby INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/dragonruby/include
 )
+
 
 #set(DRAGONRUBY_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dragonruby/include)
 #message(STATUS "DragonRuby Include Dir: ${DRAGONRUBY_INCLUDE_DIR}")

@@ -81,4 +81,9 @@ DECLARE_NONSCALAR_TYPES(uint16_t, u16);
 DECLARE_NONSCALAR_TYPES(uint32_t, u32);
 DECLARE_NONSCALAR_TYPES(uint64_t, u64);
 
+void
+init(const util::Reference<util::MRubyState> &mrb)
+{
+	Matrix4x4f32::mruby_init(mrb, nullptr, nullptr);
+}
 } /* namespace euler::math */

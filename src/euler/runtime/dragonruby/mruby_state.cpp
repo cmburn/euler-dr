@@ -1543,6 +1543,7 @@ MRubyState::parser_set_filename(mrb_parser_state *p, const char *str)
 	_api.mrb_parser_set_filename(p, str);
 }
 
+#if 0
 void *
 MRubyState::pool_alloc(mrb_pool *pool, const size_t len)
 {
@@ -1573,6 +1574,7 @@ MRubyState::pool_realloc(mrb_pool *pool, void *ptr, const size_t oldlen,
 {
 	return _api.mrb_pool_realloc(pool, ptr, oldlen, newlen);
 }
+#endif
 
 void
 MRubyState::prepend_module(RClass *cla, RClass *prepended)

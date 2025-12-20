@@ -16,7 +16,6 @@ typedef arma::size_t size_type;
 
 static constexpr size_type dynamic_size = std::numeric_limits<size_type>::max();
 
-namespace detail {
 template <typename T>
 static constexpr bool
 is_supported_numeric()
@@ -68,26 +67,27 @@ unwrap_complex(const util::Reference<util::MRubyState> &mrb, mrb_value arg)
 
 template <typename T>
 static mrb_value
-wrap_complex(const util::Reference<util::MRubyState> &mrb, const std::complex<T> &v)
+wrap_complex(const util::Reference<util::MRubyState> &mrb,
+    const std::complex<T> &v)
 {
-	auto real = mrb->float_value(static_cast<mrb_float>(v.real()));
-	auto imag = mrb->float_value(static_cast<mrb_float>(v.imag()));
-	auto cls = mrb->class_get("Complex");
-	mrb_value obj = mrb->instance_new()
-
+	const auto real = mrb->float_value(static_cast<mrb_float>(v.real()));
+	const auto imag = mrb->float_value(static_cast<mrb_float>(v.imag()));
+	const auto cls = mrb->class_get("Complex");
+	const std::array args = { real, imag };
+	return mrb->obj_new(cls, args.size(), args.data());
 }
 
 template <typename T>
 size_type
 coerce_size(T n)
 {
-	static_assert(!detail::is_complex<T>(), "size cannot be complex");
+	static_assert(!is_complex<T>(), "size cannot be complex");
 	if constexpr (std::is_floating_point_v<T>) n = arma::round(n);
 	return static_cast<size_type>(n);
 }
 
 template <typename T> struct numeric_info : std::false_type {
-	static_assert(detail::is_supported_numeric<T>());
+	static_assert(is_supported_numeric<T>());
 };
 
 template <> struct numeric_info<int16_t> {
@@ -154,7 +154,7 @@ template <typename T>
 static T
 unwrap_numeric(const util::Reference<util::MRubyState> &mrb, mrb_value arg)
 {
-	static_assert(detail::is_supported_numeric<T>());
+	static_assert(is_supported_numeric<T>());
 	/* ReSharper disable CppRedundantCastExpression */
 	if constexpr (std::is_same_v<T, int16_t>)
 		return static_cast<int16_t>(mrb_integer(mrb->to_int(arg)));
@@ -173,40 +173,41 @@ unwrap_numeric(const util::Reference<util::MRubyState> &mrb, mrb_value arg)
 	if constexpr (std::is_same_v<T, double>)
 		return static_cast<double>(mrb->to_flo(arg));
 	if constexpr (std::is_same_v<T, std::complex<float>>)
-		return detail::unwrap_complex<float>(mrb, arg);
+		return unwrap_complex<float>(mrb, arg);
 	if constexpr (std::is_same_v<T, std::complex<double>>)
-		return detail::unwrap_complex<double>(mrb, arg);
+		return unwrap_complex<double>(mrb, arg);
 	/* ReSharper restore CppRedundantCastExpression */
-	return {};
+	return { };
 }
 
 template <typename T>
 mrb_value
 value_to_mruby(const util::Reference<util::MRubyState> &mrb, T v)
 {
-	static_assert(detail::is_supported_numeric<T>());
-	mrb->obj_value()
+	static_assert(is_supported_numeric<T>());
 	if constexpr (std::is_same_v<T, int16_t>) return mrb->int_value(static_cast<mrb_int>(v));
-	if constexpr (std::is_same_v<T, int32_t>) return mrb->int_value(static_cast<mrb_int>(v));
-	if constexpr (std::is_same_v<T, int64_t>) return mrb->int_value(static_cast<mrb_int>(v));
-	if constexpr (std::is_same_v<T, uint16_t>) return mrb->int_value(static_cast<mrb_int>(v));
-	if constexpr (std::is_same_v<T, uint32_t>) return mrb->int_value(static_cast<mrb_int>(v));
-	if constexpr (std::is_same_v<T, uint64_t>) return mrb->int_value(static_cast<mrb_int>(v));
-	if constexpr (std::is_same_v<T, float>) return mrb->float_value(static_cast<mrb_float>(v));
-	if constexpr (std::is_same_v<T, double>) return mrb->float_value(static_cast<mrb_float>(v));
-	if constexpr (std::is_same_v<T, std::complex<float>>) {
-		auto real = mrb->float_value(static_cast<mrb_float>(v.real()));
-		auto imag = mrb->float_value(static_cast<mrb_float>(v.imag()));
-		return mrb->funcall(mrb->module_get("Complex"), "new", 2, real, imag);
-	}
-	if constexpr (std::is_same_v<T, std::complex<double>>) {
-		auto real = mrb->float_value(static_cast<mrb_float>(v.real()));
-		auto imag = mrb->float_value(static_cast<mrb_float>(v.imag()));
-		return mrb->funcall(mrb->module_get("Complex"), "new", 2, real, imag);
-	}
-	return mrb->nil_value();
+	if constexpr (std::is_same_v<T, int32_t>)
+		return mrb->int_value(static_cast<mrb_int>(v));
+	if constexpr (std::is_same_v<T, int64_t>)
+		return mrb->int_value(static_cast<mrb_int>(v));
+	if constexpr (std::is_same_v<T, uint16_t>)
+		return mrb->int_value(static_cast<mrb_int>(v));
+	if constexpr (std::is_same_v<T, uint32_t>)
+		return mrb->int_value(static_cast<mrb_int>(v));
+	if constexpr (std::is_same_v<T, uint64_t>)
+		return mrb->int_value(static_cast<mrb_int>(v));
+	if constexpr (std::is_same_v<T, float>)
+		return mrb->float_value(static_cast<mrb_float>(v));
+	if constexpr (std::is_same_v<T, double>)
+		return mrb->float_value(static_cast<mrb_float>(v));
+	if constexpr (std::is_same_v<T, std::complex<float>>)
+		return wrap_complex<float>(mrb, v);
+	if constexpr (std::is_same_v<T, std::complex<double>>)
+		return wrap_complex<double>(mrb, v);
 
+	return mrb_nil_value();
 }
+
 
 } /* namespace euler::math */
 

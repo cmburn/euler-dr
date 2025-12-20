@@ -14,7 +14,7 @@ AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: true
 AllowAllArgumentsOnNextLine: false
-AlwaysBreakAfterReturnType: AllDefinitions
+BreakAfterReturnType: AllDefinitions
 BinPackArguments: true
 BinPackParameters: true
 NamespaceIndentation: None
