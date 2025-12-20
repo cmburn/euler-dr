@@ -9,6 +9,8 @@
 #include <armadillo>
 #include <mruby.h>
 
+#include <mruby/value.h>
+
 #include "euler/math/nonscalar.h"
 #include "euler/math/util.h"
 #include "euler/util/state.h"
@@ -163,7 +165,9 @@ public:
 
 	[[nodiscard]] Kind
 	kind() const override
-	{ return nonscalar_kind_v<T>; }
+	{
+		return nonscalar_kind_v<T>;
+	}
 
 	[[nodiscard]] size_type
 	n_cols() const override
@@ -188,19 +192,27 @@ public:
 
 	[[nodiscard]] Type
 	type() const override
-	{ return Type::Matrix; }
+	{
+		return Type::Matrix;
+	}
 
 	value_type &
 	at(const size_type row, const size_type col)
-	{ return _matrix(row, col); }
+	{
+		return _matrix(row, col);
+	}
 
 	const value_type &
 	at(const size_type row, const size_type col) const
-	{ return _matrix(row, col); }
+	{
+		return _matrix(row, col);
+	}
 
 	const value_type &
 	at(const size_type index) const
-	{ return _matrix(index); }
+	{
+		return _matrix(index);
+	}
 
 	template <typename U, size_type S>
 	static void
@@ -219,12 +231,15 @@ public:
 
 	void
 	zeros()
-	{ _matrix.zeros(); }
+	{
+		_matrix.zeros();
+	}
 
-	template <std::enable_if_t<is_dynamic, int> = 0>
 	void
 	zeros(const size_type n_rows, const size_type n_cols)
-	{ _matrix.zeros(n_rows, n_cols); }
+	{
+		_matrix.zeros(n_rows, n_cols);
+	}
 
 	template <typename U, size_type S = dynamic_size>
 	void
@@ -236,12 +251,15 @@ public:
 
 	void
 	ones()
-	{ _matrix.zeros(); }
+	{
+		_matrix.zeros();
+	}
 
-	template <std::enable_if_t<is_dynamic, int> = 0>
 	void
 	ones(const size_type n_rows, const size_type n_cols)
-	{ _matrix.ones(n_rows, n_cols); }
+	{
+		_matrix.ones(n_rows, n_cols);
+	}
 
 	template <typename U, size_type S = dynamic_size>
 	void
@@ -253,12 +271,15 @@ public:
 
 	void
 	eye()
-	{ _matrix.eye(); }
+	{
+		_matrix.eye();
+	}
 
-	template <std::enable_if_t<is_dynamic, int> = 0>
 	void
 	eye(const size_type n_rows, const size_type n_cols)
-	{ _matrix.eye(n_rows, n_cols); }
+	{
+		_matrix.eye(n_rows, n_cols);
+	}
 
 	template <typename U, size_type S = dynamic_size>
 	void
@@ -280,12 +301,15 @@ public:
 
 	void
 	randu()
-	{ _matrix.randu(); }
+	{
+		_matrix.randu();
+	}
 
-	template <std::enable_if_t<is_dynamic, int> = 0>
 	void
 	randu(const size_type n_rows, const size_type n_cols)
-	{ _matrix.randu(n_rows, n_cols); }
+	{
+		_matrix.randu(n_rows, n_cols);
+	}
 
 	template <typename U, size_type S = dynamic_size>
 	void
@@ -297,12 +321,15 @@ public:
 
 	void
 	randn()
-	{ _matrix.randn(); }
+	{
+		_matrix.randn();
+	}
 
-	template <std::enable_if_t<is_dynamic, int> = 0>
 	void
 	randn(const size_type n_rows, const size_type n_cols)
-	{ _matrix.randn(n_rows, n_cols); }
+	{
+		_matrix.randn(n_rows, n_cols);
+	}
 
 	template <typename U, size_type S = dynamic_size>
 	void
@@ -314,11 +341,15 @@ public:
 
 	void
 	fill(const value_type v)
-	{ _matrix.fill(v); }
+	{
+		_matrix.fill(v);
+	}
 
 	void
 	imbue(const std::function<value_type()> &fn)
-	{ _matrix.imbue(fn); }
+	{
+		_matrix.imbue(fn);
+	}
 
 	explicit Matrix(const util::Reference<util::MRubyState> &mrb,
 	    const mrb_value v)
@@ -361,11 +392,15 @@ public:
 
 	static RClass *
 	fetch_class(mrb_state *mrb)
-	{ return nullptr; }
+	{
+		return nullptr;
+	}
 
 	[[nodiscard]] bool
 	is_fixed_size() const override
-	{ return (Rows != dynamic_size) && (Cols != dynamic_size); }
+	{
+		return (Rows != dynamic_size) && (Cols != dynamic_size);
+	}
 
 	[[nodiscard]] mrb_value
 	to_array(const util::Reference<util::MRubyState> &mrb) const override
@@ -388,6 +423,12 @@ public:
 	{
 	}
 
+	[[nodiscard]] static util::Reference<Matrix>
+	from_mrb(const util::Reference<util::MRubyState> &mrb,
+	    const mrb_value v)
+	{
+	}
+
 	static void
 	mruby_init(const util::Reference<util::MRubyState> &mrb, RClass *mod,
 	    RClass *super)
@@ -395,7 +436,7 @@ public:
 		static const auto class_name = Matrix::class_name();
 		const auto cls
 		    = mrb->define_class_under(mod, class_name.c_str(), super);
-
+		MRB_SET_INSTANCE_TT(cls, MRB_TT_DATA);
 	}
 
 private:
