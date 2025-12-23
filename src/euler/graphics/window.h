@@ -1,0 +1,75 @@
+/* SPDX-License-Identifier: ISC */
+
+#ifndef EULER_RENDERER_WINDOW_H
+#define EULER_RENDERER_WINDOW_H
+
+#include <string>
+
+#include <SDL3/SDL.h>
+#include <glm/glm.hpp>
+
+#include "euler/graphics/font.h"
+#include "euler/graphics/sprite.h"
+#include "euler/util/logger.h"
+#include "euler/util/object.h"
+#include "euler/vulkan/surface.h"
+
+namespace euler::graphics {
+class Window : public vulkan::Surface {
+public:
+	static constexpr auto DEFAULT_FLAGS = SDL_WINDOW_VULKAN
+	    | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+	static constexpr int DEFAULT_WIDTH = 1280;
+	static constexpr int DEFAULT_HEIGHT = 720;
+	explicit Window(const util::Reference<util::Logger> &log,
+	    const std::string &title = "Euler Game", int width = DEFAULT_WIDTH,
+	    int height = DEFAULT_HEIGHT, SDL_WindowFlags flags = DEFAULT_FLAGS);
+	~Window() override;
+
+	[[nodiscard]] uint32_t width() const override;
+	[[nodiscard]] uint32_t height() const override;
+
+	[[nodiscard]] const std::string &
+	title() const
+	{
+		return _title;
+	}
+
+	[[nodiscard]] SDL_Window *
+	window() const override
+	{
+		return _window;
+	}
+
+	[[nodiscard]] util::Reference<util::Logger>
+	log() const override
+	{
+		return _log;
+	}
+
+	/* Returns true when a non-quit event is received, otherwise returns
+	 * false */
+	bool poll_event(SDL_Event &e,
+	    const std::function<bool(SDL_Event &)> &fn);
+
+	virtual bool
+	process_gui_event(SDL_Event &)
+	{
+		return true;
+	}
+
+	void draw_sprite(const util::Reference<Sprite> &);
+
+private:
+	friend struct InputGuard;
+
+	void start_input();
+	void end_input();
+
+	std::string _title;
+	SDL_Window *_window = nullptr;
+	util::Reference<util::Logger> _log;
+};
+} /* namespace Euler::Graphics */
+
+#endif /* EULER_RENDERER_WINDOW_H */

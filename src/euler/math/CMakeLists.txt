@@ -25,10 +25,7 @@ target_link_libraries(euler_math PUBLIC
         mruby
 )
 
-target_compile_definitions(euler_math PUBLIC
-    EULER_MATH_MATRIX_ROW_LIMIT=${FIXED_MATRIX_ROW_LIMIT}
-    EULER_MATH_MATRIX_COLUMN_LIMIT=${FIXED_MATRIX_COLUMN_LIMIT}
-)
+target_compile_definitions(euler_math PUBLIC EULER_MATH)
 
 target_compile_options(euler_math PRIVATE
         -Wno-changes-meaning

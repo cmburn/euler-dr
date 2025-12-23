@@ -27,8 +27,6 @@ public:
 		else return Slices;
 	}
 
-
-
 private:
 	cube_type _cube;
 };

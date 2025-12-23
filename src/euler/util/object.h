@@ -40,14 +40,15 @@ template <typename T> class WeakReference {
 public:
 	WeakReference() = default;
 
-	WeakReference(std::nullptr_t)
+	explicit WeakReference(std::nullptr_t)
 	    : _object(nullptr)
 	{
 	}
 
 	~WeakReference() = default;
 
-	explicit WeakReference(T *object)
+	/* ReSharper disable once CppNonExplicitConvertingConstructor */
+	WeakReference(T *object)
 	    : _object(object)
 	{
 	}
@@ -67,27 +68,19 @@ public:
 
 	Reference<T>
 	strengthen() const
-	{
-		return Reference<T>(_object);
-	}
+	{ return Reference<T>(_object); }
 
 	explicit
 	operator Reference<T>() const
-	{
-		return strengthen();
-	}
+	{ return strengthen(); }
 
 	bool
 	operator==(const WeakReference &other) const
-	{
-		return _object == other._object;
-	}
+	{ return _object == other._object; }
 
 	bool
 	operator==(std::nullptr_t) const
-	{
-		return _object == nullptr;
-	}
+	{ return _object == nullptr; }
 
 private:
 	T *_object = nullptr;
@@ -106,26 +99,9 @@ public:
 
 	[[nodiscard]] uint32_t
 	reference_count() const
-	{
-		return _count;
-	}
-
-protected:
-	Object(Object *parent);
+	{ return _count; }
 
 private:
-	/* We're in a weird position because State is also an object, but
-	 * all Objects need a State reference. All objects except for State
-	 * must be passed a State reference in their constructor. This private
-	 * constructor allows us to create an Object without a State.
-	 */
-	// struct StateArg {};
-	// explicit Object(StateArg)
-	//     : _count(1)
-	// {
-	// }
-
-	// WeakReference<State> _state;
 	std::atomic<uint32_t> _count;
 };
 
@@ -133,7 +109,6 @@ template <typename T> class Reference {
 	friend class WeakReference<T>;
 	template <typename U> friend class Reference;
 
-private:
 	static void
 	decrement(T *obj)
 	{
@@ -154,30 +129,25 @@ private:
 public:
 	void
 	increment() const
-	{
-		increment(_object);
-	}
+	{ increment(_object); }
 
 	void
 	decrement() const
-	{
-		decrement(_object);
-	}
+	{ decrement(_object); }
 
 	Reference() = default;
 
-	Reference(std::nullptr_t)
+	explicit Reference(std::nullptr_t)
 	    : _object(nullptr)
 	{
 	}
 
 	~Reference() { decrement(_object); }
 
-	explicit Reference(T *object)
+	/* ReSharper disable once CppNonExplicitConvertingConstructor */
+	Reference(T *object)
 	    : _object(object)
-	{
-		increment(_object);
-	}
+	{ increment(_object); }
 
 	Reference(const Reference &other)
 	{
@@ -196,33 +166,23 @@ public:
 
 	WeakReference<T>
 	weaken() const
-	{
-		return WeakReference<T>(_object);
-	}
+	{ return WeakReference<T>(_object); }
 
 	explicit
 	operator WeakReference<T>() const
-	{
-		return WeakReference<T>(_object);
-	}
+	{ return WeakReference<T>(_object); }
 
 	T *
 	operator->() const
-	{
-		return _object;
-	}
+	{ return _object; }
 
-	const T *
+	[[nodiscard]] const T *
 	get() const
-	{
-		return _object;
-	}
+	{ return _object; }
 
 	T *
 	get()
-	{
-		return _object;
-	}
+	{ return _object; }
 
 	void *
 	wrap()
@@ -231,6 +191,16 @@ public:
 		 * same size as a void *, we can be passed around as one. */
 		increment();
 		return unsafe_cast<void *>(*this);
+	}
+
+	mrb_value
+	wrap(mrb_state *mrb, const mrb_data_type *type)
+	{
+		/* We're returning an instance of ourselves. Since we're the
+		 * same size as a void *, we can be passed around as one. */
+		auto ptr = this->wrap();
+		auto data = Data_Wrap_Struct(mrb, mrb->object_class, type, ptr);
+		return mrb_obj_value(data);
 	}
 
 	static Reference
@@ -252,15 +222,11 @@ public:
 
 	bool
 	operator==(std::nullptr_t) const
-	{
-		return _object == nullptr;
-	}
+	{ return _object == nullptr; }
 
 	bool
 	operator!=(std::nullptr_t) const
-	{
-		return _object != nullptr;
-	}
+	{ return _object != nullptr; }
 
 	template <typename U> Reference(Reference<U> other)
 	{

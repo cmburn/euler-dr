@@ -14,9 +14,8 @@ template <typename T, size_type N = dynamic_size>
 mrb_value
 read_column_vector(mrb_state *mrb, mrb_value value)
 {
-
+	return mrb_nil_value();
 }
-
 
 template <typename T, size_type N = dynamic_size>
 mrb_value
@@ -29,6 +28,7 @@ template <typename T, size_type N = dynamic_size>
 mrb_value
 read_row_vector(mrb_state *mrb, mrb_value value)
 {
+	return mrb_nil_value();
 }
 
 template <typename T, size_type Rows = dynamic_size,
@@ -36,6 +36,7 @@ template <typename T, size_type Rows = dynamic_size,
 mrb_value
 read_matrix(mrb_state *mrb, mrb_value value)
 {
+	return mrb_nil_value();
 }
 
 template <typename T, size_type Rows = dynamic_size,
@@ -43,9 +44,10 @@ template <typename T, size_type Rows = dynamic_size,
 mrb_value
 read_cube(mrb_state *mrb, mrb_value value)
 {
+	return mrb_nil_value();
 }
 
-void init(const util::Reference<util::MRubyState> &mrb);
+void init(const util::Reference<util::State> &mrb, RClass *math_mod);
 
 } /* namespace euler::math */
 

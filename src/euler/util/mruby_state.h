@@ -14,10 +14,10 @@
 #include <mruby/variable.h>
 #include <mruby/string.h>
 
-
 namespace euler::util {
 class MRubyState : public Object {
 public:
+	virtual mrb_state *mrb() const = 0;
 	virtual void raise(RClass *c, const char *msg) = 0;
 	virtual void raisef(RClass *c, const char *fmt, ...) = 0;
 	virtual RClass *module_get(const char *name) = 0;
@@ -455,8 +455,6 @@ public:
 	virtual mrb_value int_value(mrb_int i) = 0;
 	virtual mrb_value float_value(mrb_float f) = 0;
 	virtual mrb_value symbol_value(mrb_sym i) = 0;
-
-	static util::Reference<MRubyState> unwrap(mrb_state *mrb);
 };
 
 } /* namespace euler::util */

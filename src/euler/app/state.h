@@ -1,0 +1,43 @@
+/* SPDX-License-Identifier: ISC */
+
+#ifndef EULER_APP_STATE_H
+#define EULER_APP_STATE_H
+
+#include "euler/util/object.h"
+
+#if defined(EULER_DRAGONRUBY)
+#include "euler/app/dragonruby/state.h"
+#define EULER_APP_NAMESPACE euler::app::dragonruby
+#elif defined(EULER_NATIVE)
+#include "euler/app/native/state.h"
+#else
+#error "No app backend defined"
+#endif
+
+namespace euler::app {
+class State final : public EULER_APP_NAMESPACE::State {
+public:
+	~State() override = default;
+	explicit State(const Arguments &args);
+	[[nodiscard]] nthread_t available_threads() const override;
+	[[nodiscard]] mrb_value gv_state() const override;
+	void initialize() override;
+	[[nodiscard]] tick_t last_tick() const override;
+	[[nodiscard]] float fps() const override;
+	[[nodiscard]] tick_t total_ticks() const override;
+	void tick() const override;
+	[[nodiscard]] RClass *object_class() const override;
+
+private:
+	float _fps = 0;
+	tick_t _last_tick = 0;
+	tick_t _tick = 0;
+	tick_t _total_ticks = 0;
+	// frames elapsed over the last second
+	tick_t _frames = 0;
+	tick_t _last_frame_tick = 0;
+	tick_t _last_frame_total_ticks = 0;
+};
+} /* namespace euler::app */
+
+#endif /* EULER_APP_STATE_H */

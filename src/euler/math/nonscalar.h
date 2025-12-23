@@ -39,10 +39,10 @@ public:
 	[[nodiscard]] virtual size_type n_elem() const = 0;
 	[[nodiscard]] virtual bool is_fixed_size() const = 0;
 	[[nodiscard]] virtual mrb_value to_mrb(
-	    const util::Reference<util::MRubyState> &mrb) const
+	    const util::Reference<util::State> &mrb) const
 	    = 0;
 	[[nodiscard]] virtual mrb_value to_array(
-	    const util::Reference<util::MRubyState> &mrb) const
+	    const util::Reference<util::State> &mrb) const
 	    = 0;
 };
 

@@ -2,81 +2,71 @@ cmake_minimum_required(VERSION 3.23 FATAL_ERROR)
 project(euler)
 
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_C_STANDARD 17)
 
-option(EULER_DRAGONRUBY_BUILD "Build Dragonruby bindings" ON)
+option(EULER_DRAGONRUBY_BUILD "Build Dragonruby bindings" OFF)
+option(EULER_NATIVE_BUILD "Build native bindings" OFF)
 option(EULER_MATH_BUILD "Build Euler::Math module" ON)
 option(EULER_PHYSICS_BUILD "Build Euler::Physics module" ON)
 option(EULER_DRAGONRUBY_PATH "Path to DragonRuby installation" "")
+option(EULER_GUI_BUILD "Build Euler::GUI module" ON)
 
 include(ExternalProject)
 include(FetchContent)
 
-add_subdirectory(src)
+find_package(Ruby REQUIRED)
 
-if (EULER_DRAGONRUBY_BUILD)
-    if (NOT EULER_DRAGONRUBY_PATH)
-        message(FATAL_ERROR "EULER_DRAGONRUBY_PATH is not set. Please set it to the path of your DragonRuby installation.")
+if (NOT EULER_DRAGONRUBY_BUILD AND NOT EULER_NATIVE_BUILD)
+    # If EULER_DRAGONRUBY_PATH is set and EULER_NATIVE_BUILD is not set,
+    # default to EULER_DRAGONRUBY_BUILD. Otherwise, default to EULER_NATIVE_BUILD.
+    if (EULER_DRAGONRUBY_PATH)
+        message(STATUS "EULER_DRAGONRUBY_PATH is set, defaulting to EULER_DRAGONRUBY_BUILD")
+        set(EULER_DRAGONRUBY_BUILD ON)
+    elseif (NOT EULER_DRAGONRUBY_BUILD)
+        message(STATUS "EULER_DRAGONRUBY_PATH is not set, defaulting to EULER_NATIVE_BUILD")
+        set(EULER_NATIVE_BUILD ON)
     endif ()
-    add_library(dragonruby INTERFACE)
-    #    target_include_directories(dragonruby INTERFACE
-    #            ${CMAKE_CURRENT_SOURCE_DIR}/dragonruby/include
-    #    )
-    target_include_directories(dragonruby INTERFACE
-            ${EULER_DRAGONRUBY_PATH}/include
-    )
-    set(MRUBY_VERSION 3.0.0)
-else ()
-    #message(FATAL_ERROR "Currently DragonRuby is the only supported runtime.")
-    # Note that the 3.5.0 is not yet out, however the native bindings for Euler
-    # follow the repository HEAD and 3.5.0 is the next planned release. There
-    # are certain API changes that Euler depends on that are not in 3.4.0.
-    set(MRUBY_VERSION 3.5.0)
-    set(MRUBY_EXTERN_NAME mruby-extern)
-    set(MRUBY_GIT_TAG 2da01c607f6341a18dcd726b46f3e7a4a2c49211)
 endif ()
 
-if (EULER_MATH_BUILD)
-    #    set(ARMADILLO_EXTERN_NAME armadillo-extern)
-    set(ARMADILLO_GIT_TAG 15.2.2)
+add_subdirectory(src)
 
+set(BUILD_SHARED_LIBS OFF)
+add_compile_definitions(EULER_GV_STATE="${EULER_GV_STATE}")
+
+# EULER_DRAGONRUBY_BUILD and EULER_NATIVE_BUILD are mutually exclusive
+if (EULER_DRAGONRUBY_BUILD AND EULER_NATIVE_BUILD)
+    message(FATAL_ERROR "EULER_DRAGONRUBY_BUILD and EULER_NATIVE_BUILD are mutually exclusive. Please enable only one of them.")
+elseif (NOT EULER_DRAGONRUBY_BUILD AND NOT EULER_NATIVE_BUILD)
+    message(FATAL_ERROR "Either EULER_DRAGONRUBY_BUILD or EULER_NATIVE_BUILD must be enabled. Please enable one of them.")
+endif ()
+
+if (EULER_DRAGONRUBY_BUILD)
+    message(STATUS "Building DragonRuby runtime bindings")
+elseif (EULER_NATIVE_BUILD)
+    message(STATUS "Building native runtime bindings")
+endif ()
+
+# glaze is required by both native and dragonruby builds
+set(GLAZE_GIT_TAG v6.4.0)
+FetchContent_Declare(glaze
+        GIT_REPOSITORY https://github.com/stephenberry/glaze
+        GIT_TAG ${GLAZE_GIT_TAG}
+        GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(glaze)
+
+if (EULER_MATH_BUILD)
+    set(ARMADILLO_GIT_TAG 15.2.2)
     FetchContent_Declare(armadillo
             GIT_REPOSITORY https://gitlab.com/conradsnicta/armadillo-code.git
             GIT_TAG ${ARMADILLO_GIT_TAG}
-            CMAKE_ARGS
-            -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DBUILD_SHARED_LIBS=OFF
-            -DSTATIC_LIB=ON
+            GIT_SHALLOW TRUE
     )
+    option(STATIC_LIB "Build static libraries" ON)
+    if (NOT STATIC_LIB)
+        message(FATAL_ERROR "Euler requires STATIC_LIB to be ON")
+    endif ()
     FetchContent_MakeAvailable(armadillo)
-
-    #    FetchContent_Declare(${ARMADILLO_EXTERN_NAME}
-    #            PREFIX ${PROJECT_BINARY_DIR}/${ARMADILLO_EXTERN_NAME}
-    #            GIT_REPOSITORY https://gitlab.com/conradsnicta/armadillo-code.git
-    #            GIT_TAG ${ARMADILLO_GIT_TAG}
-    #            UPDATE_COMMAND ""
-    #            CMAKE_ARGS
-    #            -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-    #            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-    #            -DBUILD_SHARED_LIBS=OFF
-    #            -DSTATIC_LIB=ON
-    #            BUILD_BYPRODUCTS <INSTALL_DIR>/lib/libarmadillo.a
-    #    )
-    #
-    #    FetchContent_MakeAvailable(${ARMADILLO_EXTERN_NAME})
-    #
-    #    FetchContent_GetProperties(${ARMADILLO_EXTERN_NAME})
-    #    ExternalProject_Get_Property(${ARMADILLO_EXTERN_NAME} INSTALL_DIR)
-    #    set(ARMADILLO_INSTALL_DIR ${ARMADILLO_EXTERN_NAME}_INSTALL_DIR)
-    #    file(MAKE_DIRECTORY ${ARMADILLO_INSTALL_DIR}/include)
-    #
-    #    add_library(armadillo STATIC IMPORTED GLOBAL)
-    #    set_target_properties(armadillo PROPERTIES
-    #            IMPORTED_LOCATION "${INSTALL_DIR}/lib/libarmadillo.a"
-    #            INTERFACE_INCLUDE_DIRECTORIES "${INSTALL_DIR}/include"
-    #    )
-    #
-    #    add_dependencies(armadillo ${ARMADILLO_EXTERN_NAME})
 endif ()
 
 if (EULER_PHYSICS_BUILD)
@@ -84,53 +74,74 @@ if (EULER_PHYSICS_BUILD)
     FetchContent_Declare(box2d
             GIT_REPOSITORY https://github.com/erincatto/box2d
             GIT_TAG ${BOX2D_GIT_TAG}
-            CMAKE_ARGS
-            -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DBUILD_SHARED_LIBS=OFF
-            -DSTATIC_LIB=ON
+            GIT_SHALLOW TRUE
     )
     FetchContent_MakeAvailable(box2d)
 endif ()
 
-#if (EULER_PHYSICS_BUILD)
-#    set(BOX2D_EXTERN_NAME box2d-extern)
-#    set(BOX2D_GIT_TAG c05c48738fbe5c27625e36c5f0cfbdaddfc8359a)
-#
-#    ExternalProject_Add(${BOX2D_EXTERN_NAME}
-#            PREFIX ${PROJECT_BINARY_DIR}/${BOX2D_EXTERN_NAME}
-#            GIT_REPOSITORY https://github.com/erincatto/box2d
-#            GIT_TAG ${BOX2D_GIT_TAG}
-#            UPDATE_COMMAND ""
-#            CMAKE_ARGS
-#            -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-#            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-#            -DBUILD_SHARED_LIBS=OFF
-#            -DSTATIC_LIB=ON
-#            BUILD_BYPRODUCTS <INSTALL_DIR>/src/${BOX2D_EXTERN_NAME}-build/src/libbox2dd.a
-#    )
-#
-#    ExternalProject_Get_Property(${BOX2D_EXTERN_NAME} INSTALL_DIR)
-#    file(MAKE_DIRECTORY ${INSTALL_DIR}/include)
-#    add_library(box2d STATIC IMPORTED GLOBAL)
-#    set_target_properties(box2d PROPERTIES
-#            IMPORTED_LOCATION "${INSTALL_DIR}/src/${BOX2D_EXTERN_NAME}-build/src/libbox2dd.a"
-#            INTERFACE_INCLUDE_DIRECTORIES "${INSTALL_DIR}/include"
-#    )
-#endif ()
-#
-#set(GLAZE_EXTERN_NAME glaze-extern)
-#set(GLAZE_GIT_TAG v6.4.0)
-#ExternalProject_Add(${GLAZE_EXTERN_NAME}
-#        PREFIX ${PROJECT_BINARY_DIR}/${GLAZE_EXTERN_NAME}
-#        GIT_REPOSITORY https://github.com/stephenberry/glaze
-#        GIT_TAG ${GLAZE_GIT_TAG}
-#        UPDATE_COMMAND ""
-#        CMAKE_ARGS
-#        -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-#        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-#        -DBUILD_SHARED_LIBS=OFF
-#)
+if (EULER_DRAGONRUBY_BUILD)
+    # TODO: Nuklear support
 
-#set(DRAGONRUBY_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dragonruby/include)
-#message(STATUS "DragonRuby Include Dir: ${DRAGONRUBY_INCLUDE_DIR}")
+    if (NOT EULER_DRAGONRUBY_PATH)
+        message(FATAL_ERROR "EULER_DRAGONRUBY_PATH is not set. Please set it to the path of your DragonRuby installation.")
+    endif ()
+    message(STATUS "Using DragonRuby installation at: ${EULER_DRAGONRUBY_PATH}")
+    add_library(dragonruby INTERFACE)
+    target_include_directories(dragonruby INTERFACE
+            ${EULER_DRAGONRUBY_PATH}/include
+    )
+    set(MRUBY_VERSION 3.0.0)
+elseif (EULER_NATIVE_BUILD)
+    # if vulkan_sdk env var exists, use it instead of system headers
+    if(DEFINED ENV{VULKAN_SDK})
+        set(Vulkan_INCLUDE_DIR "$ENV{VULKAN_SDK}/include")
+        include_directories(BEFORE SYSTEM $ENV{VULKAN_SDK}/include)
+    endif()
+
+    find_package(Vulkan REQUIRED)
+
+    # Native we pull in mruby, physfs, SDL, and Vulkan2D.
+
+    # Note that the 3.5.0 is not yet out, however the native bindings for Euler
+    # follow the repository HEAD and 3.5.0 is the next planned release. There
+    # are certain API changes that Euler depends on that are not in 3.4.0.
+    # We'll pin it at the 3.5 minor release and then track stable releases from
+    # there.
+    set(MRUBY_VERSION 3.5.0)
+    set(MRUBY_EXTERN_NAME mruby)
+    set(MRUBY_GIT_TAG 2da01c607f6341a18dcd726b46f3e7a4a2c49211)
+    FetchContent_Declare(mruby
+            GIT_REPOSITORY https://github.com/mruby/mruby
+            GIT_COMMIT ${MRUBY_GIT_TAG}
+            GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(mruby)
+
+    set(PHYSFS_GIT_TAG release-3.2.0)
+    FetchContent_Declare(physfs
+            GIT_REPOSITORY https://github.com/icculus/physfs/
+            GIT_TAG ${PHYSFS_GIT_TAG}
+            GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(physfs)
+
+    set(SDL_GIT_TAG prerelease-3.3.6)
+    set(SDL_X11_XTEST OFF)
+    FetchContent_Declare(SDL3
+            GIT_REPOSITORY https://github.com/libsdl-org/SDL/
+            GIT_TAG ${SDL_GIT_TAG}
+            GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(SDL3)
+
+    set(VK2D_BUILD_SDL OFF)
+    set(VULKAN2D_GIT_TAG 533c75e1c5991411f8779b375beeefc522d3d18a)
+    FetchContent_Declare(Vulkan2D
+            GIT_REPOSITORY https://github.com/PaoloMazzon/Vulkan2D/
+            GIT_TAG ${VULKAN2D_GIT_TAG}
+            GIT_SHALLOW FALSE
+    )
+    FetchContent_MakeAvailable(Vulkan2D)
+
+    add_subdirectory(bin)
+endif ()

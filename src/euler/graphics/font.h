@@ -1,0 +1,69 @@
+/* SPDX-License-Identifier: ISC */
+
+#ifndef EULER_RENDERER_FONT_H
+#define EULER_RENDERER_FONT_H
+
+#include <cstdint>
+#include <filesystem>
+#include <optional>
+#include <variant>
+#include <vector>
+
+#include <glm/glm.hpp>
+
+#include "euler/util/object.h"
+
+
+struct nk_font_config;
+
+
+namespace euler::graphics {
+class Gui;
+
+class Font final : public util::Object {
+	friend class Gui;
+
+public:
+	struct Config {
+		std::vector<std::pair<uint32_t, uint32_t>> glyph_ranges;
+		glm::vec2 spacing;
+		uint32_t fallback_glyph;
+	};
+
+	Font(const std::string &name, const std::filesystem::path &path,
+	    const float height, const Config *config)
+	    : _config(*config)
+	    , _data(path)
+	    , _name(name)
+	    , _height(height)
+	{
+	}
+
+	Font(const std::string &name, const std::string &path,
+	    const float height, const Config *config)
+	    : Font(name, std::filesystem::path(path), height, config)
+	{
+	}
+
+	Font(const std::string &name, const std::vector<uint8_t> &data,
+	    const float height, const Config *config)
+	    : _config(*config)
+	    , _data(data)
+	    , _name(name)
+	    , _height(height)
+	{
+	}
+
+private:
+	friend class Gui;
+	/* ReSharper disable once CppRedundantElaboratedTypeSpecifier */
+	// void populate_info(VK2DGuiFont *font, struct nk_font_config *config);
+
+	std::optional<Config> _config;
+	std::variant<std::filesystem::path, std::vector<uint8_t>> _data;
+	std::string _name;
+	float _height = 0.0f;
+};
+} /* namespace Euler::Graphics */
+
+#endif /* EULER_RENDERER_FONT_H */

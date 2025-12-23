@@ -6,7 +6,7 @@
 #include "euler/util/object.h"
 
 namespace euler::util {
-class System final : public util::Object { };
+class System : public util::Object { };
 } /* namespace euler::util */
 
 

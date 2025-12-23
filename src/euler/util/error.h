@@ -50,8 +50,8 @@ public:
 	{
 		return Kind::Exception;
 	}
-	[[nodiscard]] virtual RClass *exception_class();
-	[[nodiscard]] virtual mrb_value to_mrb() const;
+	[[nodiscard]] virtual RClass *exception_class() = 0;
+	[[nodiscard]] virtual mrb_value to_mrb() const = 0;
 	[[nodiscard]] const char *
 	what() const noexcept override
 	{
@@ -120,7 +120,7 @@ public:
 	}
 };
 
-class ArgumentError : public StandardError {
+class ArgumentError final : public StandardError {
 public:
 	ArgumentError(const Reference<State> &state, const std::string &message)
 	    : StandardError(state, message)
@@ -131,6 +131,11 @@ public:
 	kind() const override
 	{
 		return Kind::Argument;
+	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override
+	{
+		return mrb_nil_value();
 	}
 };
 

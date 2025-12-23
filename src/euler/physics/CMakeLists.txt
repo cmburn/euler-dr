@@ -45,3 +45,7 @@ target_link_libraries(euler_physics PUBLIC
         euler_util
         dragonruby
 )
+
+target_compile_definitions(euler_physics PUBLIC
+    EULER_PHYSICS
+)

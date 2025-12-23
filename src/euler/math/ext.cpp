@@ -70,20 +70,35 @@ namespace euler::math {
 	DECLARE_MATRIX(TYPE, SUFFIX);                                          \
 	DECLARE_CUBE(TYPE, SUFFIX)
 
-DECLARE_NONSCALAR_TYPES(float, f32);
-DECLARE_NONSCALAR_TYPES(double, f64);
-DECLARE_NONSCALAR_TYPES(std::complex<float>, c32);
-DECLARE_NONSCALAR_TYPES(std::complex<double>, c64);
-DECLARE_NONSCALAR_TYPES(int16_t, i16);
-DECLARE_NONSCALAR_TYPES(int32_t, i32);
-DECLARE_NONSCALAR_TYPES(int64_t, i64);
-DECLARE_NONSCALAR_TYPES(uint16_t, u16);
-DECLARE_NONSCALAR_TYPES(uint32_t, u32);
-DECLARE_NONSCALAR_TYPES(uint64_t, u64);
+// DECLARE_NONSCALAR_TYPES(float, f32);
+// DECLARE_NONSCALAR_TYPES(double, f64);
+// DECLARE_NONSCALAR_TYPES(std::complex<float>, c32);
+// DECLARE_NONSCALAR_TYPES(std::complex<double>, c64);
+// DECLARE_NONSCALAR_TYPES(int16_t, i16);
+// DECLARE_NONSCALAR_TYPES(int32_t, i32);
+// DECLARE_NONSCALAR_TYPES(int64_t, i64);
+// DECLARE_NONSCALAR_TYPES(uint16_t, u16);
+// DECLARE_NONSCALAR_TYPES(uint32_t, u32);
+// DECLARE_NONSCALAR_TYPES(uint64_t, u64);
+
+
+template <typename T>
+static void init_nonscalar(const util::Reference<util::State> &state, RClass *mod)
+{
+	// Vector<T, 2>::
+	auto obj = state->object_class();
+	// Matrix<T, 2, 2>::mruby_init(state, mod, obj);
+	// Matrix<T, 3, 3>::mruby_init(state, mod, obj);
+	// Matrix<T, 4, 4>::mruby_init(state, mod, obj);
+	// Matrix<T>::mruby_init(state, mod, obj);
+}
+
 
 void
-init(const util::Reference<util::MRubyState> &mrb)
+init(const util::Reference<util::State> &state, RClass *euler_mod)
 {
-	Matrix4x4f32::mruby_init(mrb, nullptr, nullptr);
+	auto mod = state->mrb()->define_module_under(euler_mod, "Math");
+	init_nonscalar<float>(state, mod);
 }
+
 } /* namespace euler::math */

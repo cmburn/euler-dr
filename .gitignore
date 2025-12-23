@@ -1,1 +1,6 @@
-/dragonruby/
+/dragonruby
+/font.ttf
+
+# used by dragonruby
+/app/
+/native/

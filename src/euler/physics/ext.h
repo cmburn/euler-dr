@@ -7,6 +7,8 @@
 
 namespace euler::physics {
 
+void init(const util::Reference<util::State> &mrb, RClass *physics_mod);
+
 } /* namespace euler::physics */
 
 
