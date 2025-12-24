@@ -194,12 +194,12 @@ public:
 	}
 
 	mrb_value
-	wrap(mrb_state *mrb, const mrb_data_type *type)
+	wrap(mrb_state *mrb, RClass *cls, const mrb_data_type *type)
 	{
 		/* We're returning an instance of ourselves. Since we're the
 		 * same size as a void *, we can be passed around as one. */
 		auto ptr = this->wrap();
-		auto data = Data_Wrap_Struct(mrb, mrb->object_class, type, ptr);
+		auto data = Data_Wrap_Struct(mrb, cls, type, ptr);
 		return mrb_obj_value(data);
 	}
 

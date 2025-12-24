@@ -47,7 +47,6 @@ public:
 	virtual mrb_value Integer(mrb_value val) = 0;
 	virtual mrb_irep *add_irep() = 0;
 	virtual void alias_method(RClass *c, mrb_sym a, mrb_sym b) = 0;
-
 	virtual mrb_value any_to_s(mrb_value obj) = 0;
 	virtual void argnum_error(mrb_int argc, int min, int max) = 0;
 	virtual mrb_value ary_clear(mrb_value self) = 0;

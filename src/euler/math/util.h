@@ -93,68 +93,68 @@ template <typename T> struct numeric_info : std::false_type {
 
 template <> struct numeric_info<int16_t> {
 	typedef mrb_int mrb_type;
-	static constexpr auto abbreviation = "i16";
+	static constexpr auto abbreviation = "I16";
 	static constexpr auto can_decompose = false;
 	static constexpr bool is_complex = false;
 };
 
 template <> struct numeric_info<int32_t> {
 	typedef mrb_int mrb_type;
-	static constexpr auto abbreviation = "i32";
+	static constexpr auto abbreviation = "I32";
 	static constexpr auto can_decompose = false;
 	static constexpr bool is_complex = false;
 };
 
 template <> struct numeric_info<int64_t> {
 	typedef mrb_int mrb_type;
-	static constexpr auto abbreviation = "i64";
+	static constexpr auto abbreviation = "I64";
 	static constexpr auto can_decompose = false;
 	static constexpr bool is_complex = false;
 };
 
 template <> struct numeric_info<uint16_t> {
 	typedef mrb_uint mrb_type;
-	static constexpr auto abbreviation = "u16";
+	static constexpr auto abbreviation = "U16";
 	static constexpr auto can_decompose = false;
 	static constexpr bool is_complex = false;
 };
 
 template <> struct numeric_info<uint32_t> {
 	typedef mrb_uint mrb_type;
-	static constexpr auto abbreviation = "u32";
+	static constexpr auto abbreviation = "U32";
 	static constexpr auto can_decompose = false;
 	static constexpr bool is_complex = false;
 };
 
 template <> struct numeric_info<uint64_t> {
 	typedef mrb_uint mrb_type;
-	static constexpr auto abbreviation = "u64";
+	static constexpr auto abbreviation = "U64";
 	static constexpr auto can_decompose = false;
 	static constexpr bool is_complex = false;
 };
 
 template <> struct numeric_info<float> {
 	typedef mrb_float mrb_type;
-	static constexpr auto abbreviation = "f32";
+	static constexpr auto abbreviation = "F32";
 	static constexpr auto can_decompose = true;
 	static constexpr bool is_complex = false;
 };
 
 template <> struct numeric_info<double> {
 	typedef mrb_float mrb_type;
-	static constexpr auto abbreviation = "f64";
+	static constexpr auto abbreviation = "F64";
 	static constexpr auto can_decompose = true;
 };
 
 template <> struct numeric_info<std::complex<float>> {
 	typedef mrb_value mrb_type;
-	static constexpr auto abbreviation = "c32";
+	static constexpr auto abbreviation = "C32";
 	static constexpr auto can_decompose = true;
 };
 
 template <> struct numeric_info<std::complex<double>> {
 	typedef mrb_value mrb_type;
-	static constexpr auto abbreviation = "c64";
+	static constexpr auto abbreviation = "C64";
 	static constexpr auto can_decompose = true;
 };
 
@@ -220,7 +220,6 @@ wrap_num(const util::Reference<util::MRubyState> &mrb, T v)
 		return wrap_complex<float>(mrb, v);
 	if constexpr (std::is_same_v<value_type, std::complex<double>>)
 		return wrap_complex<double>(mrb, v);
-
 	return mrb_nil_value();
 }
 
@@ -262,42 +261,22 @@ enum class FillForm {
 	Eye,
 	Randu,
 	Randn,
+	Value,
 };
 
-static FillForm
-to_fill_type(const util::Reference<util::State> &state, const mrb_sym sym)
-{
-	const auto str = state->mrb()->sym_name(sym);
-	if (strcmp(str, "none") == 0) return FillForm::None;
-	if (strcmp(str, "zeros") == 0) return FillForm::Zeros;
-	if (strcmp(str, "ones") == 0) return FillForm::Ones;
-	if (strcmp(str, "eye") == 0) return FillForm::Eye;
-	if (strcmp(str, "randu") == 0) return FillForm::Randu;
-	if (strcmp(str, "randn") == 0) return FillForm::Randn;
-	auto msg = std::format("unrecognized initialization symbol :{}", str);
-	throw std::invalid_argument(std::move(msg));
-}
+FillForm to_fill_type(const util::Reference<util::State> &state,
+    const mrb_sym sym);
 
 template <typename T>
 static T
-fill_fixed(const util::Reference<util::State> &state, const mrb_sym sym)
+fill_dynamic(const util::Reference<util::State> &state, size_type rows,
+    size_type cols, const mrb_value value)
 {
-	switch (to_fill_type(state, sym)) {
-	case FillForm::None: return T(arma::fill::none);
-	case FillForm::Zeros: return T(arma::fill::zeros);
-	case FillForm::Ones: return T(arma::fill::ones);
-	case FillForm::Eye: return T(arma::fill::eye);
-	case FillForm::Randu: return T(arma::fill::randu);
-	case FillForm::Randn: return T(arma::fill::randn);
-	default: std::unreachable();
+	if (!mrb_symbol_p(value)) {
+		const auto v = unwrap_num<typename T::elem_type>(state, value);
+		return T(rows, cols, arma::fill::value(v));
 	}
-}
-
-template <typename T>
-static T
-fill_dynamic(const util::Reference<util::State> &state, size_type rows, size_type cols,
-	const mrb_sym sym)
-{
+	const auto sym = mrb_symbol(value);
 	switch (to_fill_type(state, sym)) {
 	case FillForm::None: return T(rows, cols, arma::fill::none);
 	case FillForm::Zeros: return T(rows, cols, arma::fill::zeros);
@@ -305,16 +284,16 @@ fill_dynamic(const util::Reference<util::State> &state, size_type rows, size_typ
 	case FillForm::Eye: return T(rows, cols, arma::fill::eye);
 	case FillForm::Randu: return T(rows, cols, arma::fill::randu);
 	case FillForm::Randn: return T(rows, cols, arma::fill::randn);
+	case FillForm::Value:
+		throw std::invalid_argument(
+		    "Must provide value for 'value' fill form");
 	default: std::unreachable();
 	}
 }
 
-
-static bool
-is_numeric(mrb_value v)
-{
-	return mrb_float_p(v) || mrb_fixnum_p(v);
-}
+static inline bool
+is_numeric(const mrb_value v)
+{ return mrb_float_p(v) || mrb_fixnum_p(v); }
 
 } /* namespace euler::math */
 

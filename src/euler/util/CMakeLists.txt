@@ -24,3 +24,5 @@ add_library(euler_util STATIC
 target_link_libraries(euler_util PUBLIC
         dragonruby
 )
+
+target_compile_definitions(euler_util PUBLIC EULER_DRAGONRUBY)

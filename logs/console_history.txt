@@ -12,3 +12,9 @@ Euler::Matrix.methods
 Euler::Math::Matrixasdf.methods
 Euler.modules
 Euler::Math::Math2::Matrix.new
+mat = Euler::Math::MatrixF32.new(3, 3, fill: 2.0)
+Euler::Math::MatrixF32.new(3, 3, fill: 2.0)
+Euler::Math::MatrixF32.methods
+Euler::Math::MatrixF32.new
+Euler::Math::MatrixF32.new
+Euler::Math::MatrixF32.methods

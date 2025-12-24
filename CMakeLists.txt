@@ -42,8 +42,10 @@ endif ()
 
 if (EULER_DRAGONRUBY_BUILD)
     message(STATUS "Building DragonRuby runtime bindings")
+    add_compile_definitions(EULER_DRAGONRUBY)
 elseif (EULER_NATIVE_BUILD)
     message(STATUS "Building native runtime bindings")
+    add_compile_definitions(EULER_NATIVE)
 endif ()
 
 # glaze is required by both native and dragonruby builds

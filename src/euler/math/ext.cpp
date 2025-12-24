@@ -82,23 +82,14 @@ namespace euler::math {
 // DECLARE_NONSCALAR_TYPES(uint64_t, u64);
 
 
-template <typename T>
-static void init_nonscalar(const util::Reference<util::State> &state, RClass *mod)
-{
-	// Vector<T, 2>::
-	auto obj = state->object_class();
-	// Matrix<T, 2, 2>::mruby_init(state, mod, obj);
-	// Matrix<T, 3, 3>::mruby_init(state, mod, obj);
-	// Matrix<T, 4, 4>::mruby_init(state, mod, obj);
-	// Matrix<T>::mruby_init(state, mod, obj);
-}
-
 
 void
 init(const util::Reference<util::State> &state, RClass *euler_mod)
 {
 	auto mod = state->mrb()->define_module_under(euler_mod, "Math");
-	init_nonscalar<float>(state, mod);
+	auto &mods = state->modules();
+	mods.math.mod = mod;
+	mods.math.matrix_f32 = Matrix<float>::init(state, mod);
 }
 
 } /* namespace euler::math */
