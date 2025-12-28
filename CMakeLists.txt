@@ -8,6 +8,7 @@ option(EULER_DRAGONRUBY_BUILD "Build Dragonruby bindings" OFF)
 option(EULER_NATIVE_BUILD "Build native bindings" OFF)
 option(EULER_MATH_BUILD "Build Euler::Math module" ON)
 option(EULER_PHYSICS_BUILD "Build Euler::Physics module" ON)
+option(EULER_NET_BUILD "Build Euler::Net module" ON)
 option(EULER_DRAGONRUBY_PATH "Path to DragonRuby installation" "")
 option(EULER_GUI_BUILD "Build Euler::GUI module" ON)
 
@@ -46,6 +47,15 @@ if (EULER_DRAGONRUBY_BUILD)
 elseif (EULER_NATIVE_BUILD)
     message(STATUS "Building native runtime bindings")
     add_compile_definitions(EULER_NATIVE)
+endif ()
+
+if (EULER_NET_BUILD)
+    set(GNS_COMMIT 517fff0cf6866ba163f4f016b0ef28f365c06c05)
+    FetchContent_Declare(GameNetworkingSockets
+            GIT_REPOSITORY https://github.com/ValveSoftware/GameNetworkingSockets
+            GIT_COMMIT ${GNS_COMMIT}
+            GIT_SHALLOW TRUE
+    )
 endif ()
 
 # glaze is required by both native and dragonruby builds

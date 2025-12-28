@@ -1,6 +1,11 @@
+/.idea/
+
 /dragonruby
 /font.ttf
 
 # used by dragonruby
 /app/
 /native/
+/tmp/
+/logs/
+/errors

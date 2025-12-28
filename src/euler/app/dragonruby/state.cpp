@@ -6,15 +6,20 @@
 
 using euler::app::dragonruby::State;
 
-
-
 State::State(const Arguments &args)
     : _api(args.api)
 {
 	printf("State::State: %p\n", args.state);
 	_mrb_state = euler::util::make_reference<MRubyState>(args.state, args.api);
 	_log = euler::util::make_reference<Logger>("euler", args.api->drb_log_write);
+	auto mrb = args.state;
+	printf("State::get: %p\n", mrb);
+	const void *ud_addr = &mrb->ud;
+	printf("sizeof(mrb_state) = %zu\n", sizeof(mrb_state));
+	printf("&mrb->ud = %p\n", ud_addr);
+	printf("mrb - &mrb->ud = %p\n", (void *)((uintptr_t)mrb - (uintptr_t)ud_addr));
 	args.state->ud = util::Reference(this).wrap();
+	printf("mrb->ud = %p\n", mrb->ud);
 	assert(args.state->ud != nullptr);
 }
 

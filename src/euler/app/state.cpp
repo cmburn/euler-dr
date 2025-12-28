@@ -6,7 +6,7 @@
 #include "euler/util/ext.h"
 
 #ifndef EULER_GV_STATE
-#define EULER_GV_STATE "_euler_state"
+#define EULER_GV_STATE "app"
 #endif
 
 static constexpr auto GV_STATE_SYM = "$" EULER_GV_STATE;

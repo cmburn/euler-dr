@@ -6,7 +6,7 @@
 
 using euler::util::State;
 
-#undef EULER_DRAGONRUBY
+// #undef EULER_DRAGONRUBY
 #ifdef EULER_DRAGONRUBY
 static euler::util::Reference<State> global_state;
 
@@ -26,7 +26,11 @@ State::State() = default;
 euler::util::Reference<State>
 State::get(const mrb_state *mrb)
 {
+	printf("State::get: %p\n", mrb);
+	const void *ud_addr = &mrb->ud;
 	printf("sizeof(mrb_state) = %zu\n", sizeof(mrb_state));
+	printf("&mrb->ud = %p\n", ud_addr);
+	printf("mrb - &mrb->ud = %p\n", (void *)((uintptr_t)mrb - (uintptr_t)ud_addr));
 	const auto state = Reference<State>::unwrap(mrb->ud);
 	assert(state != nullptr && "State not set in mrb_state user data");
 	return state;

@@ -162,34 +162,45 @@ template <typename T>
 static T
 unwrap_num(const util::Reference<util::State> &state, mrb_value arg)
 {
+
 	static_assert(is_supported_numeric<T>());
 	/* ReSharper disable CppRedundantCastExpression */
-	if constexpr (std::is_same_v<T, int16_t>)
+	if constexpr (std::is_same_v<T, int16_t>) {
 		return static_cast<int16_t>(
 		    mrb_integer(state->mrb()->to_int(arg)));
-	if constexpr (std::is_same_v<T, int32_t>)
+	}
+	if constexpr (std::is_same_v<T, int32_t>) {
 		return static_cast<int32_t>(
 		    mrb_integer(state->mrb()->to_int(arg)));
-	if constexpr (std::is_same_v<T, int64_t>)
+	}
+	if constexpr (std::is_same_v<T, int64_t>) {
 		return static_cast<int64_t>(
 		    mrb_integer(state->mrb()->to_int(arg)));
-	if constexpr (std::is_same_v<T, uint16_t>)
+	}
+	if constexpr (std::is_same_v<T, uint16_t>) {
 		return static_cast<uint16_t>(
 		    mrb_integer(state->mrb()->to_int(arg)));
-	if constexpr (std::is_same_v<T, uint32_t>)
+	}
+	if constexpr (std::is_same_v<T, uint32_t>) {
 		return static_cast<uint32_t>(
 		    mrb_integer(state->mrb()->to_int(arg)));
-	if constexpr (std::is_same_v<T, uint64_t>)
+	}
+	if constexpr (std::is_same_v<T, uint64_t>) {
 		return static_cast<uint64_t>(
 		    mrb_integer(state->mrb()->to_int(arg)));
-	if constexpr (std::is_same_v<T, float>)
+	}
+	if constexpr (std::is_same_v<T, float>) {
 		return static_cast<float>(state->mrb()->to_flo(arg));
-	if constexpr (std::is_same_v<T, double>)
+	}
+	if constexpr (std::is_same_v<T, double>) {
 		return static_cast<double>(state->mrb()->to_flo(arg));
-	if constexpr (std::is_same_v<T, std::complex<float>>)
+	}
+	if constexpr (std::is_same_v<T, std::complex<float>>) {
 		return unwrap_complex<float>(state->mrb(), arg);
-	if constexpr (std::is_same_v<T, std::complex<double>>)
+	}
+	if constexpr (std::is_same_v<T, std::complex<double>>) {
 		return unwrap_complex<double>(state->mrb(), arg);
+	}
 	/* ReSharper restore CppRedundantCastExpression */
 	return { };
 }
@@ -270,12 +281,26 @@ FillForm to_fill_type(const util::Reference<util::State> &state,
 template <typename T>
 static T
 fill_dynamic(const util::Reference<util::State> &state, size_type rows,
-    size_type cols, const mrb_value value)
+    size_type cols, mrb_value value)
 {
+	printf("Matrix::fill_dynamic()\n");
+	printf("mrb_state: %p\n", state->mrb()->mrb());
+	printf("value nil? %s\n", mrb_nil_p(value) ? "yes" : "no");
+	auto cls = state->mrb()->obj_class(value);
+
+	printf("cls: %p\n", cls);
+	const auto cls_name = state->mrb()->class_name(cls);
+	printf("arg type: %s\n", cls_name);
+	if (mrb_nil_p(value))
+		value = mrb_symbol_value(state->mrb()->intern_cstr("zeros"));
+	printf("arg type: %s\n",
+	    state->mrb()->class_name(state->mrb()->obj_class(value)));
 	if (!mrb_symbol_p(value)) {
+		printf("Matrix::fill_dynamic: non-sym\n");
 		const auto v = unwrap_num<typename T::elem_type>(state, value);
 		return T(rows, cols, arma::fill::value(v));
 	}
+	printf("Matrix::fill_dynamic: sym");
 	const auto sym = mrb_symbol(value);
 	switch (to_fill_type(state, sym)) {
 	case FillForm::None: return T(rows, cols, arma::fill::none);
