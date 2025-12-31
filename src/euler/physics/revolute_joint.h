@@ -6,7 +6,10 @@
 #include "euler/util/object.h"
 
 namespace euler::physics {
-class RevoluteJoint final : public util::Object { };
+class RevoluteJoint final : public util::Object {
+public:
+
+};
 } /* namespace euler::physics */
 
 

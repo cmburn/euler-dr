@@ -1,12 +1,8 @@
 add_library(euler_physics STATIC
         body.cpp
         body.h
-        capsule.cpp
-        capsule.h
         chain.cpp
         chain.h
-        circle.cpp
-        circle.h
         contact.cpp
         contact.h
         distance_joint.cpp
@@ -19,14 +15,10 @@ add_library(euler_physics STATIC
         joint.h
         motor_joint.cpp
         motor_joint.h
-        polygon.cpp
-        polygon.h
         prismatic_joint.cpp
         prismatic_joint.h
         revolute_joint.cpp
         revolute_joint.h
-        segment.cpp
-        segment.h
         shape.cpp
         shape.h
         weld_joint.cpp

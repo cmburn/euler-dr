@@ -6,11 +6,12 @@ set(CMAKE_C_STANDARD 17)
 
 option(EULER_DRAGONRUBY_BUILD "Build Dragonruby bindings" OFF)
 option(EULER_NATIVE_BUILD "Build native bindings" OFF)
-option(EULER_MATH_BUILD "Build Euler::Math module" ON)
+option(EULER_MATH_BUILD "Build Euler::Math module" OFF)
 option(EULER_PHYSICS_BUILD "Build Euler::Physics module" ON)
-option(EULER_NET_BUILD "Build Euler::Net module" ON)
+option(EULER_NET_BUILD "Build Euler::Net module" OFF)
 option(EULER_DRAGONRUBY_PATH "Path to DragonRuby installation" "")
-option(EULER_GUI_BUILD "Build Euler::GUI module" ON)
+option(EULER_GUI_BUILD "Build Euler::GUI module" OFF)
+option(EULER_FILE_BUILD "Build Euler::File module" OFF)
 
 include(ExternalProject)
 include(FetchContent)
@@ -34,7 +35,6 @@ add_subdirectory(src)
 set(BUILD_SHARED_LIBS OFF)
 add_compile_definitions(EULER_GV_STATE="${EULER_GV_STATE}")
 
-# EULER_DRAGONRUBY_BUILD and EULER_NATIVE_BUILD are mutually exclusive
 if (EULER_DRAGONRUBY_BUILD AND EULER_NATIVE_BUILD)
     message(FATAL_ERROR "EULER_DRAGONRUBY_BUILD and EULER_NATIVE_BUILD are mutually exclusive. Please enable only one of them.")
 elseif (NOT EULER_DRAGONRUBY_BUILD AND NOT EULER_NATIVE_BUILD)
@@ -58,14 +58,15 @@ if (EULER_NET_BUILD)
     )
 endif ()
 
-# glaze is required by both native and dragonruby builds
-set(GLAZE_GIT_TAG v6.4.0)
-FetchContent_Declare(glaze
-        GIT_REPOSITORY https://github.com/stephenberry/glaze
-        GIT_TAG ${GLAZE_GIT_TAG}
-        GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(glaze)
+if (EULER_FILE_BUILD)
+    set(GLAZE_GIT_TAG v6.4.0)
+    FetchContent_Declare(glaze
+            GIT_REPOSITORY https://github.com/stephenberry/glaze
+            GIT_TAG ${GLAZE_GIT_TAG}
+            GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(glaze)
+endif ()
 
 if (EULER_MATH_BUILD)
     set(ARMADILLO_GIT_TAG 15.2.2)
@@ -93,7 +94,6 @@ endif ()
 
 if (EULER_DRAGONRUBY_BUILD)
     # TODO: Nuklear support
-
     if (NOT EULER_DRAGONRUBY_PATH)
         message(FATAL_ERROR "EULER_DRAGONRUBY_PATH is not set. Please set it to the path of your DragonRuby installation.")
     endif ()
@@ -105,10 +105,10 @@ if (EULER_DRAGONRUBY_BUILD)
     set(MRUBY_VERSION 3.0.0)
 elseif (EULER_NATIVE_BUILD)
     # if vulkan_sdk env var exists, use it instead of system headers
-    if(DEFINED ENV{VULKAN_SDK})
+    if (DEFINED ENV{VULKAN_SDK})
         set(Vulkan_INCLUDE_DIR "$ENV{VULKAN_SDK}/include")
         include_directories(BEFORE SYSTEM $ENV{VULKAN_SDK}/include)
-    endif()
+    endif ()
 
     find_package(Vulkan REQUIRED)
 
@@ -154,6 +154,17 @@ elseif (EULER_NATIVE_BUILD)
             GIT_SHALLOW FALSE
     )
     FetchContent_MakeAvailable(Vulkan2D)
-
     add_subdirectory(bin)
 endif ()
+
+message(STATUS "Euler configuration:")
+if (EULER_DRAGONRUBY_BUILD)
+    message(STATUS "  Build type: DragonRuby")
+else ()
+    message(STATUS "  Build type: Native")
+endif ()
+message(STATUS "  Build Euler::Physics: ${EULER_PHYSICS_BUILD}")
+message(STATUS "  Build Euler::Math: ${EULER_MATH_BUILD}")
+message(STATUS "  Build Euler::Net: ${EULER_NET_BUILD}")
+message(STATUS "  Build Euler::Gui: ${EULER_GUI_BUILD}")
+message(STATUS "  Build Euler::File: ${EULER_FILE_BUILD}")

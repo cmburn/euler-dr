@@ -24,7 +24,7 @@ static mrb_value
 log(mrb_state *mrb, const mrb_value self)
 {
 	using namespace euler::util;
-	const auto logger = Reference<Logger>::unwrap(self);
+	const auto logger = Reference<Logger>::unwrap(mrb, self);
 	const auto state = State::get(mrb);
 	mrb_sym severity_sym;
 	const char *msg;
@@ -41,7 +41,7 @@ static mrb_value
 log_severity(mrb_state *mrb, const mrb_value self)
 {
 	using namespace euler::util;
-	const auto logger = Reference<Logger>::unwrap(self);
+	const auto logger = Reference<Logger>::unwrap(mrb, self);
 	const auto state = State::get(mrb);
 	const char *msg;
 	mrb_int len;

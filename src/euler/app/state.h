@@ -5,6 +5,10 @@
 
 #include "euler/util/object.h"
 
+#ifdef EULER_PHYSICS
+#include <box2d/box2d.h>
+#endif
+
 #if defined(EULER_DRAGONRUBY)
 #include "euler/app/dragonruby/state.h"
 #define EULER_APP_NAMESPACE euler::app::dragonruby
@@ -27,6 +31,7 @@ public:
 	[[nodiscard]] tick_t total_ticks() const override;
 	void tick() const override;
 	[[nodiscard]] RClass *object_class() const override;
+	void *unwrap(mrb_value value, const mrb_data_type *type) const override;
 
 private:
 	float _fps = 0;
@@ -37,6 +42,7 @@ private:
 	tick_t _frames = 0;
 	tick_t _last_frame_tick = 0;
 	tick_t _last_frame_total_ticks = 0;
+	box2d_state *_box2d = nullptr;
 };
 } /* namespace euler::app */
 

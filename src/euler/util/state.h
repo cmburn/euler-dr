@@ -53,6 +53,14 @@ public:
 	virtual void tick() const = 0;
 	[[nodiscard]] virtual const Module &modules() const = 0;
 	[[nodiscard]] virtual Module &modules() = 0;
+	[[nodiscard]] virtual void *unwrap(mrb_value value, const mrb_data_type *type) const = 0;
+	template <typename T>
+	[[nodiscard]] Reference<T> unwrap(mrb_value value) const
+	{
+		auto ptr = unwrap(value, &T::TYPE);
+		if (ptr == nullptr) return Reference<T>(nullptr);
+		return Reference<T>::unwrap(ptr);
+	}
 };
 
 } /* namespace euler::util */

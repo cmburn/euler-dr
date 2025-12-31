@@ -102,11 +102,40 @@ define_function(const Reference<State> &state, RClass *cls, const char *name,
 void init(const Reference<State> &state, RClass *mod);
 
 template <typename T>
-static void dfree(mrb_state *, void *ptr)
+static void
+dfree(mrb_state *, void *ptr)
 {
 	if (ptr == nullptr) return;
 	auto ref = Reference<T>::unwrap(ptr);
 	ref.decrement();
+}
+
+template <typename T>
+static Reference<T>
+unwrap(const Reference<State> &state, mrb_value self_value,
+    const mrb_data_type *type)
+{
+	const void *ptr = state->mrb()->data_check_get_ptr(self_value, type);
+	return Reference<T>::unwrap(ptr);
+}
+
+template <typename T>
+static Reference<T>
+unwrap(const Reference<State> &state, mrb_value self_value)
+{
+	const void *ptr
+	    = state->mrb()->data_check_get_ptr(self_value, &T::TYPE);
+	return Reference<T>::unwrap(ptr);
+}
+
+template <typename T>
+static constexpr mrb_data_type
+datatype(const char *name)
+{
+	return (mrb_data_type) {
+		.struct_name = name,
+		.dfree = util::dfree<T>,
+	};
 }
 
 } /* namespace euler::util */

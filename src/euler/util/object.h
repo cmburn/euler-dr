@@ -105,6 +105,9 @@ private:
 	std::atomic<uint32_t> _count;
 };
 
+void *checked_unwrap_ptr(mrb_state *mrb, const mrb_value value,
+    const mrb_data_type *type);
+
 template <typename T> class Reference {
 	friend class WeakReference<T>;
 	template <typename U> friend class Reference;
@@ -212,13 +215,14 @@ public:
 	}
 
 	static Reference
-	unwrap(const mrb_value value)
+	unwrap(mrb_state *mrb, const mrb_value value)
 	{
 		if (mrb_nil_p(value)) return Reference(nullptr);
-		const auto ptr = DATA_PTR(value);
+		const auto ptr = checked_unwrap_ptr(mrb, value, &T::TYPE);
 		if (ptr == nullptr) return Reference(nullptr);
 		return unwrap(ptr);
 	}
+
 
 	bool
 	operator==(std::nullptr_t) const
@@ -228,11 +232,19 @@ public:
 	operator!=(std::nullptr_t) const
 	{ return _object != nullptr; }
 
+	/* ReSharper disable once CppNonExplicitConvertingConstructor */
 	template <typename U> Reference(Reference<U> other)
 	{
 		static_assert(std::is_convertible_v<U *, T *>);
 		_object = other._object;
 		other._object = nullptr;
+	}
+
+	template <typename U>
+	Reference<U> cast_to() const
+	{
+		static_assert(std::is_convertible_v<T *, U *>);
+		return Reference<U>(dynamic_cast<U *>(_object));
 	}
 
 private:

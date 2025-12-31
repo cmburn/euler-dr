@@ -69,5 +69,11 @@ euler::app::State::tick() const
 RClass *
 euler::app::State::object_class() const
 {
-	return mrb()->mrb()->object_class;
+	return this->mrb()->mrb()->object_class;
+}
+
+void *
+euler::app::State::unwrap(mrb_value value, const mrb_data_type *type) const
+{
+	return mrb()->data_check_get_ptr(value, type);
 }
