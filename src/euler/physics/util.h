@@ -35,7 +35,6 @@ mrb_value surface_material_to_value(mrb_state *, const b2SurfaceMaterial *);
 b2SurfaceMaterial value_to_surface_material(mrb_state *, mrb_value);
 float coerce_float(mrb_state *, mrb_value);
 
-
 } /* namespace euler::physics */
 
 #endif /* EULER_PHYSICS_UTIL_H */

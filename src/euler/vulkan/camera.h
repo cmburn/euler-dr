@@ -47,13 +47,18 @@ public:
 		return _spec;
 	}
 
-	State state() const { return _state; }
+	State
+	state() const
+	{
+		return _state;
+	}
 	void flush_ubo(DescriptorBuffer &buffer);
 	void set_state(State state);
 	glm::mat4 ubo() const;
 	[[nodiscard]] util::Reference<Surface> surface() const;
 
-	Index index() const
+	Index
+	index() const
 	{
 		return _index;
 	}
@@ -66,6 +71,4 @@ private:
 };
 } /* namespace euler::vulkan */
 
-
 #endif /* EULER_VULKAN_CAMERA_H */
-

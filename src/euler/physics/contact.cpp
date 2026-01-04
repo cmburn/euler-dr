@@ -26,8 +26,8 @@ contact_is_valid(mrb_state *mrb, mrb_value self)
  *   @return [Array<Hash>] An array of contact data hashes. Each hash has the
  *           following keys:
  *           - :contact [Euler::Physics::Contact] The contact.
- *           - :shapes [Array<Euler::Physics::Shape>] The two shapes involved in the
- *             contact.
+ *           - :shapes [Array<Euler::Physics::Shape>] The two shapes involved in
+ * the contact.
  *           - :manifold [Hash] The contact manifold data. This contains the
  *             following keys:
  *             - :normal [Array<Numeric>] The unit normal vector in world
@@ -68,4 +68,3 @@ contact_data(mrb_state *mrb, mrb_value self)
 	const auto data = contact->data();
 	return euler::physics::contact_data_to_value(mrb, &data);
 }
-

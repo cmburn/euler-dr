@@ -9,6 +9,4 @@ namespace euler::file::format {
 class Json final : public util::Object { };
 } /* namespace euler::file::format */
 
-
 #endif /* EULER_FILE_FORMAT_JSON_H */
-

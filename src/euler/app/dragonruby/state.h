@@ -6,7 +6,7 @@
 #include <dragonruby.h>
 
 #include "euler/app/dragonruby/logger.h"
-#include "euler/app/dragonruby/mruby_state.h"
+#include "euler/app/dragonruby/ruby_state.h"
 #include "euler/app/dragonruby/storage.h"
 #include "euler/util/image.h"
 #include "euler/util/object.h"
@@ -24,9 +24,11 @@ public:
 	~State() override = default;
 	explicit State(const Arguments &args);
 
-	[[nodiscard]] util::Reference<util::MRubyState>
+	[[nodiscard]] util::Reference<util::RubyState>
 	mrb() const override
-	{ return _mrb_state; }
+	{
+		return _mrb_state;
+	}
 	[[nodiscard]] util::Reference<util::Logger> log() const override;
 	[[nodiscard]] util::Reference<util::Storage>
 	user_storage() const override;
@@ -37,8 +39,16 @@ public:
 	void upload_image(const char *label,
 	    const util::Reference<util::Image> &img) override;
 	[[nodiscard]] tick_t ticks() const override;
-	[[nodiscard]] const Module &modules() const override { return _modules; }
-	[[nodiscard]] Module &modules() override { return _modules; }
+	[[nodiscard]] const Module &
+	modules() const override
+	{
+		return _modules;
+	}
+	[[nodiscard]] Module &
+	modules() override
+	{
+		return _modules;
+	}
 
 private:
 	util::Reference<MRubyState> _mrb_state;

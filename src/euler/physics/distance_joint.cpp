@@ -168,8 +168,7 @@ distance_joint_spring_damping_ratio(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
 	const auto joint = state->unwrap<euler::physics::DistanceJoint>(self);
-	const float damping_ratio
-	    = joint->spring_damping_ratio();
+	const float damping_ratio = joint->spring_damping_ratio();
 	return mrb_float_value(mrb, damping_ratio);
 }
 
@@ -252,8 +251,7 @@ distance_joint_current_length(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
 	const auto joint = state->unwrap<euler::physics::DistanceJoint>(self);
-	const float current_length
-	    = joint->current_length();
+	const float current_length = joint->current_length();
 	return mrb_float_value(mrb, current_length);
 }
 
@@ -367,7 +365,8 @@ distance_joint_motor_force(mrb_state *mrb, mrb_value self)
 }
 
 struct RClass *
-box2d_distance_joint_init(mrb_state *mrb, struct RClass *mod, struct RClass *super)
+box2d_distance_joint_init(mrb_state *mrb, struct RClass *mod,
+    struct RClass *super)
 {
 	const auto state = euler::util::State::get(mrb);
 	struct RClass *joint

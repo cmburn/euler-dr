@@ -17,10 +17,10 @@ public:
 	Polygon(const std::vector<VertexColor> &vertices);
 	Polygon(const std::vector<glm::vec2> &vertices, bool filled = false);
 	~Polygon();
+
 private:
 	VK2DPolygon _polygon = nullptr;
 };
 } /* namespace Euler::Graphics */
 
 #endif /* EULER_RENDERER_POLYGON_H */
-

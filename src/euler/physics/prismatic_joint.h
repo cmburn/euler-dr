@@ -9,6 +9,4 @@ namespace euler::physics {
 class PrismaticJoint final : public util::Object { };
 } /* namespace euler::physics */
 
-
 #endif /* EULER_PHYSICS_PRISMATIC_JOINT_H */
-

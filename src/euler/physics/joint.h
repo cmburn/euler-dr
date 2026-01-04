@@ -65,6 +65,12 @@ public:
 
 	static util::Reference<Joint> from_id(b2JointId id);
 
+	b2JointId
+	id() const
+	{
+		return _id;
+	}
+
 protected:
 	b2JointId _id;
 };

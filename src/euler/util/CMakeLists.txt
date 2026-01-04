@@ -7,8 +7,8 @@ add_library(euler_util STATIC
         image.h
         logger.cpp
         logger.h
-        mruby_state.cpp
-        mruby_state.h
+        ruby_state.cpp
+        ruby_state.h
         object.cpp
         object.h
         state.cpp

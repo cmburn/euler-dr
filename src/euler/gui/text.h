@@ -13,6 +13,4 @@ public:
 
 } /* namespace euler::gui */
 
-
 #endif /* EULER_GUI_TEXT_H */
-

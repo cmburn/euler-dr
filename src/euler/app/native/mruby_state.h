@@ -9,6 +9,4 @@ namespace euler::app::native {
 class MrubyState final : public util::Object { };
 } /* namespace euler::app::native */
 
-
 #endif /* EULER_APP_NATIVE_MRUBY_STATE_H */
-

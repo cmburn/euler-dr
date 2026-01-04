@@ -493,8 +493,8 @@ shape_contacts(mrb_state *mrb, mrb_value self)
 	const auto state = euler::util::State::get(mrb);
 	const struct box2d_shape *shape = box2d_shape_unwrap(mrb, self);
 	const int capacity = b2Shape_GetContactCapacity(shape->id);
-	b2ContactData *contact_data = (b2ContactData *)tmpbuf(mrb,
-	    sizeof(b2ContactData) * capacity);
+	b2ContactData *contact_data
+	    = (b2ContactData *)tmpbuf(mrb, sizeof(b2ContactData) * capacity);
 	const int count
 	    = b2Shape_GetContactData(shape->id, contact_data, capacity);
 	const mrb_value result = mrb_ary_new_capa(mrb, count);

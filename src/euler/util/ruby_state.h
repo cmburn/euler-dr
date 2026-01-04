@@ -11,15 +11,15 @@
 #include <mruby/debug.h>
 #include <mruby/hash.h>
 #include <mruby/range.h>
-#include <mruby/variable.h>
 #include <mruby/string.h>
+#include <mruby/variable.h>
 
 namespace euler::util {
-class MRubyState : public Object {
+class RubyState : public Object {
 public:
 	virtual mrb_state *mrb() const = 0;
-	virtual void raise(RClass *c, const char *msg) = 0;
-	virtual void raisef(RClass *c, const char *fmt, ...) = 0;
+	[[noreturn]] virtual void raise(RClass *c, const char *msg) = 0;
+	[[noreturn]] virtual void raisef(RClass *c, const char *fmt, ...) = 0;
 	virtual RClass *module_get(const char *name) = 0;
 	virtual RClass *module_get_under(RClass *outer, const char *name) = 0;
 	virtual RClass *define_module_under(RClass *outer, const char *name)
@@ -168,7 +168,7 @@ public:
 	virtual RClass *exc_get_id(mrb_sym name) = 0;
 	virtual mrb_value exc_new(RClass *c, const char *ptr, size_t len) = 0;
 	virtual mrb_value exc_new_str(RClass *c, mrb_value str) = 0;
-	virtual void exc_raise(mrb_value exc) = 0;
+	[[noreturn]] virtual void exc_raise(mrb_value exc) = 0;
 	virtual mrb_value f_raise(mrb_value) = 0;
 	virtual mrb_value fiber_alive_p(mrb_value fib) = 0;
 	virtual mrb_value fiber_resume(mrb_value fib, mrb_int argc,

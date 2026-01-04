@@ -9,6 +9,4 @@ namespace euler::util {
 class Color final : public util::Object { };
 } /* namespace euler::util */
 
-
 #endif /* EULER_UTIL_COLOR_H */
-

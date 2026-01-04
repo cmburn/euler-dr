@@ -7,12 +7,13 @@
 #include <mruby/hash.h>
 
 #include "euler/physics/body.h"
+#include "euler/physics/joint.h"
 #include "euler/physics/util.h"
 #include "euler/physics/world.h"
-#include "euler/physics/joint.h"
 
 struct RClass *
-box2d_filter_joint_init(mrb_state *mrb, struct RClass *mod, struct RClass *super)
+box2d_filter_joint_init(mrb_state *mrb, struct RClass *mod,
+    struct RClass *super)
 {
 	const auto state = euler::util::State::get(mrb);
 	struct RClass *joint

@@ -68,19 +68,27 @@ public:
 
 	Reference<T>
 	strengthen() const
-	{ return Reference<T>(_object); }
+	{
+		return Reference<T>(_object);
+	}
 
 	explicit
 	operator Reference<T>() const
-	{ return strengthen(); }
+	{
+		return strengthen();
+	}
 
 	bool
 	operator==(const WeakReference &other) const
-	{ return _object == other._object; }
+	{
+		return _object == other._object;
+	}
 
 	bool
 	operator==(std::nullptr_t) const
-	{ return _object == nullptr; }
+	{
+		return _object == nullptr;
+	}
 
 private:
 	T *_object = nullptr;
@@ -99,7 +107,9 @@ public:
 
 	[[nodiscard]] uint32_t
 	reference_count() const
-	{ return _count; }
+	{
+		return _count;
+	}
 
 private:
 	std::atomic<uint32_t> _count;
@@ -132,11 +142,15 @@ template <typename T> class Reference {
 public:
 	void
 	increment() const
-	{ increment(_object); }
+	{
+		increment(_object);
+	}
 
 	void
 	decrement() const
-	{ decrement(_object); }
+	{
+		decrement(_object);
+	}
 
 	Reference() = default;
 
@@ -150,7 +164,9 @@ public:
 	/* ReSharper disable once CppNonExplicitConvertingConstructor */
 	Reference(T *object)
 	    : _object(object)
-	{ increment(_object); }
+	{
+		increment(_object);
+	}
 
 	Reference(const Reference &other)
 	{
@@ -169,23 +185,33 @@ public:
 
 	WeakReference<T>
 	weaken() const
-	{ return WeakReference<T>(_object); }
+	{
+		return WeakReference<T>(_object);
+	}
 
 	explicit
 	operator WeakReference<T>() const
-	{ return WeakReference<T>(_object); }
+	{
+		return WeakReference<T>(_object);
+	}
 
 	T *
 	operator->() const
-	{ return _object; }
+	{
+		return _object;
+	}
 
 	[[nodiscard]] const T *
 	get() const
-	{ return _object; }
+	{
+		return _object;
+	}
 
 	T *
 	get()
-	{ return _object; }
+	{
+		return _object;
+	}
 
 	void *
 	wrap()
@@ -223,14 +249,17 @@ public:
 		return unwrap(ptr);
 	}
 
-
 	bool
 	operator==(std::nullptr_t) const
-	{ return _object == nullptr; }
+	{
+		return _object == nullptr;
+	}
 
 	bool
 	operator!=(std::nullptr_t) const
-	{ return _object != nullptr; }
+	{
+		return _object != nullptr;
+	}
 
 	/* ReSharper disable once CppNonExplicitConvertingConstructor */
 	template <typename U> Reference(Reference<U> other)
@@ -241,9 +270,11 @@ public:
 	}
 
 	template <typename U>
-	Reference<U> cast_to() const
+	Reference<U>
+	cast_to() const
 	{
-		static_assert(std::is_convertible_v<T *, U *>);
+		static_assert(std::is_convertible_v<T *, U *>
+		    || std::is_convertible_v<U *, T *>);
 		return Reference<U>(dynamic_cast<U *>(_object));
 	}
 
@@ -287,6 +318,7 @@ make_reference(const T *ptr)
 	static_assert(std::is_base_of_v<Object, T>);
 	return Reference<T>(const_cast<T *>(ptr));
 }
+
 }
 
 #endif /* EULER_UTIL_OBJECT_H */

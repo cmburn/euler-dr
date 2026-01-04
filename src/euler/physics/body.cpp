@@ -1344,51 +1344,75 @@ Body::init(const util::Reference<util::State> &state, RClass *mod)
 
 float
 Body::angular_damping()
-{ return b2Body_GetAngularDamping(_id); }
+{
+	return b2Body_GetAngularDamping(_id);
+}
 
 float
 Body::angular_velocity()
-{ return b2Body_GetAngularVelocity(_id); }
+{
+	return b2Body_GetAngularVelocity(_id);
+}
 
 void
 Body::apply_angular_impulse(float value, bool wake)
-{ b2Body_ApplyAngularImpulse(_id, value, wake); }
+{
+	b2Body_ApplyAngularImpulse(_id, value, wake);
+}
 
 void
 Body::apply_force(b2Vec2 force, b2Vec2 point, bool wake)
-{ b2Body_ApplyForce(_id, force, point, wake); }
+{
+	b2Body_ApplyForce(_id, force, point, wake);
+}
 
 void
 Body::apply_force_to_center(b2Vec2 force, bool wake)
-{ b2Body_ApplyForceToCenter(_id, force, wake); }
+{
+	b2Body_ApplyForceToCenter(_id, force, wake);
+}
 
 void
 Body::apply_linear_impulse(b2Vec2 impulse, b2Vec2 point, bool wake)
-{ b2Body_ApplyLinearImpulse(_id, impulse, point, wake); }
+{
+	b2Body_ApplyLinearImpulse(_id, impulse, point, wake);
+}
 
 void
 Body::apply_linear_impulse_to_center(b2Vec2 impulse, bool wake)
-{ b2Body_ApplyLinearImpulseToCenter(_id, impulse, wake); }
+{
+	b2Body_ApplyLinearImpulseToCenter(_id, impulse, wake);
+}
 
 void
 Body::apply_mass_from_shapes()
-{ b2Body_ApplyMassFromShapes(_id); }
+{
+	b2Body_ApplyMassFromShapes(_id);
+}
 
 void
 Body::apply_torque(float torque, bool wake)
-{ b2Body_ApplyTorque(_id, torque, wake); }
+{
+	b2Body_ApplyTorque(_id, torque, wake);
+}
 
 bool
 Body::is_awake()
-{ return b2Body_IsAwake(_id); }
+{
+	return b2Body_IsAwake(_id);
+}
 
 void
 Body::clear_forces()
-{ b2Body_ClearForces(_id); }
+{
+	b2Body_ClearForces(_id);
+}
 
 b2AABB
 Body::compute_aabb()
-{ return b2Body_ComputeAABB(_id); }
+{
+	return b2Body_ComputeAABB(_id);
+}
 
 std::vector<b2ContactData>
 Body::contact_data()
@@ -1402,39 +1426,57 @@ Body::contact_data()
 
 void
 Body::disable()
-{ b2Body_Disable(_id); }
+{
+	b2Body_Disable(_id);
+}
 
 void
 Body::enable()
-{ b2Body_Enable(_id); }
+{
+	b2Body_Enable(_id);
+}
 
 void
 Body::enable_contact_events(bool enable)
-{ b2Body_EnableContactEvents(_id, enable); }
+{
+	b2Body_EnableContactEvents(_id, enable);
+}
 
 void
 Body::enable_hit_events(bool enable)
-{ b2Body_EnableHitEvents(_id, enable); }
+{
+	b2Body_EnableHitEvents(_id, enable);
+}
 
 float
 Body::gravity_scale()
-{ return b2Body_GetGravityScale(_id); }
+{
+	return b2Body_GetGravityScale(_id);
+}
 
 bool
 Body::is_bullet()
-{ return b2Body_IsBullet(_id); }
+{
+	return b2Body_IsBullet(_id);
+}
 
 bool
 Body::is_enabled()
-{ return b2Body_IsEnabled(_id); }
+{
+	return b2Body_IsEnabled(_id);
+}
 
 bool
 Body::is_sleep_enabled()
-{ return b2Body_IsSleepEnabled(_id); }
+{
+	return b2Body_IsSleepEnabled(_id);
+}
 
 bool
 Body::is_valid()
-{ return b2Body_IsValid(_id); }
+{
+	return b2Body_IsValid(_id);
+}
 
 std::vector<euler::util::Reference<euler::physics::Joint>>
 Body::joints()
@@ -1454,107 +1496,159 @@ Body::joints()
 
 float
 Body::linear_damping()
-{ return b2Body_GetLinearDamping(_id); }
+{
+	return b2Body_GetLinearDamping(_id);
+}
 
 b2Vec2
 Body::linear_velocity()
-{ return b2Body_GetLinearVelocity(_id); }
+{
+	return b2Body_GetLinearVelocity(_id);
+}
 
 b2Vec2
 Body::local_center_of_mass()
-{ return b2Body_GetLocalCenterOfMass(_id); }
+{
+	return b2Body_GetLocalCenterOfMass(_id);
+}
 
 b2Vec2
 Body::local_point(b2Vec2 point)
-{ return b2Body_GetLocalPoint(_id, point); }
+{
+	return b2Body_GetLocalPoint(_id, point);
+}
 
 b2Vec2
 Body::local_point_velocity(b2Vec2 point)
-{ return b2Body_GetLocalPointVelocity(_id, point); }
+{
+	return b2Body_GetLocalPointVelocity(_id, point);
+}
 
 b2Vec2
 Body::local_vector(b2Vec2 vector)
-{ return b2Body_GetLocalVector(_id, vector); }
+{
+	return b2Body_GetLocalVector(_id, vector);
+}
 
 float
 Body::mass()
-{ return b2Body_GetMass(_id); }
+{
+	return b2Body_GetMass(_id);
+}
 
 b2MassData
 Body::mass_data()
-{ return b2Body_GetMassData(_id); }
+{
+	return b2Body_GetMassData(_id);
+}
 
 b2MotionLocks
 Body::motion_locks()
-{ return b2Body_GetMotionLocks(_id); }
+{
+	return b2Body_GetMotionLocks(_id);
+}
 
 const char *
 Body::name()
-{ return b2Body_GetName(_id); }
+{
+	return b2Body_GetName(_id);
+}
 
 b2Vec2
 Body::position()
-{ return b2Body_GetPosition(_id); }
+{
+	return b2Body_GetPosition(_id);
+}
 
 b2Rot
 Body::rotation()
-{ return b2Body_GetRotation(_id); }
+{
+	return b2Body_GetRotation(_id);
+}
 
 float
 Body::rotational_inertia()
-{ return b2Body_GetRotationalInertia(_id); }
+{
+	return b2Body_GetRotationalInertia(_id);
+}
 
 void
 Body::set_angular_damping(float value)
-{ return b2Body_SetAngularDamping(_id, value); }
+{
+	return b2Body_SetAngularDamping(_id, value);
+}
 
 void
 Body::set_angular_velocity(float value)
-{ return b2Body_SetAngularVelocity(_id, value); }
+{
+	return b2Body_SetAngularVelocity(_id, value);
+}
 
 void
 Body::set_awake(bool value)
-{ b2Body_SetAwake(_id, value); }
+{
+	b2Body_SetAwake(_id, value);
+}
 
 void
 Body::set_bullet(bool value)
-{ b2Body_SetBullet(_id, value); }
+{
+	b2Body_SetBullet(_id, value);
+}
 
 void
 Body::set_gravity_scale(float value)
-{ b2Body_SetGravityScale(_id, value); }
+{
+	b2Body_SetGravityScale(_id, value);
+}
 
 void
 Body::set_linear_damping(float value)
-{ b2Body_SetLinearDamping(_id, value); }
+{
+	b2Body_SetLinearDamping(_id, value);
+}
 
 void
 Body::set_linear_velocity(b2Vec2 v)
-{ b2Body_SetLinearVelocity(_id, v); }
+{
+	b2Body_SetLinearVelocity(_id, v);
+}
 
 void
 Body::set_mass_data(b2MassData md)
-{ b2Body_SetMassData(_id, md); }
+{
+	b2Body_SetMassData(_id, md);
+}
 
 void
 Body::set_motion_locks(b2MotionLocks locks)
-{ b2Body_SetMotionLocks(_id, locks); }
+{
+	b2Body_SetMotionLocks(_id, locks);
+}
 
 void
 Body::set_name(const char *name)
-{ b2Body_SetName(_id, name); }
+{
+	b2Body_SetName(_id, name);
+}
 
 void
 Body::set_sleep_threshold(float value)
-{ b2Body_SetSleepThreshold(_id, value); }
+{
+	b2Body_SetSleepThreshold(_id, value);
+}
 
 void
 Body::set_transform(b2Vec2 position, b2Rot rotation)
-{ b2Body_SetTransform(_id, position, rotation); }
+{
+	b2Body_SetTransform(_id, position, rotation);
+}
 
 void
 Body::set_type(b2BodyType type)
-{ b2Body_SetType(_id, type); }
+{
+	b2Body_SetType(_id, type);
+}
 
 std::vector<euler::util::Reference<euler::physics::Shape>>
 Body::shapes()
@@ -1574,27 +1668,39 @@ Body::shapes()
 
 void
 Body::set_sleep_enabled(const bool enabled)
-{ b2Body_EnableSleep(_id, enabled); }
+{
+	b2Body_EnableSleep(_id, enabled);
+}
 
 float
 Body::sleep_threshold()
-{ return b2Body_GetSleepThreshold(_id); }
+{
+	return b2Body_GetSleepThreshold(_id);
+}
 
 void
 Body::target_transform(b2Transform tform, float step, bool wake)
-{ b2Body_SetTargetTransform(_id, tform, step, wake); }
+{
+	b2Body_SetTargetTransform(_id, tform, step, wake);
+}
 
 b2Transform
 Body::transform()
-{ return b2Body_GetTransform(_id); }
+{
+	return b2Body_GetTransform(_id);
+}
 
 b2BodyType
 Body::type()
-{ return b2Body_GetType(_id); }
+{
+	return b2Body_GetType(_id);
+}
 
 void
 Body::wake_touching()
-{ b2Body_WakeTouching(_id); }
+{
+	b2Body_WakeTouching(_id);
+}
 
 euler::util::Reference<euler::physics::World>
 Body::world()
@@ -1605,19 +1711,27 @@ Body::world()
 
 b2Vec2
 Body::world_center_of_mass()
-{ return b2Body_GetWorldCenterOfMass(_id); }
+{
+	return b2Body_GetWorldCenterOfMass(_id);
+}
 
 b2Vec2
 Body::world_point(b2Vec2 point)
-{ return b2Body_GetWorldPoint(_id, point); }
+{
+	return b2Body_GetWorldPoint(_id, point);
+}
 
 b2Vec2
 Body::world_point_velocity(b2Vec2 point)
-{ return b2Body_GetWorldPointVelocity(_id, point); }
+{
+	return b2Body_GetWorldPointVelocity(_id, point);
+}
 
 b2Vec2
 Body::world_vector(b2Vec2 vector)
-{ return b2Body_GetWorldVector(_id, vector); }
+{
+	return b2Body_GetWorldVector(_id, vector);
+}
 
 euler::util::Reference<Body>
 Body::unwrap(mrb_state *mrb, mrb_value self)

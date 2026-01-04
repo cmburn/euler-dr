@@ -9,6 +9,4 @@ namespace euler::physics {
 class WeldJoint final : public util::Object { };
 } /* namespace euler::physics */
 
-
 #endif /* EULER_PHYSICS_WELD_JOINT_H */
-

@@ -9,6 +9,4 @@ namespace euler::physics {
 class WheelJoint final : public util::Object { };
 } /* namespace euler::physics */
 
-
 #endif /* EULER_PHYSICS_WHEEL_JOINT_H */
-

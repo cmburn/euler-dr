@@ -8,7 +8,7 @@ if (EULER_DRAGONRUBY_BUILD)
             dragonruby/logger.cpp
             dragonruby/logger.h
             dragonruby/mruby_state.cpp
-            dragonruby/mruby_state.h
+            dragonruby/ruby_state.h
             dragonruby/state.cpp
             dragonruby/state.h
             dragonruby/storage.cpp

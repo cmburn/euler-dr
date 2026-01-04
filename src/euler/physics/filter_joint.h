@@ -9,6 +9,4 @@ namespace euler::physics {
 class FilterJoint final : public util::Object { };
 } /* namespace euler::physics */
 
-
 #endif /* EULER_PHYSICS_FILTER_JOINT_H */
-

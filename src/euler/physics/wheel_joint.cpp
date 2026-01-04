@@ -11,10 +11,9 @@
 #include <mruby/hash.h>
 
 #include "euler/physics/body.h"
+#include "euler/physics/joint.h"
 #include "euler/physics/util.h"
 #include "euler/physics/world.h"
-#include "euler/physics/joint.h"
-
 
 static mrb_value
 wheel_joint_enable_spring(mrb_state *mrb, mrb_value self)

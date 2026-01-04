@@ -5,13 +5,11 @@
 euler::graphics::BasicSprite::BasicSprite(const util::Reference<Image> &image,
     const SpritesheetLocation &frame)
     : Sprite(image)
-    , _location(SpritesheetLocation {
-    	.origin = frame.origin,
-    	.x = frame.x,
-    	.y = frame.y,
-    	.width = frame.width,
-    	.height = frame.height
-    })
+    , _location(SpritesheetLocation { .origin = frame.origin,
+	  .x = frame.x,
+	  .y = frame.y,
+	  .width = frame.width,
+	  .height = frame.height })
 {
 }
 

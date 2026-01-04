@@ -8,12 +8,14 @@
 
 #include <armadillo>
 
-#include "euler/util/mruby_state.h"
+#include "euler/util/ruby_state.h"
 #include "euler/util/state.h"
 
 namespace euler::math {
 
-typedef arma::size_t size_type;
+typedef decltype(arma::size(arma::vec())(0)) size_type;
+
+static constexpr size_type size_type_size = sizeof(size_type);
 
 static constexpr size_type dynamic_size = std::numeric_limits<size_type>::max();
 
@@ -27,12 +29,15 @@ is_supported_numeric()
 	if constexpr (std::is_same_v<T, uint16_t>) return true;
 	if constexpr (std::is_same_v<T, uint32_t>) return true;
 	if constexpr (std::is_same_v<T, uint64_t>) return true;
+	if constexpr (std::is_same_v<T, size_type>) return true;
 	if constexpr (std::is_same_v<T, float>) return true;
 	if constexpr (std::is_same_v<T, double>) return true;
 	if constexpr (std::is_same_v<T, std::complex<float>>) return true;
 	if constexpr (std::is_same_v<T, std::complex<double>>) return true;
 	return false;
 }
+
+static_assert(is_supported_numeric<size_type>());
 
 template <typename T>
 static constexpr bool
@@ -57,7 +62,7 @@ can_decompose()
 /* ReSharper disable once CppDFAUnreachableFunctionCall */
 template <typename T>
 static std::complex<T>
-unwrap_complex(const util::Reference<util::MRubyState> &mrb, mrb_value arg)
+unwrap_complex(const util::Reference<util::RubyState> &mrb, mrb_value arg)
 {
 	const auto real_value = mrb->funcall(arg, "real", 0);
 	const auto imag_value = mrb->funcall(arg, "imag", 0);
@@ -68,7 +73,7 @@ unwrap_complex(const util::Reference<util::MRubyState> &mrb, mrb_value arg)
 
 template <typename T>
 static mrb_value
-wrap_complex(const util::Reference<util::MRubyState> &mrb,
+wrap_complex(const util::Reference<util::RubyState> &mrb,
     const std::complex<T> &v)
 {
 	const auto real = mrb->float_value(static_cast<mrb_float>(v.real()));
@@ -185,7 +190,8 @@ unwrap_num(const util::Reference<util::State> &state, mrb_value arg)
 		return static_cast<uint32_t>(
 		    mrb_integer(state->mrb()->to_int(arg)));
 	}
-	if constexpr (std::is_same_v<T, uint64_t>) {
+	if constexpr (std::is_same_v<T, uint64_t>
+	    || std::is_same_v<T, size_type>) {
 		return static_cast<uint64_t>(
 		    mrb_integer(state->mrb()->to_int(arg)));
 	}
@@ -202,12 +208,12 @@ unwrap_num(const util::Reference<util::State> &state, mrb_value arg)
 		return unwrap_complex<double>(state->mrb(), arg);
 	}
 	/* ReSharper restore CppRedundantCastExpression */
-	return { };
+	return {};
 }
 
 template <typename T>
 mrb_value
-wrap_num(const util::Reference<util::MRubyState> &mrb, T v)
+wrap_num(const util::Reference<util::RubyState> &mrb, T v)
 {
 	using value_type = std::remove_cv_t<std::remove_reference_t<T>>;
 	static_assert(is_supported_numeric<value_type>());
@@ -318,7 +324,28 @@ fill_dynamic(const util::Reference<util::State> &state, size_type rows,
 
 static inline bool
 is_numeric(const mrb_value v)
-{ return mrb_float_p(v) || mrb_fixnum_p(v); }
+{
+	return mrb_float_p(v) || mrb_fixnum_p(v);
+}
+
+std::array<size_type, 1> unwrap_size_vector(
+    const util::Reference<util::State> &state, mrb_value arg);
+std::array<size_type, 2> unwrap_size_matrix(
+    const util::Reference<util::State> &state, mrb_value arg);
+std::array<size_type, 3> unwrap_size_cube(
+    const util::Reference<util::State> &state, mrb_value arg);
+
+template <size_type N>
+std::array<size_type, N>
+unwrap_size(const util::Reference<util::State> &state, const mrb_value arg)
+{
+	static_assert(N > 0, "N must be positive");
+	static_assert(N <= 3, "N must be at most 3");
+	if constexpr (N == 1) return unwrap_size_vector(state, arg);
+	if constexpr (N == 2) return unwrap_size_matrix(state, arg);
+	if constexpr (N == 3) return unwrap_size_cube(state, arg);
+	return {};
+}
 
 } /* namespace euler::math */
 

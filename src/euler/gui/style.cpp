@@ -160,4 +160,3 @@ Style::Button::to_nuklear(const util::Reference<util::State> &state) const
 		.draw_end = nullptr,
 	};
 }
-

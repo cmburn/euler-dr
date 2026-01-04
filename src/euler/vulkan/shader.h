@@ -3,8 +3,8 @@
 #ifndef EULER_VULKAN_SHADER_H
 #define EULER_VULKAN_SHADER_H
 
-#include <vector>
 #include <filesystem>
+#include <vector>
 
 #include "euler/util/object.h"
 #include "euler/vulkan/internal.h"
@@ -23,6 +23,4 @@ private:
 
 } /* namespace euler::vulkan */
 
-
 #endif /* EULER_VULKAN_SHADER_H */
-

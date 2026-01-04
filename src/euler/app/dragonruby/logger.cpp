@@ -106,7 +106,9 @@ Logger::set_severity(const Severity level)
 
 euler::util::Reference<euler::util::Logger>
 Logger::copy(std::optional<std::string_view> subsystem) const
-{ return util::make_reference<Logger>(this->subsystem(), _log_write); }
+{
+	return util::make_reference<Logger>(this->subsystem(), _log_write);
+}
 
 void
 Logger::write_log(const Severity level, const std::string &message) const

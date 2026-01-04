@@ -11,6 +11,4 @@ void init(const util::Reference<util::State> &state);
 
 } /* namespace euler::graphics */
 
-
 #endif /* EULER_GRAPHICS_EXT_H */
-

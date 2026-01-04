@@ -9,6 +9,4 @@ namespace euler::gui {
 class Slider final : public util::Object { };
 } /* namespace euler::gui */
 
-
 #endif /* EULER_GUI_SLIDER_H */
-

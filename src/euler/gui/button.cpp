@@ -151,8 +151,7 @@ IsPressedContext::is_pressed_image(
 	}
 	if (style.has_value()) {
 		const auto nk = style->to_nuklear(state);
-		return nk_button_image_styled(context, &nk, image)
-		    != nk_false;
+		return nk_button_image_styled(context, &nk, image) != nk_false;
 	}
 	return nk_button_image(context, image) != nk_false;
 }
@@ -171,12 +170,10 @@ Button::is_pressed() const
 		.len = len,
 	};
 	switch (type()) {
-	case Type::Empty:
-		return context.is_pressed_empty();
+	case Type::Empty: return context.is_pressed_empty();
 	case Type::Symbol:
 		return context.is_pressed_symbol(_symbol, _alignment);
-	case Type::Image:
-		return context.is_pressed_image(_image, _alignment);
+	case Type::Image: return context.is_pressed_image(_image, _alignment);
 	case Type::Invalid: state->raise("Invalid button type");
 	default: euler_unreachable();
 	}

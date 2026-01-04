@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: ISC */
 
-#include "euler/app/dragonruby/mruby_state.h"
+#include "euler/app/dragonruby/ruby_state.h"
 
 #include <vector>
 
@@ -571,7 +571,8 @@ MRubyState::define_class_method_id(RClass *cla, const mrb_sym name,
 }
 
 RClass *
-MRubyState::define_class_under_id(RClass *outer, const mrb_sym name, RClass *super)
+MRubyState::define_class_under_id(RClass *outer, const mrb_sym name,
+    RClass *super)
 {
 	return _api.mrb_define_class_under_id(_mrb, outer, name, super);
 }
@@ -728,7 +729,8 @@ MRubyState::fiber_alive_p(const mrb_value fib)
 }
 
 mrb_value
-MRubyState::fiber_resume(const mrb_value fib, const mrb_int argc, const mrb_value *argv)
+MRubyState::fiber_resume(const mrb_value fib, const mrb_int argc,
+    const mrb_value *argv)
 {
 	return _api.mrb_fiber_resume(_mrb, fib, argc, argv);
 }
@@ -818,7 +820,8 @@ MRubyState::func_basic_p(const mrb_value obj, const mrb_sym mid,
 }
 
 mrb_value
-MRubyState::funcall(const mrb_value val, const char *name, const mrb_int argc, ...)
+MRubyState::funcall(const mrb_value val, const char *name, const mrb_int argc,
+    ...)
 {
 	va_list ap;
 	va_start(ap, argc);
@@ -833,8 +836,7 @@ MRubyState::funcall(const mrb_value val, const char *name, const mrb_int argc, .
 
 mrb_value
 MRubyState::funcall_argv(const mrb_value val, const mrb_sym name,
-    const mrb_int argc,
-    const mrb_value *argv)
+    const mrb_int argc, const mrb_value *argv)
 {
 	return _api.mrb_funcall_argv(_mrb, val, name, argc, argv);
 }
@@ -854,8 +856,7 @@ MRubyState::funcall_id(const mrb_value val, const mrb_sym mid,
 
 mrb_value
 MRubyState::funcall_with_block(const mrb_value val, const mrb_sym name,
-    const mrb_int argc,
-    const mrb_value *argv, const mrb_value block)
+    const mrb_int argc, const mrb_value *argv, const mrb_value block)
 {
 	return _api.mrb_funcall_with_block(_mrb, val, name, argc, argv, block);
 }
@@ -1194,7 +1195,8 @@ MRubyState::load_irep_buf(const void *data, const size_t len)
 }
 
 mrb_value
-MRubyState::load_irep_buf_cxt(const void *data, const size_t len, mrbc_context *ctx)
+MRubyState::load_irep_buf_cxt(const void *data, const size_t len,
+    mrbc_context *ctx)
 {
 	return _api.mrb_load_irep_buf_cxt(_mrb, data, len, ctx);
 }
@@ -1318,7 +1320,8 @@ MRubyState::name_error(const mrb_sym id, const char *fmt, ...)
 }
 
 void
-MRubyState::no_method_error(const mrb_sym id, const mrb_value args, const char *fmt, ...)
+MRubyState::no_method_error(const mrb_sym id, const mrb_value args,
+    const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -1614,7 +1617,8 @@ MRubyState::proc_new_cfunc_with_env(const mrb_func_t func, const mrb_int argc,
 }
 
 mrb_value
-MRubyState::protect(const mrb_func_t body, const mrb_value data, mrb_bool *state)
+MRubyState::protect(const mrb_func_t body, const mrb_value data,
+    mrb_bool *state)
 {
 	return _api.mrb_protect(_mrb, body, data, state);
 }
@@ -1684,7 +1688,8 @@ MRubyState::rescue(const mrb_func_t body, const mrb_value b_data,
 
 mrb_value
 MRubyState::rescue_exceptions(const mrb_func_t body, const mrb_value b_data,
-    const mrb_func_t rescue, const mrb_value r_data, const mrb_int len, RClass **classes)
+    const mrb_func_t rescue, const mrb_value r_data, const mrb_int len,
+    RClass **classes)
 {
 	return _api.mrb_rescue_exceptions(_mrb, body, b_data, rescue, r_data,
 	    len, classes);
@@ -2106,13 +2111,15 @@ MRubyState::yield(const mrb_value b, const mrb_value arg)
 }
 
 mrb_value
-MRubyState::yield_argv(const mrb_value b, const mrb_int argc, const mrb_value *argv)
+MRubyState::yield_argv(const mrb_value b, const mrb_int argc,
+    const mrb_value *argv)
 {
 	return _api.mrb_yield_argv(_mrb, b, argc, argv);
 }
 
 mrb_value
-MRubyState::yield_with_class(const mrb_value b, const mrb_int argc, const mrb_value *argv, const mrb_value self, RClass *c)
+MRubyState::yield_with_class(const mrb_value b, const mrb_int argc,
+    const mrb_value *argv, const mrb_value self, RClass *c)
 {
 	return _api.mrb_yield_with_class(_mrb, b, argc, argv, self, c);
 }
@@ -2394,7 +2401,8 @@ check_exit:
 
 			p = GET_ARG(mrb_int *);
 			if (i < argc) {
-				*p = mrb_integer(_api.mrb_to_int(_mrb, argv[i++]));
+				*p = mrb_integer(
+				    _api.mrb_to_int(_mrb, argv[i++]));
 			}
 		} break;
 		case 'b': {
@@ -2518,8 +2526,8 @@ check_exit:
 						    "missing keyword: %n",
 						    *kname);
 					}
-					*values
-					    = mrb_hash_delete_key(_mrb, ksrc, k);
+					*values = mrb_hash_delete_key(_mrb,
+					    ksrc, k);
 					mrb_gc_protect(_mrb, *values);
 				}
 
@@ -2556,7 +2564,9 @@ check_exit:
 
 #undef ARGV
 #undef GET_ARG
-	if (!c && argc > i) { mrb_argnum_error(_mrb, argc, argc_min, argc_max); }
+	if (!c && argc > i) {
+		mrb_argnum_error(_mrb, argc, argc_min, argc_max);
+	}
 finish:
 	return i;
 }

@@ -3,15 +3,16 @@
 #ifndef EULER_APP_DRAGONRUBY_MRUBY_STATE_H
 #define EULER_APP_DRAGONRUBY_MRUBY_STATE_H
 
-#include "euler/util/mruby_state.h"
 #include "euler/util/object.h"
+#include "euler/util/ruby_state.h"
 
 #include <dragonruby.h>
 
 namespace euler::app::dragonruby {
 class State;
-class MRubyState final : public util::MRubyState {
+class MRubyState final : public util::RubyState {
 	friend class State;
+
 public:
 	MRubyState(mrb_state *mrb, drb_api_t *api);
 	~MRubyState() override = default;

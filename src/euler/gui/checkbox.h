@@ -42,6 +42,4 @@ protected:
 };
 } /* namespace euler::gui */
 
-
 #endif /* EULER_GUI_CHECKBOX_H */
-

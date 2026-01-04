@@ -5,8 +5,8 @@
 
 #include <string_view>
 
-#include "euler/gui/element.h"
 #include "euler/gui/common.h"
+#include "euler/gui/element.h"
 
 namespace euler::gui {
 class RadioButton : public Element {

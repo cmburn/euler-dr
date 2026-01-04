@@ -47,7 +47,8 @@ public:
 
 	void button(const Button::Settings &settings,
 	    const std::function<void(util::Reference<Button> &)> &on_click);
-	void button(const std::function<void(util::Reference<Button> &)> &on_click)
+	void
+	button(const std::function<void(util::Reference<Button> &)> &on_click)
 	{
 		button(Button::DEFAULT_SETTINGS, on_click);
 	}

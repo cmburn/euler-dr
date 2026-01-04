@@ -10,8 +10,8 @@
 #include <mruby.h>
 #include <mruby/data.h>
 
-#include "euler/util/object.h"
 #include "euler/util/ext.h"
+#include "euler/util/object.h"
 
 namespace euler::util {
 class Logger : public Object {
@@ -36,7 +36,8 @@ public:
 	virtual void set_severity(Severity level) = 0;
 
 	[[nodiscard]] virtual Reference<Logger> copy(
-	    std::optional<std::string_view> subsystem = std::nullopt) const = 0;
+	    std::optional<std::string_view> subsystem = std::nullopt) const
+	    = 0;
 
 	template <typename... Args>
 	void
@@ -51,7 +52,9 @@ public:
 	template <typename... Args>
 	void
 	debug(const std::format_string<Args...> &message, Args &&...args) const
-	{ log(Severity::Debug, message, std::forward<Args>(args)...); }
+	{
+		log(Severity::Debug, message, std::forward<Args>(args)...);
+	}
 
 	template <typename... Args>
 	void
@@ -63,12 +66,16 @@ public:
 	template <typename... Args>
 	void
 	warn(const std::format_string<Args...> &message, Args &&...args) const
-	{ log(Severity::Warn, message, std::forward<Args>(args)...); }
+	{
+		log(Severity::Warn, message, std::forward<Args>(args)...);
+	}
 
 	template <typename... Args>
 	void
 	error(const std::format_string<Args...> &message, Args &&...args) const
-	{ log(Severity::Error, message, std::forward<Args>(args)...); }
+	{
+		log(Severity::Error, message, std::forward<Args>(args)...);
+	}
 
 	template <typename... Args>
 	[[noreturn]] void
@@ -79,6 +86,7 @@ public:
 	}
 
 	static void init(const Reference<State> &state, RClass *mod);
+
 protected:
 	virtual void write_log(Severity level, const std::string &message) const
 	    = 0;

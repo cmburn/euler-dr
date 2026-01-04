@@ -7,8 +7,12 @@ add_library(euler_math STATIC
         matrix.h
         nonscalar.cpp
         nonscalar.h
+        ops.cpp
+        ops.h
         row_vector.cpp
         row_vector.h
+        size.cpp
+        size.h
         sparse_matrix.cpp
         sparse_matrix.h
         util.cpp

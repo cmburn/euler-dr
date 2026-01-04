@@ -33,6 +33,4 @@ private:
 };
 } /* namespace euler::physics */
 
-
 #endif /* EULER_PHYSICS_WORLD_H */
-

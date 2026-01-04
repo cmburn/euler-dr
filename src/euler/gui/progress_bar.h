@@ -16,6 +16,4 @@ private:
 };
 } /* namespace euler::gui */
 
-
 #endif /* EULER_GUI_PROGRESS_BAR_H */
-

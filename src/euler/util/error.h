@@ -48,12 +48,16 @@ public:
 
 	[[nodiscard]] virtual Kind
 	kind() const
-	{ return Kind::Exception; }
+	{
+		return Kind::Exception;
+	}
 	[[nodiscard]] virtual RClass *exception_class() = 0;
 	[[nodiscard]] virtual mrb_value to_mrb() const = 0;
 	[[nodiscard]] const char *
 	what() const noexcept override
-	{ return _message.c_str(); }
+	{
+		return _message.c_str();
+	}
 
 protected:
 	std::string _message;
@@ -69,7 +73,9 @@ public:
 	~StandardError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::Standard; }
+	{
+		return Kind::Standard;
+	}
 };
 
 class RuntimeError : public StandardError {
@@ -81,7 +87,9 @@ public:
 	~RuntimeError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::Runtime; }
+	{
+		return Kind::Runtime;
+	}
 };
 
 class TypeError : public Error {
@@ -93,7 +101,9 @@ public:
 	~TypeError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::Type; }
+	{
+		return Kind::Type;
+	}
 };
 
 class ZeroDivisionError : public StandardError {
@@ -106,7 +116,9 @@ public:
 	~ZeroDivisionError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::ZeroDivision; }
+	{
+		return Kind::ZeroDivision;
+	}
 };
 
 class ArgumentError final : public StandardError {
@@ -118,11 +130,15 @@ public:
 	~ArgumentError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::Argument; }
+	{
+		return Kind::Argument;
+	}
 	[[nodiscard]] RClass *exception_class() override;
 	[[nodiscard]] mrb_value
 	to_mrb() const override
-	{ return mrb_nil_value(); }
+	{
+		return mrb_nil_value();
+	}
 };
 
 class IndexError : public StandardError {
@@ -134,7 +150,9 @@ public:
 	~IndexError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::Index; }
+	{
+		return Kind::Index;
+	}
 };
 
 class RangeError : public StandardError {
@@ -146,7 +164,9 @@ public:
 	~RangeError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::Range; }
+	{
+		return Kind::Range;
+	}
 };
 
 class NameError : public StandardError {
@@ -158,7 +178,9 @@ public:
 	~NameError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::Name; }
+	{
+		return Kind::Name;
+	}
 };
 
 class NoMethodError : public NameError {
@@ -170,7 +192,9 @@ public:
 	~NoMethodError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::NoMethod; }
+	{
+		return Kind::NoMethod;
+	}
 };
 
 class ScriptError : public Error {
@@ -182,7 +206,9 @@ public:
 	~ScriptError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::Script; }
+	{
+		return Kind::Script;
+	}
 };
 
 class SyntaxError : public ScriptError {
@@ -194,7 +220,9 @@ public:
 	~SyntaxError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::Syntax; }
+	{
+		return Kind::Syntax;
+	}
 };
 
 class LocalJumpError : public StandardError {
@@ -207,7 +235,9 @@ public:
 	~LocalJumpError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::LocalJump; }
+	{
+		return Kind::LocalJump;
+	}
 };
 
 class RegexpError : public StandardError {
@@ -219,7 +249,9 @@ public:
 	~RegexpError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::Regexp; }
+	{
+		return Kind::Regexp;
+	}
 };
 
 class FrozenError : public RuntimeError {
@@ -231,7 +263,9 @@ public:
 	~FrozenError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::Frozen; }
+	{
+		return Kind::Frozen;
+	}
 };
 
 class NotImplementedError : public ScriptError {
@@ -244,7 +278,9 @@ public:
 	~NotImplementedError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::NotImplemented; }
+	{
+		return Kind::NotImplemented;
+	}
 };
 
 class KeyError : public IndexError {
@@ -256,7 +292,9 @@ public:
 	~KeyError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::Key; }
+	{
+		return Kind::Key;
+	}
 };
 
 class FloatDomainError : public RangeError {
@@ -269,14 +307,16 @@ public:
 	~FloatDomainError() override = default;
 	[[nodiscard]] Kind
 	kind() const override
-	{ return Kind::FloatDomain; }
+	{
+		return Kind::FloatDomain;
+	}
 };
 /* ReSharper restore CppClassCanBeFinal */
 
 template <typename T, typename... Args>
 inline Reference<Error>
-make_error(const Reference<State> &state, const std::format_string<Args...> &fmt,
-    Args&&... args)
+make_error(const Reference<State> &state,
+    const std::format_string<Args...> &fmt, Args &&...args)
 {
 	auto message = std::format(fmt, args...);
 	return util::make_reference<T>(state, message);

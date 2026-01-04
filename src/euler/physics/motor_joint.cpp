@@ -11,9 +11,9 @@
 #include <mruby/hash.h>
 
 #include "euler/physics/body.h"
+#include "euler/physics/joint.h"
 #include "euler/physics/util.h"
 #include "euler/physics/world.h"
-#include "euler/physics/joint.h"
 
 /**
  * @overload Euler::Physics::MotorJoint#linear_velocity=(value)

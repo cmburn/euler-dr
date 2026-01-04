@@ -8,10 +8,7 @@
 namespace euler::gui {
 class Selectable final : public util::Object {
 public:
-
 };
 } /* namespace euler::gui */
 
-
 #endif /* EULER_GUI_SELECTABLE_H */
-

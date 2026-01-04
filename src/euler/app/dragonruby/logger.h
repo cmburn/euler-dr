@@ -8,7 +8,6 @@
 #include "euler/util/logger.h"
 #include "euler/util/object.h"
 
-
 namespace euler::app::dragonruby {
 class Logger final : public util::Logger {
 public:

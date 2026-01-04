@@ -25,11 +25,10 @@ public:
 	    : _id(id)
 	{
 	}
+
 private:
 	b2ShapeId _id;
 };
 } /* namespace euler::physics */
 
-
 #endif /* EULER_PHYSICS_SHAPE_H */
-

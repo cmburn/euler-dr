@@ -48,8 +48,7 @@ public:
 		Flags flags;
 	};
 
-	static Rectangle read_widget_rect(mrb_state *mrb,
-	    mrb_value hash);
+	static Rectangle read_widget_rect(mrb_state *mrb, mrb_value hash);
 	static Flags read_widget_flags(const mrb_value arr);
 	static const Settings DEFAULT_SETTINGS;
 

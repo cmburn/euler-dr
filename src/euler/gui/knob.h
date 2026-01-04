@@ -22,6 +22,7 @@ public:
 	    float dead_zone_degrees = 0.0f);
 
 	float value() const;
+
 private:
 	float _min;
 	float _max;
@@ -31,6 +32,4 @@ private:
 };
 } /* namespace euler::gui */
 
-
 #endif /* EULER_GUI_KNOB_H */
-

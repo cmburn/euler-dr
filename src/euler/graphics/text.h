@@ -7,6 +7,4 @@ namespace euler::graphics {
 class Text { };
 } /* namespace euler::graphics */
 
-
 #endif /* EULER_GRAPHICS_TEXT_H */
-

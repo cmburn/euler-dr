@@ -81,15 +81,13 @@ namespace euler::math {
 // DECLARE_NONSCALAR_TYPES(uint32_t, u32);
 // DECLARE_NONSCALAR_TYPES(uint64_t, u64);
 
-
-
 void
 init(const util::Reference<util::State> &state, RClass *euler_mod)
 {
 	auto mod = state->mrb()->define_module_under(euler_mod, "Math");
 	auto &mods = state->modules();
 	mods.math.mod = mod;
-	mods.math.matrix_f32 = MatrixImpl<float>::init(state, mod);
+	// mods.math.matrix_f32 = MatrixImpl<float>::init(state, mod);
 }
 
 } /* namespace euler::math */

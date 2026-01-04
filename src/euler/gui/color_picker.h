@@ -11,6 +11,4 @@ namespace euler::gui {
 class ColorPicker final : public Element { };
 } /* namespace euler::gui */
 
-
 #endif /* EULER_GUI_COLOR_PICKER_H */
-

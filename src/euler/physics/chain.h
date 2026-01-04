@@ -34,7 +34,9 @@ public:
 
 	b2ChainId
 	id() const
-	{ return _id; }
+	{
+		return _id;
+	}
 
 	static util::Reference<Chain> unwrap(mrb_state *mrb, mrb_value self);
 
@@ -48,8 +50,6 @@ public:
 	bool is_valid() const;
 
 private:
-
-
 	b2ChainId _id;
 };
 } /* namespace euler::physics */

@@ -21,9 +21,6 @@ typedef void gui_context;
 typedef void *shader_pointer;
 #endif
 
-
 } /* namespace euler::vulkan::detail */
 
-
 #endif /* EULER_VULKAN_INTERNAL_H */
-

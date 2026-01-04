@@ -9,6 +9,4 @@ namespace euler::graphics {
 class CompositeSprite final : public util::Object { };
 } /* namespace euler::graphics */
 
-
 #endif /* EULER_GRAPHICS_COMPOSITE_SPRITE_H */
-

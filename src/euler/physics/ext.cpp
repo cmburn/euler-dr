@@ -7,7 +7,6 @@
 #include "euler/physics/util.h"
 #include "euler/util/state.h"
 
-
 /* Capsule, Circle, Polygon, and Segment are all purely ruby, defined via C
  * for convenience */
 
@@ -42,8 +41,8 @@ capsule_set_radius(mrb_state *mrb, mrb_value self)
 
 /**
  * @overload Euler::Physics::Capsule#centers
- *   @return [Array&lt;Array&lt;Float&gt;&gt;] The center points of the capsule. Is an array
- *           of two points, i.e. [[x1, y1], [x2, y2]]
+ *   @return [Array&lt;Array&lt;Float&gt;&gt;] The center points of the capsule.
+ * Is an array of two points, i.e. [[x1, y1], [x2, y2]]
  */
 static mrb_value
 capsule_centers(mrb_state *mrb, mrb_value self)
@@ -54,8 +53,8 @@ capsule_centers(mrb_state *mrb, mrb_value self)
 
 /**
  * @overload Euler::Physics::Capsule#centers=(centers)
- *   @param centers [Array&lt;Array&lt;Float&gt;&gt;] The center points to set for the
- *          capsule. Must be an array of two points, i.e. [[x1, y1], [x2, y2]].
+ *   @param centers [Array&lt;Array&lt;Float&gt;&gt;] The center points to set
+ * for the capsule. Must be an array of two points, i.e. [[x1, y1], [x2, y2]].
  *   @return [void]
  */
 static mrb_value
@@ -70,19 +69,23 @@ capsule_set_centers(mrb_state *mrb, mrb_value self)
 		mrb_raise(mrb, E_ARGUMENT_ERROR,
 		    "center must be an array of two points");
 	}
-	const b2Vec2 center1 = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(center, 0));
-	const b2Vec2 center2 = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(center, 1));
+	const b2Vec2 center1
+	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(center, 0));
+	const b2Vec2 center2
+	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(center, 1));
 	const mrb_value center_val = mrb_ary_new_capa(mrb, 2);
-	mrb_ary_push(mrb, center_val, euler::physics::b2_vec_to_value(mrb, center1));
-	mrb_ary_push(mrb, center_val, euler::physics::b2_vec_to_value(mrb, center2));
+	mrb_ary_push(mrb, center_val,
+	    euler::physics::b2_vec_to_value(mrb, center1));
+	mrb_ary_push(mrb, center_val,
+	    euler::physics::b2_vec_to_value(mrb, center2));
 	mrb_iv_set(mrb, self, mrb_intern_lit(mrb, "@center"), center_val);
 	return mrb_nil_value();
 }
 
 /**
  * @overload Euler::Physics::Capsule#initialize(centers, radius)
- *   @param centers [Array&lt;Array&lt;Float&gt;&gt;] The center points of the capsule. Must
- *          be an array of two points, i.e. [[x1, y1], [x2, y2]].
+ *   @param centers [Array&lt;Array&lt;Float&gt;&gt;] The center points of the
+ * capsule. Must be an array of two points, i.e. [[x1, y1], [x2, y2]].
  *   @param radius [Float] The radius of the capsule
  *   @return [void]
  */
@@ -97,15 +100,18 @@ capsule_initialize(mrb_state *mrb, mrb_value self)
 		mrb_raise(mrb, E_ARGUMENT_ERROR,
 		    "center must be an array of two points");
 	}
-	const b2Vec2 center1 = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(center, 0));
-	const b2Vec2 center2 = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(center, 1));
+	const b2Vec2 center1
+	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(center, 0));
+	const b2Vec2 center2
+	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(center, 1));
 	const mrb_value center_val = mrb_ary_new_capa(mrb, 2);
-	mrb_ary_push(mrb, center_val, euler::physics::b2_vec_to_value(mrb, center1));
-	mrb_ary_push(mrb, center_val, euler::physics::b2_vec_to_value(mrb, center2));
-	mrb_iv_set(mrb, self,
-	    mrb_intern_lit(mrb, "@center"), center_val);
-	mrb_iv_set(mrb, self,
-	    mrb_intern_lit(mrb, "@radius"), mrb_float_value(mrb, radius));
+	mrb_ary_push(mrb, center_val,
+	    euler::physics::b2_vec_to_value(mrb, center1));
+	mrb_ary_push(mrb, center_val,
+	    euler::physics::b2_vec_to_value(mrb, center2));
+	mrb_iv_set(mrb, self, mrb_intern_lit(mrb, "@center"), center_val);
+	mrb_iv_set(mrb, self, mrb_intern_lit(mrb, "@radius"),
+	    mrb_float_value(mrb, radius));
 	return mrb_nil_value();
 }
 
@@ -130,11 +136,13 @@ mrb_value
 capsule_wrap(mrb_state *mrb, b2Capsule capsule)
 {
 	const auto state = euler::util::State::get(mrb);
-	struct RClass *capsule_class
-	    = mrb_class_get_under(mrb, mrb_module_get(mrb, "Euler::Physics"), "Capsule");
+	struct RClass *capsule_class = mrb_class_get_under(mrb,
+	    mrb_module_get(mrb, "Euler::Physics"), "Capsule");
 	const mrb_value center_val = mrb_ary_new_capa(mrb, 2);
-	mrb_ary_push(mrb, center_val, euler::physics::b2_vec_to_value(mrb, capsule.center1));
-	mrb_ary_push(mrb, center_val, euler::physics::b2_vec_to_value(mrb, capsule.center2));
+	mrb_ary_push(mrb, center_val,
+	    euler::physics::b2_vec_to_value(mrb, capsule.center1));
+	mrb_ary_push(mrb, center_val,
+	    euler::physics::b2_vec_to_value(mrb, capsule.center2));
 	const mrb_value radius_val = mrb_float_value(mrb, capsule.radius);
 	const mrb_value args[] = { center_val, radius_val };
 	const mrb_value obj = mrb_obj_new(mrb, capsule_class, 2, args);
@@ -155,11 +163,12 @@ capsule_shape(mrb_state *mrb, mrb_value self)
 		mrb_raise(mrb, E_ARGUMENT_ERROR,
 		    "center must be an array of two points");
 	}
-	capsule.center1 = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(center_val, 0));
-	capsule.center2 = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(center_val, 1));
+	capsule.center1 = euler::physics::value_to_b2_vec(mrb,
+	    mrb_ary_entry(center_val, 0));
+	capsule.center2 = euler::physics::value_to_b2_vec(mrb,
+	    mrb_ary_entry(center_val, 1));
 	return capsule;
 }
-
 
 /* Euler::Physics::Circle */
 
@@ -260,7 +269,8 @@ circle_wrap(mrb_state *mrb, b2Circle circle)
 	struct RClass *circle_class
 	    = mrb_class_get_under(mrb, mrb_module_get(mrb, "Box2D"), "Circle");
 	const mrb_value radius_val = mrb_float_value(mrb, circle.radius);
-	const mrb_value center_val = euler::physics::b2_vec_to_value(mrb, circle.center);
+	const mrb_value center_val
+	    = euler::physics::b2_vec_to_value(mrb, circle.center);
 	const mrb_value args[] = { radius_val, center_val };
 	const mrb_value obj = mrb_obj_new(mrb, circle_class, 2, args);
 	return obj;
@@ -278,7 +288,6 @@ circle_shape(mrb_state *mrb, mrb_value self)
 		.radius = (float)mrb_float(radius_val),
 	};
 }
-
 
 /* Euler::Physics::Polygon */
 static mrb_ssize
@@ -328,7 +337,8 @@ polygon_set_vertices(mrb_state *mrb, mrb_value self)
 	for (mrb_int i = 0; i < len; ++i) {
 		const mrb_value value = mrb_ary_entry(vertices, i);
 		const b2Vec2 vec = euler::physics::value_to_b2_vec(mrb, value);
-		mrb_ary_push(mrb, value, euler::physics::b2_vec_to_value(mrb, vec));
+		mrb_ary_push(mrb, value,
+		    euler::physics::b2_vec_to_value(mrb, vec));
 	}
 	mrb_iv_set(mrb, self, mrb_intern_lit(mrb, "@vertices"), arr);
 	return mrb_nil_value();
@@ -366,7 +376,8 @@ polygon_set_normals(mrb_state *mrb, mrb_value self)
 	for (mrb_int i = 0; i < len; ++i) {
 		const mrb_value value = mrb_ary_entry(normals, i);
 		const b2Vec2 vec = euler::physics::value_to_b2_vec(mrb, value);
-		mrb_ary_push(mrb, value, euler::physics::b2_vec_to_value(mrb, vec));
+		mrb_ary_push(mrb, value,
+		    euler::physics::b2_vec_to_value(mrb, vec));
 	}
 	mrb_iv_set(mrb, self, mrb_intern_lit(mrb, "@normals"), arr);
 	return mrb_nil_value();
@@ -448,8 +459,10 @@ polygon_initialize_box(mrb_state *mrb, mrb_value box, mrb_value radius,
 		mrb_raise(mrb, E_ARGUMENT_ERROR,
 		    ":box must be an array of two elements [width, height]");
 	}
-	const float width_value = euler::physics::coerce_float(mrb, mrb_ary_entry(box, 0));
-	const float height_value = euler::physics::coerce_float(mrb, mrb_ary_entry(box, 1));
+	const float width_value
+	    = euler::physics::coerce_float(mrb, mrb_ary_entry(box, 0));
+	const float height_value
+	    = euler::physics::coerce_float(mrb, mrb_ary_entry(box, 1));
 	const float half_width = width_value / 2.0f;
 	const float half_height = height_value / 2.0f;
 	if (mrb_nil_p(radius)) {
@@ -480,9 +493,11 @@ value_to_hull(mrb_state *mrb, mrb_value hull)
 		    "Expected an array of points as hull argument");
 	}
 	const size_t len = RARRAY_LEN(hull);
-	b2Vec2 *points = (b2Vec2 *)euler::physics::tmpbuf(mrb, len * sizeof(b2Vec2));
+	b2Vec2 *points
+	    = (b2Vec2 *)euler::physics::tmpbuf(mrb, len * sizeof(b2Vec2));
 	for (mrb_int i = 0; i < len; ++i)
-		points[i] = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(hull, i));
+		points[i] = euler::physics::value_to_b2_vec(mrb,
+		    mrb_ary_entry(hull, i));
 	return b2ComputeHull(points, len);
 }
 
@@ -565,14 +580,14 @@ polygon_initialize(mrb_state *mrb, mrb_value self)
 	else pg = polygon_initialize_hull(mrb, points, radius, offset);
 	const mrb_value verts = mrb_ary_new_capa(mrb, pg.count);
 	for (int i = 0; i < pg.count; ++i)
-		mrb_ary_push(mrb, verts, euler::physics::b2_vec_to_value(mrb, pg.vertices[i]));
+		mrb_ary_push(mrb, verts,
+		    euler::physics::b2_vec_to_value(mrb, pg.vertices[i]));
 	mrb_iv_set(mrb, self, mrb_intern_lit(mrb, "@vertices"), verts);
 }
 
 static RClass *
 polygon_init(mrb_state *mrb, RClass *mod)
 {
-
 }
 
 static mrb_value
@@ -585,8 +600,8 @@ segment_points(mrb_state *mrb, mrb_value self)
 /**
  * @overload Euler::Physics::Segment#points=(points)
  *   Set the segment's two endpoints.
- *   @param points [Array<Euler::Physics::Vec2>] An array containing two Box2D::Vec2
- *          points.
+ *   @param points [Array<Euler::Physics::Vec2>] An array containing two
+ * Box2D::Vec2 points.
  *   @return [void]
  */
 static mrb_value
@@ -599,8 +614,10 @@ segment_set_points(mrb_state *mrb, mrb_value self)
 		mrb_raise(mrb, E_ARGUMENT_ERROR,
 		    "points must be an array of two points");
 	}
-	const b2Vec2 p1 = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 0));
-	const b2Vec2 p2 = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 1));
+	const b2Vec2 p1
+	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 0));
+	const b2Vec2 p2
+	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 1));
 	const mrb_value points_val = mrb_ary_new_capa(mrb, 2);
 	mrb_ary_push(mrb, points_val, euler::physics::b2_vec_to_value(mrb, p1));
 	mrb_ary_push(mrb, points_val, euler::physics::b2_vec_to_value(mrb, p2));
@@ -611,8 +628,8 @@ segment_set_points(mrb_state *mrb, mrb_value self)
 /**
  * @overload Euler::Physics::Segment#initialize(points)
  *   Initialize a new segment with two endpoints.
- *   @param points [Array<Euler::Physics::Vec2>] An array containing two Box2D::Vec2
- *          points.
+ *   @param points [Array<Euler::Physics::Vec2>] An array containing two
+ * Box2D::Vec2 points.
  */
 static mrb_value
 segment_initialize(mrb_state *mrb, mrb_value self)
@@ -624,8 +641,10 @@ segment_initialize(mrb_state *mrb, mrb_value self)
 		mrb_raise(mrb, E_ARGUMENT_ERROR,
 		    "points must be an array of two points");
 	}
-	const b2Vec2 p1 = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 0));
-	const b2Vec2 p2 = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 1));
+	const b2Vec2 p1
+	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 0));
+	const b2Vec2 p2
+	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 1));
 	const mrb_value points_val = mrb_ary_new_capa(mrb, 2);
 	mrb_ary_push(mrb, points_val, euler::physics::b2_vec_to_value(mrb, p1));
 	mrb_ary_push(mrb, points_val, euler::physics::b2_vec_to_value(mrb, p2));
@@ -654,8 +673,10 @@ segment_wrap(mrb_state *mrb, const b2Segment segment)
 	const auto state = euler::util::State::get(mrb);
 	struct RClass *cls = mrb_class_get(mrb, "Euler::Physics::Segment");
 	const mrb_value points = mrb_ary_new_capa(mrb, 2);
-	mrb_ary_push(mrb, points, euler::physics::b2_vec_to_value(mrb, segment.point1));
-	mrb_ary_push(mrb, points, euler::physics::b2_vec_to_value(mrb, segment.point2));
+	mrb_ary_push(mrb, points,
+	    euler::physics::b2_vec_to_value(mrb, segment.point1));
+	mrb_ary_push(mrb, points,
+	    euler::physics::b2_vec_to_value(mrb, segment.point2));
 	const mrb_value obj = mrb_obj_new(mrb, cls, 1, &points);
 	return obj;
 }
@@ -670,8 +691,10 @@ segment_shape(mrb_state *mrb, mrb_value self)
 		mrb_raise(mrb, E_ARGUMENT_ERROR,
 		    "points must be an array of two points");
 	}
-	const b2Vec2 p1 = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 0));
-	const b2Vec2 p2 = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 1));
+	const b2Vec2 p1
+	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 0));
+	const b2Vec2 p2
+	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 1));
 	return (b2Segment) {
 		.point1 = p1,
 		.point2 = p2,
@@ -681,8 +704,7 @@ segment_shape(mrb_state *mrb, mrb_value self)
 /* Euler::Physics::Segment */
 
 RClass *
-euler::physics::init(const util::Reference<util::State> &state,
-    RClass *outer)
+euler::physics::init(const util::Reference<util::State> &state, RClass *outer)
 {
 	auto mod = state->mrb()->define_module_under(outer, "Physics");
 	capsule_init(state->mrb()->mrb(), mod);

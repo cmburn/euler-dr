@@ -9,6 +9,4 @@ namespace euler::util {
 class System : public util::Object { };
 } /* namespace euler::util */
 
-
 #endif /* EULER_UTIL_SYSTEM_H */
-

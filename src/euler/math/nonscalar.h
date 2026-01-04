@@ -48,7 +48,8 @@ public:
 	    = 0;
 	virtual mrb_value map(const util::Reference<util::State> &state) = 0;
 	virtual mrb_value has_infinity(
-	    const util::Reference<util::State> &state) = 0;
+	    const util::Reference<util::State> &state)
+	    = 0;
 	virtual mrb_value has_nan(const util::Reference<util::State> &state)
 	    = 0;
 	virtual mrb_value imaginary(const util::Reference<util::State> &state)
@@ -75,7 +76,8 @@ public:
 	virtual mrb_value reset(const util::Reference<util::State> &state) = 0;
 	virtual mrb_value resize(const util::Reference<util::State> &state) = 0;
 	virtual mrb_value set_imaginary(
-	    const util::Reference<util::State> &state) = 0;
+	    const util::Reference<util::State> &state)
+	    = 0;
 	virtual mrb_value set_real(const util::Reference<util::State> &state)
 	    = 0;
 	virtual mrb_value set_size(const util::Reference<util::State> &state)
@@ -110,6 +112,10 @@ template <> struct nonscalar_value_type<uint32_t> {
 };
 
 template <> struct nonscalar_value_type<uint64_t> {
+	static constexpr auto value = Nonscalar::ValueType::UInt64;
+};
+
+template <> struct nonscalar_value_type<size_type> {
 	static constexpr auto value = Nonscalar::ValueType::UInt64;
 };
 

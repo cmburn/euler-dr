@@ -9,6 +9,4 @@ namespace euler::util {
 class Image final : public util::Object { };
 } /* namespace euler::util */
 
-
 #endif /* EULER_UTIL_IMAGE_H */
-

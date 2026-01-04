@@ -53,7 +53,11 @@ public:
 	float width() const;
 	float height() const;
 	uint32_t id() const;
-	bool loaded() const { return _texture != nullptr; }
+	bool
+	loaded() const
+	{
+		return _texture != nullptr;
+	}
 
 protected:
 	explicit Texture(detail::texture_pointer texture);

@@ -8,12 +8,9 @@
 namespace euler::graphics {
 class Camera final : public util::Object {
 public:
-
-
 private:
 	int _index = 0;
 };
 } /* namespace euler::graphics */
 
 #endif /* EULER_RENDERER_CAMERA_H */
-

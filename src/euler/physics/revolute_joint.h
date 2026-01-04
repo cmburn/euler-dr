@@ -8,10 +8,7 @@
 namespace euler::physics {
 class RevoluteJoint final : public util::Object {
 public:
-
 };
 } /* namespace euler::physics */
 
-
 #endif /* EULER_PHYSICS_REVOLUTE_JOINT_H */
-

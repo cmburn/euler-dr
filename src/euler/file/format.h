@@ -9,6 +9,4 @@ namespace euler::file {
 class Format final : public util::Object { };
 } /* namespace euler::file */
 
-
 #endif /* EULER_FILE_FORMAT_H */
-

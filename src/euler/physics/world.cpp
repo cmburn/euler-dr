@@ -96,8 +96,8 @@ world_new(mrb_state *mrb, const mrb_value self)
 	const b2WorldDef def = parse_world_new_args(mrb);
 	(void)self;
 	const b2WorldId id = b2CreateWorld(&def);
-	struct box2d_world *data = (struct box2d_world *)tmpbuf(mrb,
-	    sizeof(struct box2d_world));
+	struct box2d_world *data
+	    = (struct box2d_world *)tmpbuf(mrb, sizeof(struct box2d_world));
 	assert(data != NULL);
 	data->id = id;
 	data->mrb = mrb;
@@ -1299,5 +1299,4 @@ void
 euler::physics::World::init(const util::Reference<util::State> &state)
 {
 	const auto state = euler::util::State::get(mrb);
-
 }

@@ -13,9 +13,7 @@
 
 #include "euler/util/object.h"
 
-
 struct nk_font_config;
-
 
 namespace euler::graphics {
 class Gui;

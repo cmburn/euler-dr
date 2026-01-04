@@ -9,6 +9,4 @@ namespace euler::vulkan {
 
 } /* namespace euler::vulkan */
 
-
 #endif /* EULER_VULKAN_ERROR_H */
-

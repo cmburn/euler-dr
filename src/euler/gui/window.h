@@ -29,10 +29,11 @@ public:
 	    const std::string &progname);
 	~Window() override = default;
 
-	util::Reference<Widget> widget(const char *title, const Widget::Settings &settings,
+	util::Reference<Widget> widget(const char *title,
+	    const Widget::Settings &settings,
 	    const std::function<void(util::Reference<Widget> &)> &fn);
-	util::Reference<Widget> widget(const char *title, const Widget::Settings &settings,
-	    mrb_value block);
+	util::Reference<Widget> widget(const char *title,
+	    const Widget::Settings &settings, mrb_value block);
 
 	util::Reference<Widget>
 	widget(const char *title,

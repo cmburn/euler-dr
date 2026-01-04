@@ -11,6 +11,4 @@ public:
 };
 } /* namespace euler::util */
 
-
 #endif /* EULER_UTIL_STORAGE_H */
-

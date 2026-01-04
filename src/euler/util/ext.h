@@ -3,6 +3,8 @@
 #ifndef EULER_UTIL_EXT_H
 #define EULER_UTIL_EXT_H
 
+#include <mruby/throw.h>
+
 #include "euler/util/error.h"
 #include "euler/util/object.h"
 #include "euler/util/state.h"
@@ -36,6 +38,9 @@ template <typename R, typename... Args> struct function_traits<R (*)(Args...)> {
 
 }
 
+mrb_value wrap_exception(const Reference<State> &state,
+    const std::exception &e);
+
 template <auto Method>
 static constexpr mrb_func_t
 wrap_method()
@@ -55,11 +60,26 @@ wrap_method()
 
 	/* ReSharper disable once CppParameterMayBeConstPtrOrRef */
 	return [](mrb_state *mrb, mrb_value self) -> mrb_value {
-		const auto state = State::get(mrb);
-		auto self_obj = Reference<SelfT>::unwrap(self);
-		if (self_obj == nullptr)
-			throw ArgumentError(state, "Passed null self");
-		return (self_obj.get()->*Method)(state);
+		mrb_value exc = mrb_nil_value();
+		try {
+			const auto state = State::get(mrb);
+			auto self_obj = Reference<SelfT>::unwrap(self);
+			if (self_obj == nullptr)
+				throw ArgumentError(state, "Passed null self");
+			return (self_obj.get()->*Method)(state);
+		} catch (std::exception &e) {
+			exc = wrap_exception(State::get(mrb), e);
+		}
+		/* can't have any uncalled destructors, which gets a bit
+		 * tricky if mruby isn't built with support for c++ exceptions.
+		 * This gets even trickier when we're operating with an mruby
+		 * state that's wrapped in our virtual class. This technically
+		 * could segfault, if the RubyState is destroyed after we
+		 * fetch it but before we call mrb_raise, but that's unlikely
+		 * enough to worry about for now, as the containing State should
+		 * have the same lifetime as the passed mrb_state. */
+		RubyState *rs = State::get(mrb)->mrb().get();
+		rs->exc_raise(exc);
 	};
 }
 
@@ -88,7 +108,9 @@ template <auto method>
 void
 define_method(const Reference<State> &state, RClass *cls, const char *name,
     const mrb_aspec args = MRB_ARGS_NONE())
-{ state->mrb()->define_method(cls, name, wrap_method<method>(), args); }
+{
+	state->mrb()->define_method(cls, name, wrap_method<method>(), args);
+}
 
 template <auto function>
 void
@@ -137,6 +159,21 @@ datatype(const char *name)
 		.dfree = util::dfree<T>,
 	};
 }
+
+#define BIND_MRUBY(NAME, TYPENAME, MODULE)                                     \
+public:                                                                        \
+	static constexpr auto TYPE = ::euler::util::datatype<TYPENAME>(NAME);  \
+	static RClass *init(                                                   \
+	    const ::euler::util::Reference<::euler::util::State> &state,       \
+	    RClass *mod, RClass *super = nullptr);                             \
+	static RClass *fetch_class(                                            \
+	    const ::euler::util::Reference<::euler::util::State> &state)       \
+	{                                                                      \
+		return state->modules().MODULE;                                \
+	}                                                                      \
+                                                                               \
+private:                                                                       \
+	static_assert(true)
 
 } /* namespace euler::util */
 

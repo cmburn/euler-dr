@@ -24,7 +24,11 @@ public:
 	    float theta = 0.0f) const
 	    = 0;
 
-	const util::Reference<Image> &image() const { return _image; }
+	const util::Reference<Image> &
+	image() const
+	{
+		return _image;
+	}
 
 private:
 	util::Reference<Image> _image;

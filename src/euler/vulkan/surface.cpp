@@ -5,8 +5,8 @@
 #include <VK2D/Constants.h>
 #include <VK2D/Gui.h>
 #include <VK2D/Renderer.h>
-#include <VK2D/Texture.h>
 #include <VK2D/Structs.h>
+#include <VK2D/Texture.h>
 
 #include "euler/vulkan/renderer.h"
 

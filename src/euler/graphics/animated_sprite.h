@@ -9,6 +9,4 @@ namespace euler::graphics {
 class AnimatedSprite final : public util::Object { };
 } /* namespace euler::graphics */
 
-
 #endif /* EULER_GRAPHICS_ANIMATED_SPRITE_H */
-

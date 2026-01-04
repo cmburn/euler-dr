@@ -15,8 +15,7 @@ drb_register_c_extensions_with_api(mrb_state *mrb, drb_api_t *api)
 		.state = mrb,
 		.api = api,
 	};
-	const auto state
-	    = euler::util::make_reference<euler::app::State>(args);
+	const auto state = euler::util::make_reference<euler::app::State>(args);
 	state->initialize();
 	state->log()->info("Registered Euler with DragonRuby.");
 }

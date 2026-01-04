@@ -17,4 +17,3 @@ b2Segment segment_unwrap(mrb_state *mrb, mrb_value segment_value);
 } /* namespace euler::physics */
 
 #endif /* EULER_PHYSICS_EXT_H */
-

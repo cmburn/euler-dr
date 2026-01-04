@@ -10,6 +10,4 @@ namespace euler::app::dragonruby {
 class Storage final : public util::Storage { };
 } /* namespace euler::app::dragonruby */
 
-
 #endif /* EULER_APP_DRAGONRUBY_STORAGE_H */
-

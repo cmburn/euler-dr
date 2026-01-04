@@ -30,7 +30,9 @@ public:
 
 	b2BodyId
 	id() const
-	{ return _id; }
+	{
+		return _id;
+	}
 
 	float angular_damping();
 	float angular_velocity();
