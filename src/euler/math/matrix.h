@@ -114,6 +114,8 @@ template <typename T> class MatrixImpl final : public Matrix {
 public:
 	typedef T elem_type;
 	typedef arma::Mat<T> matrix_type;
+	typedef detail::pod_type_t<T> pod_type;
+	typedef arma::Mat<pod_type> pod_matrix_type;
 
 private:
 	static bool
@@ -132,8 +134,11 @@ public:
 	MatrixImpl();
 
 	/* These are defined in ops.h */
-	matrix_type &matrix();
-	ValueType value_type() const override;
+	matrix_type &value() { return _matrix; }
+	const matrix_type &value() const { return _matrix; }
+	ValueType value_type() const override {
+		return nonscalar_value_type_v<T>;
+	}
 	mrb_value initialize(const util::Reference<util::State> &state);
 	mrb_int coerce_row(mrb_int r) const;
 	mrb_int coerce_col(mrb_int c) const;

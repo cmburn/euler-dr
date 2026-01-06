@@ -2,6 +2,8 @@
 
 #include "euler/math/size.h"
 
+#include "euler/math/impl.h"
+
 euler::math::Nonscalar::Type
 euler::math::Size::type() const
 {

@@ -14,6 +14,7 @@
 #include <mruby/string.h>
 #include <mruby/variable.h>
 
+
 namespace euler::util {
 class RubyState : public Object {
 public:

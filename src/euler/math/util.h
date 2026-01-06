@@ -258,7 +258,21 @@ template <size_type num> struct num_to_string : detail::explode<num> { };
 
 template <size_type num>
 static inline constexpr auto num_str = num_to_string<num>::value;
+
+template <typename T> struct pod_type {
+	static_assert(math::is_supported_numeric<T>());
+	typedef T type;
+};
+template <> struct pod_type<std::complex<float>> {
+	typedef float type;
+};
+template <> struct pod_type<std::complex<double>> {
+	typedef double type;
+};
+
+template <typename T> using pod_type_t = pod_type<T>::type;
 }
+
 
 template <size_type N>
 static constexpr const char *
@@ -326,6 +340,22 @@ static inline bool
 is_numeric(const mrb_value v)
 {
 	return mrb_float_p(v) || mrb_fixnum_p(v);
+}
+
+
+static bool
+is_nonscalar(const util::Reference<util::State> &state,
+    mrb_value value)
+{
+	const auto ns_cls = state->modules().math.nonscalar;
+	return state->mrb()->obj_is_kind_of(value, ns_cls);
+}
+
+static bool
+is_numeric_or_nonscalar(const util::Reference<util::State> &state,
+    mrb_value value)
+{
+	return is_numeric(value) || is_nonscalar(state, value);
 }
 
 std::array<size_type, 1> unwrap_size_vector(

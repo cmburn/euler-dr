@@ -9,6 +9,7 @@
 namespace euler::math {
 
 class RowVector : public Nonscalar {
+	BIND_MRUBY("Euler::Math::RowVector", RowVector, math.row_vector);
 public:
 	Type type() const override { return Type::RowVector; }
 	virtual mrb_value columns(const util::Reference<util::State> &state)
@@ -59,7 +60,22 @@ template <typename T> class RowVectorImpl final : public RowVector {
 public:
 	typedef T elem_type;
 	typedef arma::Row<T> row_vector_type;
+	typedef detail::pod_type_t<T> pod_type;
+	typedef arma::Row<pod_type> pod_row_vector_type;
 
+	template <typename U = T>
+	static mrb_value wrap_row_vector(
+	    const util::Reference<util::State> &state,
+	    const arma::Row<U> &row_vector)
+	{
+		auto obj = util::make_reference<RowVectorImpl<U>>(state);
+		// auto rv_impl = static_cast<RowVectorImpl<U> *>(obj.get());
+		obj->_row_vector = row_vector;
+		return state->wrap(obj);
+	}
+
+	row_vector_type &value() { return _row_vector; }
+	const row_vector_type &value() const { return _row_vector; }
 	ValueType value_type() const override;
 	mrb_value at(const util::Reference<util::State> &state) override;
 	mrb_value set_at(const util::Reference<util::State> &state) override;
@@ -126,6 +142,8 @@ public:
 	mrb_value le(const util::Reference<util::State> &state) override;
 	mrb_value gt(const util::Reference<util::State> &state) override;
 	mrb_value ge(const util::Reference<util::State> &state) override;
+private:
+	row_vector_type _row_vector;
 };
 
 } /* namespace euler::math */

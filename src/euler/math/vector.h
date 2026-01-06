@@ -78,21 +78,6 @@ std::tuple<size_type, size_type, size_type> size_dims(
 mrb_value make_size(const util::Reference<util::State> &state, size_type rows,
     size_type cols = 0, size_type slices = 0);
 
-namespace detail {
-template <typename T> struct pod_type {
-	static_assert(math::is_supported_numeric<T>());
-	typedef T type;
-};
-template <> struct pod_type<std::complex<float>> {
-	typedef float type;
-};
-template <> struct pod_type<std::complex<double>> {
-	typedef double type;
-};
-
-template <typename T> using pod_type_t = pod_type<T>::type;
-}
-
 template <typename T> class VectorImpl final : public Vector {
 public:
 	typedef T elem_type;
@@ -102,7 +87,6 @@ public:
 	friend class Size;
 	template <typename U> friend class VectorImpl;
 
-public:
 	VectorImpl(const vector_type &vec);
 
 	template <typename U = T>

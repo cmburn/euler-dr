@@ -7,8 +7,8 @@ add_library(euler_math STATIC
         matrix.h
         nonscalar.cpp
         nonscalar.h
-        ops.cpp
-        ops.h
+        impl.cpp
+        impl.h
         row_vector.cpp
         row_vector.h
         size.cpp

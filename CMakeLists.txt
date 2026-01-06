@@ -6,7 +6,7 @@ set(CMAKE_C_STANDARD 17)
 
 option(EULER_DRAGONRUBY_BUILD "Build Dragonruby bindings" OFF)
 option(EULER_NATIVE_BUILD "Build native bindings" OFF)
-option(EULER_MATH_BUILD "Build Euler::Math module" OFF)
+option(EULER_MATH_BUILD "Build Euler::Math module" ON)
 option(EULER_PHYSICS_BUILD "Build Euler::Physics module" ON)
 option(EULER_NET_BUILD "Build Euler::Net module" OFF)
 option(EULER_DRAGONRUBY_PATH "Path to DragonRuby installation" "")

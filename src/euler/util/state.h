@@ -26,6 +26,7 @@ public:
 		} util;
 		struct {
 			RClass *mod;
+			RClass *nonscalar;
 			RClass *cube;
 			RClass *matrix;
 			RClass *row_vector;

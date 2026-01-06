@@ -9,8 +9,11 @@
 
 #include <mruby.h>
 
+#include "euler/util/ext.h"
+
 namespace euler::math {
 class Nonscalar : public util::Object {
+	BIND_MRUBY("Euler::Math::Nonscalar", Nonscalar, math.nonscalar);
 public:
 	enum class Type {
 		Cube,
