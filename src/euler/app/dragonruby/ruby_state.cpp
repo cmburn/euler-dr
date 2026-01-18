@@ -742,17 +742,18 @@ RubyState::field_write_barrier(RBasic *b1, RBasic *b2)
 {
 	_api.mrb_field_write_barrier(_mrb, b1, b2);
 }
-mrb_value
-RubyState::integer_to_str(mrb_value x, mrb_int base)
-{
-	return _api.mrb_fixnum_to_str(_mrb, x, base);
-}
 
-mrb_value
-RubyState::float_to_integer(mrb_value val)
-{
-	return _api.mrb_flo_to_fixnum(_mrb, val);
-}
+// mrb_value
+// RubyState::fixnum_to_str(const mrb_value x, const mrb_int base)
+// {
+// 	return _api.mrb_fixnum_to_str(_mrb, x, base);
+// }
+//
+// mrb_value
+// RubyState::flo_to_fixnum(const mrb_value val)
+// {
+// 	return _api.mrb_flo_to_fixnum(_mrb, val);
+// }
 
 double
 RubyState::float_read(const char *str, char **endptr)
@@ -2264,7 +2265,8 @@ RubyState::str_to_dbl(const mrb_value str, const mrb_bool badcheck)
 }
 
 mrb_value
-RubyState::str_to_integer(mrb_value str, mrb_int base, mrb_bool badcheck)
+RubyState::str_to_inum(const mrb_value str, const mrb_int base,
+    const mrb_bool badcheck)
 {
 	return _api.mrb_str_to_inum(_mrb, str, base, badcheck);
 }

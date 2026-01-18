@@ -57,4 +57,5 @@ if (EULER_NATIVE_BUILD)
     add_subdirectory(euler/graphics)
     add_subdirectory(euler/gui)
     add_subdirectory(euler/vulkan)
+
 endif ()

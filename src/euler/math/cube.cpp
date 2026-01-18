@@ -105,6 +105,13 @@ CubeImpl<T>::set_at(const util::Reference<util::State> &state)
 	}
 }
 
+/**
+ * @overload Euler::Math::Cube#clamp(min, max)
+ *   Clamp the values in the cube to be within the given range.
+ *   @param min [Numeric] The minimum value.
+ *   @param max [Numeric] The maximum value.
+ *   @return [void]
+ */
 template <typename T>
 mrb_value
 CubeImpl<T>::clamp(const util::Reference<util::State> &state)
@@ -118,6 +125,13 @@ CubeImpl<T>::clamp(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
+/**
+ * @overload Euler::Math::Cube#clean(threshold)
+ *   Clean the cube by setting elements with absolute value less than
+ *   `threshold` to zero.
+ *   @param threshold [Numeric] The threshold value.
+ *   @return [void]
+ */
 template <typename T>
 mrb_value
 CubeImpl<T>::clean(const util::Reference<util::State> &state)
@@ -130,11 +144,21 @@ CubeImpl<T>::clean(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
+/**
+ * @overload Euler::Math::Cube#copy_size(other)
+ *   Copy the size of another cube.
+ *   @param other [Euler::Math::Cube] The other cube.
+ *   @return [void]
+ */
 template <typename T>
 mrb_value
 CubeImpl<T>::copy_size(const util::Reference<util::State> &state)
 {
-
+	auto mrb = state->mrb();
+	mrb_value other_val;
+	mrb->get_args("o", &other_val);
+	auto other = state->unwrap<Cube>(other_val);
+	return mrb_nil_value();
 }
 
 template <typename T>

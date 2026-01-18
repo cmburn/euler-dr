@@ -4,6 +4,7 @@
 #define EULER_PHYSICS_CONTACT_H
 
 #include <vector>
+#include <box2d/box2d.h>
 #include <box2d/id.h>
 #include <box2d/types.h>
 

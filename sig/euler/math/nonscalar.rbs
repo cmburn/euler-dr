@@ -1,123 +1,18 @@
 module Euler
   module Math
-    type index = Integer | Range[Integer] | Array[Integer]
-    type value_type = :int16 | :int32 | :int64 | :uint16 | :uint32 | :uint64 | :float32 | :float64 | :complex64 | :complex128
-    type kind = :matrix | :vector | :row_vector | :sparse_matrix | :cube
-    # Note that T *must* be one of the following types:
-    # - Integer
-    # - Float
-    # - Complex
-    # Using `Numeric` as a type parameter is due to RBS's limitations, as
-    # you cannot specify a union of types as a type parameter constraint.
-    class Nonscalar[T < Numeric]
-      # @overload Euler::Math::Nonscalar#type -> Symbol
-      #   Returns the type of the nonscalar. Will be one of:
-      #   - :matrix
-      #   - :vector
-      #   - :row_vector
-      #   - :sparse_matrix
-      #   - :cube
-      #   @return [Symbol] The type of the nonscalar.
-      def type: () -> kind
-
-      # @overload Euler::Math::Nonscalar#value_type
-      #   Returns the value type of the nonscalar. Will be one of:
-      #   - :int16
-      #   - :int32
-      #   - :int64
-      #   - :uint16
-      #   - :uint32
-      #   - :uint64
-      #   - :float32
-      #   - :float64
-      #   - :complex64
-      #   - :complex128
-      #   @return [Symbol] The value type of the nonscalar.
-      def value_type: () -> value_type
-
-      # @overload Euler::Math::Nonscalar#size
-      #   Returns the size of the nonscalar as an Euler::Math::Size object.
-      #   @return [Euler::Math::Size] The size of the nonscalar.
-      def size: () -> Size
-
-      # @overload Euler::Math::Nonscalar#clamp(min, max)
+    class Nonscalar
+      # @overload Euler::Math::Nonscalar#clamp(min, max) -> void
       #   Clamps each element of the nonscalar between the given minimum and maximum values.
-      #   @param min [Numeric] The minimum value to clamp to.
-      #   @param max [Numeric] The maximum value to clamp to.
+      #   @param min [$numeric] The minimum value to clamp to.
+      #   @param max [$numeric] The maximum value to clamp to.
       #   @return [void]
-      # @overload Euler::Math::Nonscalar#clamp(range)
+      # @overload Euler::Math::Nonscalar#clamp(range) -> void
       #   Clamps each element of the nonscalar within the specified range.
-      #   @param range [Range[Numeric]] The range to clamp to.
+      #   @param range [Range[$numeric]] The range to clamp to.
       #   @return [void]
-      def clamp: (Numeric, Numeric) -> void
-               | (Range[Numeric]) -> void
+      def clamp: (numeric, numeric) -> void
+               | (Range[numeric]) -> void
 
-      # @overload Euler::Math::Nonscalar#clean(threshold)
-      #   Replaces each element with an absolute value less than or equal to the specified threshold with zero.
-      #   @param threshold [Numeric] The threshold value.
-      #   @return [void]
-      def clean: (Numeric) -> void
-
-      # @overload Euler::Math::Nonscalar#copy_size(other)
-      #   Sets the size of the nonscalar to match that of another nonscalar.
-      #   @param other [Euler::Math::Nonscalar] The nonscalar to copy the size from.
-      #   @return [void]
-      #   @note other must be of the same type (e.g., Matrix, Vector) as self.
-      def copy_size: (Nonscalar[Numeric]) -> void
-
-      # @overload Euler::Math::Nonscalar#inf?
-      #   Checks if any element in the nonscalar is infinite.
-      #   @return [Boolean] true if any element is infinite, false otherwise.
-      def inf?: () -> bool
-
-      # @overload Euler::Math::Nonscalar#nan?
-      #   Checks if any element in the nonscalar is NaN (Not a Number).
-      #   @return [Boolean] true if any element is NaN, false otherwise.
-      def nan?: () -> bool
-
-      # @overload Euler::Math::Nonscalar#imag
-      #   Returns the imaginary part of the nonscalar as a new nonscalar.
-      #   @return [Euler::Math::Nonscalar[Float]] The imaginary part of the nonscalar.
-      #   @note This method is only applicable if the nonscalar contains complex numbers.
-      def imag: () -> Nonscalar[Float]
-
-      # @overload Euler::Math::Nonscalar#in_range?(low, high)
-      #  Checks if all elements of the nonscalar are within the specified range [low, high].
-      #  @param low [Numeric] The lower bound of the range.
-      #  @param high [Numeric] The upper bound of the range.
-      #  @return [Boolean] true if all elements are within the range, false otherwise.
-      def in_range?: (Numeric, Numeric) -> bool
-                   | (Range[Numeric]) -> bool
-
-      def index_max: () -> Integer
-      def index_min: () -> Integer
-      def complex?: () -> bool
-      def empty?: () -> bool
-      def finite?: () -> bool
-      def zero?: () -> bool
-      def min: () -> T
-      def max: () -> T
-      def real: () -> Nonscalar[Float]
-      def replace: (Numeric, Numeric) -> void
-      def reset: () -> void
-      def size=: (Size) -> void
-      def column_count: () -> Integer
-      def row_count: () -> Integer
-
-      # todo in children
-      # []
-      # []=
-      # map
-      # transform
-      # imag=
-      # real=
-      # resize
-      # to_a
-
-      # @overload Euler::Math::Nonscalar#to_s
-      #   Returns a string representation of the nonscalar.
-      #   @return [String] The string representation of the nonscalar.
-      def to_s: () -> String
     end
   end
 end

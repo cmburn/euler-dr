@@ -66,7 +66,6 @@ VectorImpl<T>::copy_size(const util::Reference<util::State> &state)
 	}
 	auto other = state->unwrap<Vector>(arg);
 	_vector.set_size(other->n_cols());
-
 	return mrb_nil_value();
 }
 

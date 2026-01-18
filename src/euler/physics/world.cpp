@@ -357,7 +357,8 @@ world_overlap_aabb(mrb_state *mrb, const mrb_value self)
 			state->mrb()->ary_push(result, state->wrap(shape));
 			return true;
 		}
-		auto yield_result = mrb_yield(mrb, block, state->wrap(shape));
+		const auto yield_result
+		    = state->mrb()->yield(block, state->wrap(shape));
 		return mrb_true_p(yield_result);
 	});
 	return result;
@@ -462,7 +463,8 @@ world_overlap_shape(mrb_state *mrb, mrb_value self)
 			state->mrb()->ary_push(result, state->wrap(shape));
 			return true;
 		}
-		auto yield_result = mrb_yield(mrb, block, state->wrap(shape));
+		const auto yield_result
+		    = state->mrb()->yield(block, state->wrap(shape));
 		state->mrb()->ary_push(result, yield_result);
 		return true;
 	});

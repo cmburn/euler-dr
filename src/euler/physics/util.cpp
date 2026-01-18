@@ -202,7 +202,7 @@ euler::physics::hash_read_int(mrb_state *mrb, mrb_value hash, mrb_value key,
 	const auto val = state->mrb()->hash_get(hash, key);
 	if (mrb_nil_p(val)) return default_value;
 	const auto int_val = state->mrb()->ensure_integer_type(val);
-	return mrb_int(mrb, int_val);
+	return mrb_fixnum(int_val);
 }
 
 mrb_value

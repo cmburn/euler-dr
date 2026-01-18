@@ -7,6 +7,7 @@
 
 #include <box2d/box2d.h>
 #include <box2d/id.h>
+#include <box2d/types.h>
 
 #include "euler/util/ext.h"
 #include "euler/util/object.h"
