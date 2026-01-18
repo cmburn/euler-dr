@@ -7,7 +7,7 @@ if (EULER_DRAGONRUBY_BUILD)
     target_sources(euler_app PUBLIC
             dragonruby/logger.cpp
             dragonruby/logger.h
-            dragonruby/mruby_state.cpp
+            dragonruby/ruby_state.cpp
             dragonruby/ruby_state.h
             dragonruby/state.cpp
             dragonruby/state.h
@@ -29,8 +29,8 @@ if (EULER_NATIVE_BUILD)
     target_sources(euler_app PUBLIC
             native/logger.cpp
             native/logger.h
-            native/mruby_state.cpp
-            native/mruby_state.h
+            native/ruby_state.cpp
+            native/ruby_state.h
             native/state.cpp
             native/state.h
             native/storage.cpp
@@ -38,6 +38,10 @@ if (EULER_NATIVE_BUILD)
     )
     target_compile_definitions(euler_app PUBLIC
             -DEULER_NATIVE
+    )
+
+    target_include_directories(euler_app PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../
     )
 
     # if vulkan_sdk env var exists, use it instead of system headers
@@ -50,5 +54,5 @@ endif ()
 target_link_libraries(euler_app PUBLIC
         euler_util
         euler_math
-        euler_physics
+        # euler_physics
 )

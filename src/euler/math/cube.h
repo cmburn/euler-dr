@@ -9,6 +9,7 @@
 
 namespace euler::math {
 class Cube : public Nonscalar {
+	BIND_MRUBY("Euler::Math::Cube", Cube, math.cube);
 public:
 	Type
 	type() const override
@@ -165,17 +166,6 @@ public:
 	    const util::Reference<util::State> &state) override;
 	mrb_value swap(const util::Reference<util::State> &state) override;
 	mrb_value zeros(const util::Reference<util::State> &state) override;
-	mrb_value add(const util::Reference<util::State> &state) override;
-	mrb_value sub(const util::Reference<util::State> &state) override;
-	mrb_value matmul(const util::Reference<util::State> &state) override;
-	mrb_value mul(const util::Reference<util::State> &state) override;
-	mrb_value div(const util::Reference<util::State> &state) override;
-	mrb_value eq(const util::Reference<util::State> &state) override;
-	mrb_value ne(const util::Reference<util::State> &state) override;
-	mrb_value lt(const util::Reference<util::State> &state) override;
-	mrb_value le(const util::Reference<util::State> &state) override;
-	mrb_value gt(const util::Reference<util::State> &state) override;
-	mrb_value ge(const util::Reference<util::State> &state) override;
 
 private:
 	cube_type _cube;

@@ -1,0 +1,18 @@
+module Euler
+  module Math
+    class Nonscalar
+      # @overload Euler::Math::Nonscalar#clamp(min, max) -> void
+      #   Clamps each element of the nonscalar between the given minimum and maximum values.
+      #   @param min [$numeric] The minimum value to clamp to.
+      #   @param max [$numeric] The maximum value to clamp to.
+      #   @return [void]
+      # @overload Euler::Math::Nonscalar#clamp(range) -> void
+      #   Clamps each element of the nonscalar within the specified range.
+      #   @param range [Range[$numeric]] The range to clamp to.
+      #   @return [void]
+      def clamp: (numeric, numeric) -> void
+               | (Range[numeric]) -> void
+
+    end
+  end
+end

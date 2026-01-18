@@ -3,6 +3,8 @@ add_library(euler_math STATIC
         cube.h
         ext.cpp
         ext.h
+        functions.cpp
+        functions.h
         matrix.cpp
         matrix.h
         nonscalar.cpp

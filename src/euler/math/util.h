@@ -273,6 +273,38 @@ template <> struct pod_type<std::complex<double>> {
 template <typename T> using pod_type_t = pod_type<T>::type;
 }
 
+template <typename To, typename From>
+To
+cast_numeric(From value)
+{
+	static_assert(is_supported_numeric<To>());
+	static_assert(is_supported_numeric<From>());
+	if constexpr (std::is_same_v<To, From>) {
+		return value;
+	} else if constexpr (std::is_integral_v<To>
+	    && std::is_integral_v<From>) {
+		return static_cast<To>(value);
+	} else if constexpr (std::is_floating_point_v<To>
+	    && std::is_integral_v<From>) {
+		return static_cast<To>(value);
+	} else if constexpr (std::is_integral_v<To>
+	    && std::is_floating_point_v<From>) {
+		return static_cast<To>(arma::round(value));
+	} else if constexpr (std::is_floating_point_v<To>
+	    && std::is_floating_point_v<From>) {
+		return static_cast<To>(value);
+	} else if constexpr (is_complex<To>()
+	    && std::is_floating_point_v<From>) {
+		return To(static_cast<detail::pod_type_t<To>>(value), 0);
+	} else if constexpr (is_complex<To>() && is_complex<From>()) {
+		auto real = static_cast<detail::pod_type_t<To>>(value.real());
+		auto imag = static_cast<detail::pod_type_t<To>>(value.imag());
+		return To(real, imag);
+	} else {
+		static_assert(!sizeof(To *), "Unsupported numeric cast");
+	}
+	return To {};
+}
 
 template <size_type N>
 static constexpr const char *
@@ -342,10 +374,8 @@ is_numeric(const mrb_value v)
 	return mrb_float_p(v) || mrb_fixnum_p(v);
 }
 
-
 static bool
-is_nonscalar(const util::Reference<util::State> &state,
-    mrb_value value)
+is_nonscalar(const util::Reference<util::State> &state, mrb_value value)
 {
 	const auto ns_cls = state->modules().math.nonscalar;
 	return state->mrb()->obj_is_kind_of(value, ns_cls);
@@ -365,17 +395,17 @@ std::array<size_type, 2> unwrap_size_matrix(
 std::array<size_type, 3> unwrap_size_cube(
     const util::Reference<util::State> &state, mrb_value arg);
 
-template <size_type N>
-std::array<size_type, N>
-unwrap_size(const util::Reference<util::State> &state, const mrb_value arg)
-{
-	static_assert(N > 0, "N must be positive");
-	static_assert(N <= 3, "N must be at most 3");
-	if constexpr (N == 1) return unwrap_size_vector(state, arg);
-	if constexpr (N == 2) return unwrap_size_matrix(state, arg);
-	if constexpr (N == 3) return unwrap_size_cube(state, arg);
-	return {};
-}
+// template <size_type N>
+// std::array<size_type, N>
+// unwrap_size(const util::Reference<util::State> &state, const mrb_value arg)
+// {
+// 	static_assert(N > 0, "N must be positive");
+// 	static_assert(N <= 3, "N must be at most 3");
+// 	if constexpr (N == 1) return unwrap_size_vector(state, arg);
+// 	if constexpr (N == 2) return unwrap_size_matrix(state, arg);
+// 	if constexpr (N == 3) return unwrap_size_cube(state, arg);
+// 	return {};
+// }
 
 } /* namespace euler::math */
 

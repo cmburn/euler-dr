@@ -1,0 +1,5 @@
+module Euler
+  module Math
+    type numeric = Integer | Complex | Float
+  end
+end

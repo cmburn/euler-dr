@@ -141,6 +141,8 @@ template <> struct nonscalar_value_type<std::complex<double>> {
 template <typename T>
 static constexpr auto nonscalar_value_type_v = nonscalar_value_type<T>::value;
 
+
+
 } /* namespace euler::math */
 
 #endif /* EULER_MATH_NONSCALAR_H */

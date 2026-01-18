@@ -20,6 +20,7 @@
 
 namespace euler::app {
 class State final : public EULER_APP_NAMESPACE::State {
+	BIND_MRUBY("Euler::App::State", State, app.state);
 public:
 	~State() override = default;
 	explicit State(const Arguments &args);

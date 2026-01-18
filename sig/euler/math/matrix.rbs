@@ -1,0 +1,7 @@
+module Euler
+  module Math
+    class Matrix < Nonscalar
+      def clamp: ()
+    end
+  end
+end

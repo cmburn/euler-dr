@@ -19,8 +19,17 @@ public:
 	typedef uint64_t tick_t;
 	typedef decltype(std::thread::hardware_concurrency()) nthread_t;
 
+	enum class Runtime {
+		Native,
+		DragonRuby,
+	};
+
 	struct Module {
 		RClass *mod;
+		struct {
+			RClass *mod;
+			RClass *state;
+		} app;
 		struct {
 			RClass *mod;
 		} util;

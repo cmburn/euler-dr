@@ -160,15 +160,34 @@ private:
 	vector_type _vector;
 };
 
-template <size_type N>
-std::array<size_type, N>
-unwrap_size(const util::Reference<util::State> &state)
+/*
+ * Unwraps size arguments from mrb state. Will unwrap as either multiple 
+ * dimensions or a single Size object, and will return an array of N elements.
+ */
+template <mrb_int N>
+std::array<mrb_int, N>
+unwrap_size(const util::Reference<util::State> &state, mrb_int offset = 0)
 {
-	mrb_value arg;
+	static_assert(N > 0 && N <= 3);
 	const auto mrb = state->mrb();
-	mrb->get_args("o", &arg);
-	const auto size_obj = state->unwrap<Size>(arg);
-	return size_obj->dims<N>();
+	const mrb_int argc = mrb->get_argc() - offset;
+	const auto argv = mrb->get_argv();
+	if (argc == 1) {
+		const auto arg = argv[offset];
+		if constexpr (N == 1) {
+			if (is_numeric(arg))
+				return { unwrap_num<mrb_int>(state, arg) };
+		}
+		const auto size_obj = state->unwrap<Size>(arg);
+		return size_obj->dims<N>();
+	}
+	if (argc != N) throw std::invalid_argument("wrong number of arguments");
+	std::array<mrb_int, N> arr {};
+	for (mrb_int i = 0; i < N; ++i) {
+		const auto arg = argv[i + offset];
+		arr[i] = unwrap_num<mrb_int>(state, arg);
+	}
+	return arr;
 }
 
 } /* namespace euler::math */

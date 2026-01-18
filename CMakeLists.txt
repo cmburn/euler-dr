@@ -12,6 +12,7 @@ option(EULER_NET_BUILD "Build Euler::Net module" OFF)
 option(EULER_DRAGONRUBY_PATH "Path to DragonRuby installation" "")
 option(EULER_GUI_BUILD "Build Euler::GUI module" OFF)
 option(EULER_FILE_BUILD "Build Euler::File module" OFF)
+option(BUILD_TESTS "Build tests" OFF)
 
 include(ExternalProject)
 include(FetchContent)
@@ -157,6 +158,21 @@ elseif (EULER_NATIVE_BUILD)
     add_subdirectory(bin)
 endif ()
 
+if (BUILD_TESTS)
+    if (NOT EULER_NATIVE_BUILD)
+        message(FATAL_ERROR "Tests can only be built with EULER_NATIVE_BUILD enabled.")
+    endif ()
+    enable_testing()
+    add_subdirectory(test)
+    set(GTEST_GIT_TAG v1.17.0)
+    FetchContent_Declare(googletest
+            GIT_REPOSITORY https://github.com/google/googletest/
+            GIT_TAG ${GTEST_GIT_TAG}
+            GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(googletest)
+endif ()
+
 message(STATUS "Euler configuration:")
 if (EULER_DRAGONRUBY_BUILD)
     message(STATUS "  Build type: DragonRuby")
@@ -168,3 +184,4 @@ message(STATUS "  Build Euler::Math: ${EULER_MATH_BUILD}")
 message(STATUS "  Build Euler::Net: ${EULER_NET_BUILD}")
 message(STATUS "  Build Euler::Gui: ${EULER_GUI_BUILD}")
 message(STATUS "  Build Euler::File: ${EULER_FILE_BUILD}")
+message(STATUS "  Build tests: ${BUILD_TESTS}")

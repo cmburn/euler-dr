@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: ISC */
 
-#ifndef EULER_APP_DRAGONRUBY_MRUBY_STATE_H
-#define EULER_APP_DRAGONRUBY_MRUBY_STATE_H
+#ifndef EULER_APP_DRAGONRUBY_RUBY_STATE_H
+#define EULER_APP_DRAGONRUBY_RUBY_STATE_H
 
 #include "euler/util/object.h"
 #include "euler/util/ruby_state.h"
@@ -10,12 +10,12 @@
 
 namespace euler::app::dragonruby {
 class State;
-class MRubyState final : public util::RubyState {
+class RubyState final : public util::RubyState {
 	friend class State;
 
 public:
-	MRubyState(mrb_state *mrb, drb_api_t *api);
-	~MRubyState() override = default;
+	RubyState(mrb_state *mrb, drb_api_t *api);
+	~RubyState() override = default;
 	void raise(RClass *c, const char *msg) override;
 	void raisef(RClass *c, const char *fmt, ...) override;
 	RClass *module_get(const char *name) override;
@@ -35,8 +35,8 @@ public:
 	mrb_value str_new_cstr(const char *) override;
 	RData *data_object_alloc(RClass *klass, void *datap,
 	    const mrb_data_type *type) override;
-	mrb_value Float(mrb_value val) override;
-	mrb_value Integer(mrb_value val) override;
+	mrb_value ensure_float_type(mrb_value val) override;
+	mrb_value ensure_integer_type(mrb_value val) override;
 	mrb_irep *add_irep() override;
 	void alias_method(RClass *c, mrb_sym a, mrb_sym b) override;
 	mrb_value any_to_s(mrb_value obj) override;
@@ -152,8 +152,8 @@ public:
 	    const mrb_value *argv) override;
 	mrb_value fiber_yield(mrb_int argc, const mrb_value *argv) override;
 	void field_write_barrier(RBasic *, RBasic *) override;
-	mrb_value fixnum_to_str(mrb_value x, mrb_int base) override;
-	mrb_value flo_to_fixnum(mrb_value val) override;
+	mrb_value integer_to_str(mrb_value x, mrb_int base) override;
+	mrb_value float_to_integer(mrb_value val) override;
 	double float_read(const char *, char **) override;
 	int float_to_cstr(char *buf, size_t len, const char *fmt,
 	    mrb_float f) override;
@@ -182,6 +182,7 @@ public:
 	mrb_value get_arg1() override;
 	mrb_int get_argc() override;
 	const mrb_value *get_argv() override;
+	mrb_int get_args_a(mrb_args_format format, void **ptr) override;
 	mrb_value get_backtrace() override;
 	mrb_value gv_get(mrb_sym sym) override;
 	void gv_remove(mrb_sym sym) override;
@@ -346,7 +347,7 @@ public:
 	mrb_value str_substr(mrb_value str, mrb_int beg, mrb_int len) override;
 	char *str_to_cstr(mrb_value str) override;
 	double str_to_dbl(mrb_value str, mrb_bool badcheck) override;
-	mrb_value str_to_inum(mrb_value str, mrb_int base,
+	mrb_value str_to_integer(mrb_value str, mrb_int base,
 	    mrb_bool badcheck) override;
 	const char *string_cstr(mrb_value str) override;
 	mrb_value string_type(mrb_value str) override;
@@ -402,8 +403,6 @@ public:
 	mrb_state *mrb() const override;
 
 private:
-	mrb_int get_args_v(mrb_args_format format, void **ptr, va_list *ap);
-
 	util::WeakReference<State> _state;
 	mrb_state *_mrb;
 	drb_api_t _api;

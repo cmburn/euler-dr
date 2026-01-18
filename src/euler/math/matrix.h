@@ -48,7 +48,6 @@ public:
 	    = 0;
 	virtual mrb_value insert_rows(const util::Reference<util::State> &state)
 	    = 0;
-
 	virtual mrb_value is_diagonal(const util::Reference<util::State> &state)
 	    = 0;
 	virtual mrb_value is_hermitian(
@@ -70,6 +69,12 @@ public:
 	    = 0;
 	virtual mrb_value is_vector(const util::Reference<util::State> &state)
 	    = 0;
+	virtual mrb_value is_row_vector(
+	    const util::Reference<util::State> &state)
+	    = 0;
+	virtual mrb_value is_column_vector(
+	    const util::Reference<util::State> &state)
+	    = 0;
 	virtual mrb_value ones(const util::Reference<util::State> &state) = 0;
 	virtual mrb_value randn(const util::Reference<util::State> &state) = 0;
 	virtual mrb_value randu(const util::Reference<util::State> &state) = 0;
@@ -78,7 +83,11 @@ public:
 	virtual mrb_value shed_columns(
 	    const util::Reference<util::State> &state)
 	    = 0;
+	virtual mrb_value shed_column(const util::Reference<util::State> &state)
+	    = 0;
 	virtual mrb_value shed_rows(const util::Reference<util::State> &state)
+	    = 0;
+	virtual mrb_value shed_row(const util::Reference<util::State> &state)
 	    = 0;
 	virtual mrb_value simple_transpose(
 	    const util::Reference<util::State> &state)
@@ -125,6 +134,11 @@ private:
 		return Nonscalar::type(state, arg) == Type::Matrix;
 	}
 
+	mrb_int coerce_row(mrb_int r) const;
+	mrb_int coerce_col(mrb_int c) const;
+	mrb_int coerce_row(const util::Reference<util::State> &state, mrb_value r) const;
+	mrb_int coerce_col(const util::Reference<util::State> &state, mrb_value c) const;
+
 	template <typename U> friend class MatrixImpl;
 
 public:
@@ -134,14 +148,22 @@ public:
 	MatrixImpl();
 
 	/* These are defined in ops.h */
-	matrix_type &value() { return _matrix; }
-	const matrix_type &value() const { return _matrix; }
-	ValueType value_type() const override {
+	matrix_type &
+	value()
+	{
+		return _matrix;
+	}
+	const matrix_type &
+	value() const
+	{
+		return _matrix;
+	}
+	ValueType
+	value_type() const override
+	{
 		return nonscalar_value_type_v<T>;
 	}
 	mrb_value initialize(const util::Reference<util::State> &state);
-	mrb_int coerce_row(mrb_int r) const;
-	mrb_int coerce_col(mrb_int c) const;
 	mrb_value at(const util::Reference<util::State> &state) override;
 	mrb_value set_at(const util::Reference<util::State> &state) override;
 	mrb_value clamp(const util::Reference<util::State> &state) override;
@@ -206,13 +228,20 @@ public:
 	mrb_value is_triangular_upper(
 	    const util::Reference<util::State> &state) override;
 	mrb_value is_vector(const util::Reference<util::State> &state) override;
+	mrb_value is_row_vector(
+	    const util::Reference<util::State> &state) override;
+	mrb_value is_column_vector(
+	    const util::Reference<util::State> &state) override;
 	mrb_value ones(const util::Reference<util::State> &state) override;
 	mrb_value randn(const util::Reference<util::State> &state) override;
 	mrb_value randu(const util::Reference<util::State> &state) override;
 	mrb_value reshape(const util::Reference<util::State> &state) override;
 	mrb_value shed_columns(
 	    const util::Reference<util::State> &state) override;
+	mrb_value shed_column(
+	    const util::Reference<util::State> &state) override;
 	mrb_value shed_rows(const util::Reference<util::State> &state) override;
+	mrb_value shed_row(const util::Reference<util::State> &state) override;
 	mrb_value simple_transpose(
 	    const util::Reference<util::State> &state) override;
 	mrb_value swap(const util::Reference<util::State> &state) override;
@@ -224,17 +253,6 @@ public:
 	mrb_value to_row(const util::Reference<util::State> &state) override;
 	mrb_value transpose(const util::Reference<util::State> &state) override;
 	mrb_value zeros(const util::Reference<util::State> &state) override;
-	mrb_value add(const util::Reference<util::State> &state) override;
-	mrb_value sub(const util::Reference<util::State> &state) override;
-	mrb_value matmul(const util::Reference<util::State> &state) override;
-	mrb_value mul(const util::Reference<util::State> &state) override;
-	mrb_value div(const util::Reference<util::State> &state) override;
-	mrb_value eq(const util::Reference<util::State> &state) override;
-	mrb_value ne(const util::Reference<util::State> &state) override;
-	mrb_value lt(const util::Reference<util::State> &state) override;
-	mrb_value le(const util::Reference<util::State> &state) override;
-	mrb_value gt(const util::Reference<util::State> &state) override;
-	mrb_value ge(const util::Reference<util::State> &state) override;
 
 private:
 	matrix_type _matrix;

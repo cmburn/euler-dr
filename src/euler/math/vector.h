@@ -54,17 +54,6 @@ public:
 	virtual mrb_value transpose(const util::Reference<util::State> &state)
 	    = 0;
 	virtual mrb_value zeros(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value add(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value sub(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value matmul(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value mul(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value div(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value eq(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value ne(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value lt(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value le(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value gt(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value ge(const util::Reference<util::State> &state) = 0;
 	virtual mrb_value is_size(
 	    const util::Reference<util::State> &state) const
 	    = 0;
@@ -86,18 +75,37 @@ public:
 	typedef arma::Col<pod_type> pod_vector_type;
 	friend class Size;
 	template <typename U> friend class VectorImpl;
+	template <typename U> friend class MatrixImpl;
 
 	VectorImpl(const vector_type &vec);
 
 	template <typename U = T>
-	static mrb_value wrap_vector(const util::Reference<util::State> &state,
-	    const VectorImpl<U>::vector_type &vector);
+	mrb_value
+	wrap_vector(const util::Reference<util::State> &state,
+	    const typename VectorImpl<U>::vector_type &vector)
+	{
+		auto mrb = state->mrb();
+		// TODO
+		throw std::runtime_error("Not implemented");
+	}
 
-	size_type n_cols() const override;
+	size_type
+	n_cols() const
+	{
+		return _vector.n_cols;
+	}
 
-	Type type() const override;
+	Nonscalar::Type
+	type() const
+	{
+		return Type::Vector;
+	}
 
-	ValueType value_type() const override;
+	Nonscalar::ValueType
+	value_type() const
+	{
+		return nonscalar_value_type_v<T>;
+	}
 
 	mrb_value at(const util::Reference<util::State> &state) override;
 
@@ -160,17 +168,6 @@ public:
 	mrb_value swap_rows(const util::Reference<util::State> &state) override;
 	mrb_value transpose(const util::Reference<util::State> &state) override;
 	mrb_value zeros(const util::Reference<util::State> &state) override;
-	mrb_value add(const util::Reference<util::State> &state) override;
-	mrb_value sub(const util::Reference<util::State> &state) override;
-	mrb_value matmul(const util::Reference<util::State> &state) override;
-	mrb_value mul(const util::Reference<util::State> &state) override;
-	mrb_value div(const util::Reference<util::State> &state) override;
-	mrb_value eq(const util::Reference<util::State> &state) override;
-	mrb_value ne(const util::Reference<util::State> &state) override;
-	mrb_value lt(const util::Reference<util::State> &state) override;
-	mrb_value le(const util::Reference<util::State> &state) override;
-	mrb_value gt(const util::Reference<util::State> &state) override;
-	mrb_value ge(const util::Reference<util::State> &state) override;
 
 	mrb_value is_size(const util::Reference<util::State> &) const override;
 
@@ -180,6 +177,12 @@ public:
 	    const util::Reference<util::State> &state) override;
 	mrb_value insert_rows(
 	    const util::Reference<util::State> &state) override;
+
+	template <typename U>
+	util::Reference<VectorImpl<U>>
+	coerce_type()
+	{
+	}
 
 protected:
 	util::Reference<Vector>
@@ -191,6 +194,38 @@ protected:
 private:
 	vector_type _vector;
 };
+
+template <typename T>
+util::Reference<VectorImpl<T>>
+cast_vector(const util::Reference<Vector> &vec)
+{
+	switch (vec->value_type()) {
+	case Nonscalar::ValueType::Int16:
+		return vec.cast_to<VectorImpl<int16_t>>()->coerce_type<T>();
+	case Nonscalar::ValueType::Int32:
+		return vec.cast_to<VectorImpl<int32_t>>()->coerce_type<T>();
+	case Nonscalar::ValueType::Int64:
+		return vec.cast_to<VectorImpl<int64_t>>()->coerce_type<T>();
+	case Nonscalar::ValueType::UInt16:
+		return vec.cast_to<VectorImpl<uint16_t>>()->coerce_type<T>();
+	case Nonscalar::ValueType::UInt32:
+		return vec.cast_to<VectorImpl<uint32_t>>()->coerce_type<T>();
+	case Nonscalar::ValueType::UInt64:
+		return vec.cast_to<VectorImpl<uint64_t>>()->coerce_type<T>();
+	case Nonscalar::ValueType::Float32:
+		return vec.cast_to<VectorImpl<float>>()->coerce_type<T>();
+	case Nonscalar::ValueType::Float64:
+		return vec.cast_to<VectorImpl<double>>()->coerce_type<T>();
+	case Nonscalar::ValueType::Complex32:
+		return vec.cast_to<VectorImpl<std::complex<float>>>()
+		    ->coerce_type<T>();
+	case Nonscalar::ValueType::Complex64:
+		return vec.cast_to<VectorImpl<std::complex<double>>>()
+		    ->coerce_type<T>();
+	default: std::unreachable();
+	}
+}
+
 } /* namespace euler::math */
 
 #endif /* EULER_MATH_VECTOR_H */

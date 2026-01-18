@@ -44,8 +44,8 @@ public:
 	virtual RData *data_object_alloc(RClass *klass, void *datap,
 	    const mrb_data_type *type)
 	    = 0;
-	virtual mrb_value Float(mrb_value val) = 0;
-	virtual mrb_value Integer(mrb_value val) = 0;
+	virtual mrb_value ensure_float_type(mrb_value val) = 0;
+	virtual mrb_value ensure_integer_type(mrb_value val) = 0;
 	virtual mrb_irep *add_irep() = 0;
 	virtual void alias_method(RClass *c, mrb_sym a, mrb_sym b) = 0;
 	virtual mrb_value any_to_s(mrb_value obj) = 0;
@@ -104,7 +104,6 @@ public:
 	virtual mrb_value const_get(mrb_value, mrb_sym) = 0;
 	virtual void const_remove(mrb_value, mrb_sym) = 0;
 	virtual void const_set(mrb_value, mrb_sym, mrb_value) = 0;
-	virtual mrb_value convert_to_integer(mrb_value val, mrb_int base) = 0;
 	virtual double cstr_to_dbl(const char *s, mrb_bool badcheck) = 0;
 	virtual mrb_value cstr_to_inum(const char *s, mrb_int base,
 	    mrb_bool badcheck)
@@ -177,8 +176,8 @@ public:
 	    = 0;
 	virtual mrb_value fiber_yield(mrb_int argc, const mrb_value *argv) = 0;
 	virtual void field_write_barrier(RBasic *, RBasic *) = 0;
-	virtual mrb_value fixnum_to_str(mrb_value x, mrb_int base) = 0;
-	virtual mrb_value flo_to_fixnum(mrb_value val) = 0;
+	virtual mrb_value integer_to_str(mrb_value x, mrb_int base) = 0;
+	virtual mrb_value float_to_integer(mrb_value val) = 0;
 	virtual double float_read(const char *, char **) = 0;
 	virtual int float_to_cstr(char *buf, size_t len, const char *fmt,
 	    mrb_float f)
@@ -213,6 +212,7 @@ public:
 	virtual mrb_value get_arg1() = 0;
 	virtual mrb_int get_argc() = 0;
 	virtual const mrb_value *get_argv() = 0;
+	virtual mrb_int get_args_a(mrb_args_format format, void **ptr) = 0;
 	virtual mrb_value get_backtrace() = 0;
 	virtual mrb_value gv_get(mrb_sym sym) = 0;
 	virtual void gv_remove(mrb_sym sym) = 0;
@@ -277,8 +277,6 @@ public:
 	virtual mrb_value load_proc(const RProc *proc) = 0;
 	virtual mrb_value load_string(const char *s) = 0;
 	virtual mrb_value load_string_cxt(const char *s, mrbc_context *cxt) = 0;
-	virtual mrb_value make_exception(mrb_int argc, const mrb_value *argv)
-	    = 0;
 	virtual void *malloc(size_t) = 0;
 	virtual void *malloc_simple(size_t) = 0;
 	virtual mrb_method_t method_search(RClass *, mrb_sym) = 0;
@@ -396,7 +394,7 @@ public:
 	    = 0;
 	virtual char *str_to_cstr(mrb_value str) = 0;
 	virtual double str_to_dbl(mrb_value str, mrb_bool badcheck) = 0;
-	virtual mrb_value str_to_inum(mrb_value str, mrb_int base,
+	virtual mrb_value str_to_integer(mrb_value str, mrb_int base,
 	    mrb_bool badcheck)
 	    = 0;
 	virtual const char *string_cstr(mrb_value str) = 0;
