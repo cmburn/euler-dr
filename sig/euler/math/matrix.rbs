@@ -1,7 +1,130 @@
 module Euler
   module Math
-    class Matrix < Nonscalar
-      def clamp: ()
+    class Matrix[T < Numeric] < Nonscalar[T]
+      def []: (index, index) -> T
+
+      def []=: (index, index, Numeric) -> void
+
+      def size: () -> Size
+
+      def size=: (Size) -> void
+
+      def fill: (Numeric) -> void
+
+      def to_a: () -> Array[Array[T]]
+
+      def imag=: (Matrix[Numeric] | Array[Array[Numeric]]) -> void
+
+      def real=: (Matrix[Numeric] | Array[Array[Numeric]]) -> void
+
+      def map: { (T) -> Numeric } -> Matrix[T]
+
+      def map!: { (T) -> Numeric } -> self
+
+      def rows: () -> Array[Array[T]]
+        | (index) -> Array[T]
+
+      def row: (Integer) -> Array[T]
+
+      def columns: () -> Array[ColumnVector[T]]
+        | (index) -> Array[ColumnVector[T]]
+
+      def column: (Integer) -> ColumnVector[T]
+
+      def each_row: { (Array[T]) -> void } -> void
+
+      def each_column: { (ColumnVector[T]) -> void } -> void
+
+      def imbue: { () -> Numeric } -> void
+
+      def insert_columns: (Integer, Numeric) -> void
+        | (Integer, Array[Array[Numeric]] | Matrix[Numeric]) -> void
+
+      def insert_rows: (Integer, Numeric) -> void
+        | (Integer, Array[Array[Numeric]] | Matrix[Numeric]) -> void
+
+      def diag?: () -> bool
+
+      def column?: () -> bool
+
+      def hermitian?: () -> bool
+
+      def square?: () -> bool
+
+      def symmetric?: () -> bool
+
+      def tril?: () -> bool
+
+      def triu?: () -> bool
+
+      def sympd?: () -> bool
+
+      def row?: () -> bool
+
+      def vector?: () -> bool
+
+      def ones: (Size) -> void
+        | (Integer, Integer) -> void
+
+      def randn: (Size) -> void
+        | (Integer, Integer) -> void
+
+      def randu: (Size) -> void
+        | (Integer, Integer) -> void
+
+      def reshape: (Size) -> void
+        | (Integer, Integer) -> void
+
+      def shed_columns: (Range[Integer]) -> void
+        | (Array[Integer]) -> void
+
+      def shed_column: (Integer) -> void
+
+      def shed_rows: (Range[Integer]) -> void
+        | (Array[Integer]) -> void
+
+      def shed_row: (Integer) -> void
+
+      def swap: (Matrix[T]) -> void
+
+      def transpose: () -> Matrix[T]
+
+      def ctranspose: () -> Matrix[T]
+
+      def zeros: (Size) -> void
+        | (Integer, Integer) -> void
+
+      def +: (Matrix[T]) -> Matrix[T]
+        | (Numeric) -> Matrix[T]
+        | (ColumnVector[T]) -> Matrix[T]
+        | (RowVector[T]) -> Matrix[T]
+
+      def -: (Matrix[T]) -> Matrix[T]
+        | (Numeric) -> Matrix[T]
+        | (ColumnVector[T]) -> Matrix[T]
+        | (RowVector[T]) -> Matrix[T]
+
+      def *: (Matrix[T]) -> Matrix[T]
+        | (Numeric) -> Matrix[T]
+        | (ColumnVector[T]) -> Matrix[T]
+        | (RowVector[T]) -> Matrix[T]
+
+      def /: (Matrix[T]) -> Matrix[T]
+        | (Numeric) -> Matrix[T]
+        | (ColumnVector[T]) -> Matrix[T]
+        | (RowVector[T]) -> Matrix[T]
+
+      def ==: (Matrix[T]) -> Array[Array[bool]]
+
+      def !=: (Matrix[T]) -> Array[Array[bool]]
+
+      def <: (Matrix[T]) -> Array[Array[bool]]
+
+      def <=: (Matrix[T]) -> Array[Array[bool]]
+
+      def >: (Matrix[T]) -> Array[Array[bool]]
+
+      def >=: (Matrix[T]) -> Array[Array[bool]]
     end
   end
 end

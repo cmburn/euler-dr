@@ -1,0 +1,6 @@
+module Euler
+  module Math
+    class SparseSolveFactorizer
+    end
+  end
+end

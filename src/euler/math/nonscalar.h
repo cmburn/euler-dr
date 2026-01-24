@@ -32,8 +32,15 @@ public:
 		UInt64,
 		Float32,
 		Float64,
-		Complex32,
 		Complex64,
+		Complex128,
+	};
+
+	template <typename T>
+	struct Range {
+		T start;
+		T step;
+		T end;
 	};
 
 	virtual Type type() const = 0;

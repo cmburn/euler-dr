@@ -58,17 +58,6 @@ public:
 	    = 0;
 	virtual mrb_value swap(const util::Reference<util::State> &state) = 0;
 	virtual mrb_value zeros(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value add(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value sub(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value matmul(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value mul(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value div(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value eq(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value ne(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value lt(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value le(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value gt(const util::Reference<util::State> &state) = 0;
-	virtual mrb_value ge(const util::Reference<util::State> &state) = 0;
 };
 
 template <typename T> class CubeImpl final : Cube {

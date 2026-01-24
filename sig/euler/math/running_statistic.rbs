@@ -1,0 +1,6 @@
+module Euler
+  module Math
+    class RunningStatistic
+    end
+  end
+end

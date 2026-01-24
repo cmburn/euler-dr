@@ -1,0 +1,112 @@
+module Euler
+  module Math
+    class Cube[T < Numeric] < Nonscalar[T]
+      def type: () -> :cube
+
+      def []: (index, index, index) -> T
+
+      def []=: (index, index, index, Numeric) -> void
+
+      def fill: (Numeric) -> void
+
+      def to_a: () -> Array[Array[Array[T]]]
+
+      def imag=: (Cube[Numeric] | Array[Array[Array[Numeric]]]) -> void
+
+      def real=: (Cube[Numeric] | Array[Array[Array[Numeric]]]) -> void
+
+      def map: { (T) -> Numeric } -> Cube[T]
+
+      def map!: { (T) -> Numeric } -> Cube[T]
+
+      def slices: () -> Array[Matrix[T]]
+        | (index) -> Array[Matrix[T]]
+
+      def slice: (Integer) -> Matrix[T]
+
+      def columns: () -> Array[ColumnVector[T]]
+        | (index) -> Array[ColumnVector[T]]
+
+      def column: (Integer) -> ColumnVector[T]
+
+      def rows: () -> Array[RowVector[T]]
+        | (Integer) -> RowVector[T]
+
+      def row: (Integer) -> RowVector[T]
+
+      def column_to_matrix: (Integer) -> Matrix[T]
+
+      def row_to_matrix: (Integer) -> Matrix[T]
+
+      def each_slice: { (Matrix[T]) -> void } -> void
+
+      def imbue: { () -> Numeric } -> void
+
+      def insert_columns: (Integer, Numeric) -> void
+        | (Integer, Array[Array[Numeric]] | Matrix[Numeric]) -> void
+
+      def insert_rows: (Integer, Numeric) -> void
+        | (Integer, Array[Array[Numeric]] | Matrix[Numeric]) -> void
+
+      def insert_slices: (Integer, Numeric) -> void
+        | (Integer, Array[Array[Array[Numeric]]] | Cube[Numeric]) -> void
+
+      def ones: (Size) -> void
+        | (Integer, Integer, Integer) -> void
+
+      def randn: (Size) -> void
+        | (Integer, Integer, Integer) -> void
+
+      def randu: (Size) -> void
+        | (Integer, Integer, Integer) -> void
+
+      def reshape: (Size) -> void
+        | (Integer, Integer, Integer) -> void
+
+      def shed_columns: (Range[Integer]) -> void
+        | (Array[Integer]) -> void
+
+      def shed_column: (Integer) -> void
+
+      def shed_rows: (Range[Integer]) -> void
+        | (Array[Integer]) -> void
+
+      def shed_row: (Integer) -> void
+
+      def shed_slices: (Range[Integer]) -> void
+        | (Array[Integer]) -> void
+
+      def shed_slice: (Integer) -> void
+
+      def swap: (Cube[T]) -> void
+
+      def zeros: (Size) -> void
+        | (Integer, Integer, Integer) -> void
+
+      def +: (Cube[T]) -> Cube[T]
+        | (Numeric) -> Cube[T]
+
+      def -: (Cube[T]) -> Cube[T]
+        | (Numeric) -> Cube[T]
+
+      def *: (Cube[T]) -> Cube[T]
+        | (Numeric) -> Cube[T]
+
+      def /: (Cube[T]) -> Cube[T]
+        | (Numeric) -> Cube[T]
+
+      def ==: (Cube[T]) -> Array[Array[Array[bool]]]
+
+      def !=: (Cube[T]) -> Array[Array[Array[bool]]]
+
+      def <: (Cube[T]) -> Array[Array[Array[bool]]]
+
+      def <=: (Cube[T]) -> Array[Array[Array[bool]]]
+
+      def >: (Cube[T]) -> Array[Array[Array[bool]]]
+
+      def >=: (Cube[T]) -> Array[Array[Array[bool]]]
+
+    end
+  end
+end

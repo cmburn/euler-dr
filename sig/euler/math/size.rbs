@@ -1,0 +1,6 @@
+module Euler
+  module Math
+    class Size < Vector[Integer]
+    end
+  end
+end

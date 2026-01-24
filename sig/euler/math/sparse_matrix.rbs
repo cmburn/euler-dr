@@ -1,0 +1,6 @@
+module Euler
+  module Math
+    class SparseMatrix
+    end
+  end
+end

@@ -1,0 +1,97 @@
+module Euler
+  module Math
+    class ColumnVector[T < Numeric] < Nonscalar[T]
+      # @overload Euler::Math::ColumnVector#type -> Symbol
+      #   @return [:column_vector]
+      def type: () -> :column_vector
+
+      def size?: () -> bool
+
+      def []: (index) -> T
+
+      def []=: (index, Numeric) -> void
+
+      def fill: (Numeric) -> void
+
+      def to_a: () -> Array[T]
+
+      def imag=: (ColumnVector[Numeric] | Array[Numeric]) -> void
+
+      def real=: (ColumnVector[Numeric] | Array[Numeric]) -> void
+
+      def map: { (T) -> Numeric } -> ColumnVector[T]
+
+      def map!: { (T) -> Numeric } -> self
+
+      def rows: () -> Array[T]
+        | (index) -> Array[T]
+
+      def row: (Integer) -> T
+
+      def resize: (Integer, Numeric) -> void
+
+      def imbue: { () -> Numeric } -> void
+
+      def insert_rows: (Integer, Numeric) -> void
+        | (Integer, Array[Numeric]) -> void
+
+      def sorted?: () -> bool
+
+      def zeros: (Integer) -> void
+        | (Size) -> void
+
+      def ones: (Integer) -> void
+        | (Size) -> void
+
+      def randn: (Integer) -> void
+        | (Size) -> void
+
+      def randu: (Integer) -> void
+        | (Size) -> void
+
+      def shed_rows: (Range[Integer]) -> void
+        | (Array[Integer]) -> void
+
+      def shed_row: (Integer) -> void
+
+      def transpose: () -> RowVector[T]
+
+      def ctranspose: () -> RowVector[T]
+
+      def swap: (ColumnVector[T]) -> void
+
+      def swap_rows: (Integer, Integer) -> void
+
+      def +: (ColumnVector[T]) -> ColumnVector[T]
+        | (Numeric) -> ColumnVector[T]
+        | (RowVector[T]) -> Matrix[T]
+
+
+      def -: (ColumnVector[T]) -> ColumnVector[T]
+        | (Numeric) -> ColumnVector[T]
+        | (RowVector[T]) -> Matrix[T]
+
+      def *: (ColumnVector[T]) -> ColumnVector[T]
+        | (Numeric) -> ColumnVector[T]
+        | (RowVector[T]) -> Matrix[T]
+
+      def /: (ColumnVector[T]) -> ColumnVector[T]
+        | (Numeric) -> ColumnVector[T]
+        | (RowVector[T]) -> Matrix[T]
+
+      def ==: (ColumnVector[T]) -> Array[bool]
+
+      def !=: (ColumnVector[T]) -> Array[bool]
+
+      def <: (ColumnVector[T]) -> Array[bool]
+
+      def <=: (ColumnVector[T]) -> Array[bool]
+
+      def >: (ColumnVector[T]) -> Array[bool]
+
+      def >=: (ColumnVector[T]) -> Array[bool]
+    end
+
+    class Vector = ColumnVector
+  end
+end
