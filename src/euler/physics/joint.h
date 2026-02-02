@@ -3,9 +3,13 @@
 #ifndef EULER_PHYSICS_JOINT_H
 #define EULER_PHYSICS_JOINT_H
 
+#include <vector>
+
 #include <box2d/id.h>
 #include <box2d/math_functions.h>
 
+#include "box2d/types.h"
+#include "euler/util/ext.h"
 #include "euler/util/object.h"
 
 namespace euler::physics {
@@ -13,16 +17,8 @@ class Body;
 class World;
 
 class Joint : public util::Object {
+	BIND_MRUBY("Euler::Physics::Joint", Joint, physics.joint);
 public:
-	static constexpr mrb_data_type TYPE = {
-		.struct_name = "Euler::Physics::Joint",
-		.dfree =
-		    [](mrb_state *, void *ptr) {
-			    const auto ref
-				= util::Reference<Joint>::unwrap(ptr);
-			    ref.decrement();
-		    },
-	};
 
 	enum class Type {
 		Distance,
@@ -34,9 +30,25 @@ public:
 		Wheel,
 	};
 
+	struct Event {
+		util::Reference<Joint> joint;
+		mrb_value wrap(mrb_state *mrb) const;
+		static Event from_b2(const b2JointEvent &event);
+	};
+
+	struct Events {
+		std::vector<Event> events;
+		static Events from_b2(const b2JointEvents &events);
+		mrb_value wrap(mrb_state *mrb) const;
+	};
+
 	virtual Type type() const = 0;
 
-	mrb_value wrap(const util::Reference<util::State> &state);
+	static util::Reference<util::State> fetch_state(b2JointId id);
+	static util::Reference<Joint> wrap(b2JointId id);
+	util::Reference<util::State> state() const;
+
+	virtual mrb_value wrap(const util::Reference<util::State> &state) = 0;
 
 	Joint(b2JointId id)
 	    : _id(id)
@@ -63,7 +75,7 @@ public:
 	void set_torque_threshold(float threshold);
 	float torque_threshold() const;
 
-	static util::Reference<Joint> from_id(b2JointId id);
+
 
 	b2JointId
 	id() const

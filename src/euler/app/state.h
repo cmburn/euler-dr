@@ -6,7 +6,7 @@
 #include "euler/util/object.h"
 
 #ifdef EULER_PHYSICS
-#include <box2d/box2d.h>
+#include "euler/physics/world.h"
 #endif
 
 #if defined(EULER_DRAGONRUBY)
@@ -33,6 +33,7 @@ public:
 	void tick() const override;
 	[[nodiscard]] RClass *object_class() const override;
 	void *unwrap(mrb_value value, const mrb_data_type *type) const override;
+	// void update(float dt);
 
 private:
 	float _fps = 0;
@@ -43,7 +44,6 @@ private:
 	tick_t _frames = 0;
 	tick_t _last_frame_tick = 0;
 	tick_t _last_frame_total_ticks = 0;
-	box2d_state *_box2d = nullptr;
 };
 } /* namespace euler::app */
 

@@ -2,10 +2,7 @@
 
 #include "euler/physics/wheel_joint.h"
 
-/* SPDX-License-Identifier: ISC */
-
-#include "euler/physics/wheel_joint.h"
-
+#include <box2d/box2d.h>
 #include <mruby/array.h>
 #include <mruby/class.h>
 #include <mruby/hash.h>
@@ -14,16 +11,18 @@
 #include "euler/physics/joint.h"
 #include "euler/physics/util.h"
 #include "euler/physics/world.h"
+#include "euler/util/state.h"
+
+using euler::physics::WheelJoint;
 
 static mrb_value
 wheel_joint_enable_spring(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
+	const auto joint = state->unwrap<WheelJoint>(self);
 	mrb_bool flag;
-	mrb_get_args(mrb, "b", &flag);
-	b2WheelJoint_EnableSpring(joint->id, flag);
+	state->mrb()->get_args("b", &flag);
+	joint->enable_spring(flag);
 	return mrb_nil_value();
 }
 
@@ -31,9 +30,8 @@ static mrb_value
 wheel_joint_is_spring_enabled(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
-	const bool flag = b2WheelJoint_IsSpringEnabled(joint->id);
+	const auto joint = state->unwrap<WheelJoint>(self);
+	const bool flag = joint->is_spring_enabled();
 	return mrb_bool_value(flag);
 }
 
@@ -41,11 +39,10 @@ static mrb_value
 wheel_joint_set_spring_hertz(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
+	const auto joint = state->unwrap<WheelJoint>(self);
 	mrb_float hertz;
-	mrb_get_args(mrb, "f", &hertz);
-	b2WheelJoint_SetSpringHertz(joint->id, (float)hertz);
+	state->mrb()->get_args("f", &hertz);
+	joint->set_spring_hertz((float)hertz);
 	return mrb_nil_value();
 }
 
@@ -53,21 +50,19 @@ static mrb_value
 wheel_joint_spring_hertz(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
-	const float hertz = b2WheelJoint_GetSpringHertz(joint->id);
-	return mrb_float_value(mrb, hertz);
+	const auto joint = state->unwrap<WheelJoint>(self);
+	const float hertz = joint->spring_hertz();
+	return state->mrb()->float_value(hertz);
 }
 
 static mrb_value
 wheel_joint_set_spring_damping_ratio(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
+	const auto joint = state->unwrap<WheelJoint>(self);
 	mrb_float damping_ratio;
-	mrb_get_args(mrb, "f", &damping_ratio);
-	b2WheelJoint_SetSpringDampingRatio(joint->id, (float)damping_ratio);
+	state->mrb()->get_args("f", &damping_ratio);
+	joint->set_spring_damping_ratio((float)damping_ratio);
 	return mrb_nil_value();
 }
 
@@ -75,22 +70,20 @@ static mrb_value
 wheel_joint_spring_damping_ratio(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
+	const auto joint = state->unwrap<WheelJoint>(self);
 	const float damping_ratio
-	    = b2WheelJoint_GetSpringDampingRatio(joint->id);
-	return mrb_float_value(mrb, damping_ratio);
+	    = joint->spring_damping_ratio();
+	return state->mrb()->float_value(damping_ratio);
 }
 
 static mrb_value
 wheel_joint_enable_limit(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
+	const auto joint = state->unwrap<WheelJoint>(self);
 	mrb_bool flag;
-	mrb_get_args(mrb, "b", &flag);
-	b2WheelJoint_EnableLimit(joint->id, flag);
+	state->mrb()->get_args("b", &flag);
+	joint->enable_limit(flag);
 	return mrb_nil_value();
 }
 
@@ -98,9 +91,8 @@ static mrb_value
 wheel_joint_is_limit_enabled(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
-	const bool flag = b2WheelJoint_IsLimitEnabled(joint->id);
+	const auto joint = state->unwrap<WheelJoint>(self);
+	const bool flag = joint->is_limit_enabled();
 	return mrb_bool_value(flag);
 }
 
@@ -108,12 +100,11 @@ static mrb_value
 wheel_joint_set_limits(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
+	const auto joint = state->unwrap<WheelJoint>(self);
 	mrb_value arr = mrb_nil_value();
-	mrb_get_args(mrb, "A", &arr);
-	const b2Vec2 limits = value_to_b2_vec(mrb, arr);
-	b2WheelJoint_SetLimits(joint->id, limits.x, limits.y);
+	state->mrb()->get_args("A", &arr);
+	const b2Vec2 limits = euler::physics::value_to_b2_vec(mrb, arr);
+	joint->set_limits(limits.x, limits.y);
 	return mrb_nil_value();
 }
 
@@ -121,13 +112,11 @@ static mrb_value
 wheel_joint_limits(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
-	const float lower_limit = b2WheelJoint_GetLowerLimit(joint->id);
-	const float upper_limit = b2WheelJoint_GetUpperLimit(joint->id);
-	const mrb_value out = mrb_ary_new_capa(mrb, 2);
-	mrb_ary_push(mrb, out, mrb_float_value(mrb, lower_limit));
-	mrb_ary_push(mrb, out, mrb_float_value(mrb, upper_limit));
+	const auto joint = state->unwrap<WheelJoint>(self);
+	const auto [lower_limit, upper_limit] = joint->limits();
+	const mrb_value out = state->mrb()->ary_new_capa(2);
+	state->mrb()->ary_push(out, state->mrb()->float_value(lower_limit));
+	state->mrb()->ary_push(out, state->mrb()->float_value(upper_limit));
 	return out;
 }
 
@@ -135,11 +124,10 @@ static mrb_value
 wheel_joint_enable_motor(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
+	const auto joint = state->unwrap<WheelJoint>(self);
 	mrb_bool flag;
-	mrb_get_args(mrb, "b", &flag);
-	b2WheelJoint_EnableMotor(joint->id, flag);
+	state->mrb()->get_args("b", &flag);
+	joint->enable_motor(flag);
 	return mrb_nil_value();
 }
 
@@ -147,9 +135,8 @@ static mrb_value
 wheel_joint_is_motor_enabled(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
-	const bool flag = b2WheelJoint_IsMotorEnabled(joint->id);
+	const auto joint = state->unwrap<WheelJoint>(self);
+	const bool flag = joint->is_motor_enabled();
 	return mrb_bool_value(flag);
 }
 
@@ -157,11 +144,10 @@ static mrb_value
 wheel_joint_set_motor_speed(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
+	const auto joint = state->unwrap<WheelJoint>(self);
 	mrb_float motor_speed;
-	mrb_get_args(mrb, "f", &motor_speed);
-	b2WheelJoint_SetMotorSpeed(joint->id, (float)motor_speed);
+	state->mrb()->get_args("f", &motor_speed);
+	joint->set_motor_speed((float)motor_speed);
 	return mrb_nil_value();
 }
 
@@ -169,21 +155,19 @@ static mrb_value
 wheel_joint_motor_speed(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
-	const float motor_speed = b2WheelJoint_GetMotorSpeed(joint->id);
-	return mrb_float_value(mrb, motor_speed);
+	const auto joint = state->unwrap<WheelJoint>(self);
+	const float motor_speed = joint->motor_speed();
+	return state->mrb()->float_value(motor_speed);
 }
 
 static mrb_value
 wheel_joint_set_max_motor_torque(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
+	const auto joint = state->unwrap<WheelJoint>(self);
 	mrb_float max_torque;
-	mrb_get_args(mrb, "f", &max_torque);
-	b2WheelJoint_SetMaxMotorTorque(joint->id, (float)max_torque);
+	state->mrb()->get_args("f", &max_torque);
+	joint->set_max_motor_torque((float)max_torque);
 	return mrb_nil_value();
 }
 
@@ -191,63 +175,179 @@ static mrb_value
 wheel_joint_max_motor_torque(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
-	const float max_torque = b2WheelJoint_GetMaxMotorTorque(joint->id);
-	return mrb_float_value(mrb, max_torque);
+	const auto joint = state->unwrap<WheelJoint>(self);
+	const float max_torque = joint->max_motor_torque();
+	return state->mrb()->float_value(max_torque);
 }
 
 static mrb_value
 wheel_joint_motor_torque(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, wheel);
-	const float torque = b2WheelJoint_GetMotorTorque(joint->id);
-	return mrb_float_value(mrb, torque);
+	const auto joint = state->unwrap<WheelJoint>(self);
+	const float torque = joint->motor_torque();
+	return state->mrb()->float_value(torque);
 }
 
-static struct RClass *
-wheel_joint_init(mrb_state *mrb, struct RClass *mod, struct RClass *super)
+static RClass *
+wheel_joint_init(mrb_state *mrb, RClass *mod, RClass *super)
 {
 	const auto state = euler::util::State::get(mrb);
-	struct RClass *joint
-	    = mrb_define_class_under(mrb, mod, "WheelJoint", super);
-	mrb_define_method(mrb, joint,
+	RClass *joint
+	    = state->mrb()->define_class_under(mod, "WheelJoint", super);
+	state->mrb()->define_method(joint,
 	    "spring_enabled=", wheel_joint_enable_spring, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "spring_enabled",
+	state->mrb()->define_method(joint, "spring_enabled",
 	    wheel_joint_is_spring_enabled, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "spring_hertz=", wheel_joint_set_spring_hertz, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "spring_hertz", wheel_joint_spring_hertz,
+	state->mrb()->define_method(joint, "spring_hertz", wheel_joint_spring_hertz,
 	    MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "spring_damping_ratio=", wheel_joint_set_spring_damping_ratio,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "spring_damping_ratio",
+	state->mrb()->define_method(joint, "spring_damping_ratio",
 	    wheel_joint_spring_damping_ratio, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "limit_enabled=", wheel_joint_enable_limit, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "limit_enabled",
+	state->mrb()->define_method(joint, "limit_enabled",
 	    wheel_joint_is_limit_enabled, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint, "limits=", wheel_joint_set_limits,
+	state->mrb()->define_method(joint, "limits=", wheel_joint_set_limits,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "limits", wheel_joint_limits,
+	state->mrb()->define_method(joint, "limits", wheel_joint_limits,
 	    MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "motor_enabled=", wheel_joint_enable_motor, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "motor_enabled",
+	state->mrb()->define_method(joint, "motor_enabled",
 	    wheel_joint_is_motor_enabled, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "motor_speed=", wheel_joint_set_motor_speed, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "motor_speed", wheel_joint_motor_speed,
+	state->mrb()->define_method(joint, "motor_speed", wheel_joint_motor_speed,
 	    MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "max_motor_torque=", wheel_joint_set_max_motor_torque,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "max_motor_torque",
+	state->mrb()->define_method(joint, "max_motor_torque",
 	    wheel_joint_max_motor_torque, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint, "motor_torque", wheel_joint_motor_torque,
+	state->mrb()->define_method(joint, "motor_torque", wheel_joint_motor_torque,
 	    MRB_ARGS_REQ(0));
 	return joint;
+}
+
+RClass *
+WheelJoint::init(const util::Reference<util::State> &state,
+    RClass *mod, RClass *super)
+{
+	return wheel_joint_init(state->mrb()->mrb(), mod, super);
+}
+
+void
+WheelJoint::enable_spring(bool flag)
+{
+	b2WheelJoint_EnableSpring(_id, flag);
+}
+
+bool
+WheelJoint::is_spring_enabled() const
+{
+	return b2WheelJoint_IsSpringEnabled(_id);
+}
+
+void
+WheelJoint::set_spring_hertz(float hertz)
+{
+	b2WheelJoint_SetSpringHertz(_id, hertz);
+}
+
+float
+WheelJoint::spring_hertz() const
+{
+	return b2WheelJoint_GetSpringHertz(_id);
+}
+
+void
+WheelJoint::set_spring_damping_ratio(float ratio)
+{
+	b2WheelJoint_SetSpringDampingRatio(_id, ratio);
+}
+
+float
+WheelJoint::spring_damping_ratio() const
+{
+	return b2WheelJoint_GetSpringDampingRatio(_id);
+}
+
+void
+WheelJoint::enable_limit(bool flag)
+{
+	b2WheelJoint_EnableLimit(_id, flag);
+}
+
+bool
+WheelJoint::is_limit_enabled() const
+{
+	return b2WheelJoint_IsLimitEnabled(_id);
+}
+
+void
+WheelJoint::set_limits(float lower, float upper)
+{
+	b2WheelJoint_SetLimits(_id, lower, upper);
+}
+
+std::pair<float, float>
+WheelJoint::limits() const
+{
+	float lower = b2WheelJoint_GetLowerLimit(_id);
+	float upper = b2WheelJoint_GetUpperLimit(_id);
+	return { lower, upper };
+}
+
+void
+WheelJoint::enable_motor(bool flag)
+{
+	b2WheelJoint_EnableMotor(_id, flag);
+}
+
+bool
+WheelJoint::is_motor_enabled() const
+{
+	return b2WheelJoint_IsMotorEnabled(_id);
+}
+
+void
+WheelJoint::set_motor_speed(float speed)
+{
+	b2WheelJoint_SetMotorSpeed(_id, speed);
+}
+
+float
+WheelJoint::motor_speed() const
+{
+	return b2WheelJoint_GetMotorSpeed(_id);
+}
+
+void
+WheelJoint::set_max_motor_torque(float torque)
+{
+	b2WheelJoint_SetMaxMotorTorque(_id, torque);
+}
+
+float
+WheelJoint::max_motor_torque() const
+{
+	return b2WheelJoint_GetMaxMotorTorque(_id);
+}
+
+float
+WheelJoint::motor_torque() const
+{
+	return b2WheelJoint_GetMotorTorque(_id);
+}
+
+mrb_value
+WheelJoint::wrap(const util::Reference<util::State> &state)
+{
+	auto self = util::Reference(this);
+	return state->wrap<WheelJoint>(self);
 }

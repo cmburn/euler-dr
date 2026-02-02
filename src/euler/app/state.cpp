@@ -6,10 +6,10 @@
 #include "euler/util/ext.h"
 
 #ifndef EULER_GV_STATE
-#define EULER_GV_STATE "app"
+#define EULER_GV_STATE app
 #endif
 
-static constexpr auto GV_STATE_SYM = "$" EULER_GV_STATE;
+static constexpr auto GV_STATE_SYM = "$" MRB_STRINGIZE(EULER_GV_STATE);
 
 euler::app::State::State(const Arguments &args)
     : EULER_APP_NAMESPACE::State(args)
@@ -41,6 +41,7 @@ euler::app::State::initialize()
 	physics::init(self, mod);
 #endif
 	auto app_mod = mrb()->define_module_under(mod, "App");
+	mrb()->define_class_under(app_mod, "State", object_class());
 }
 
 euler::util::State::tick_t
@@ -64,6 +65,7 @@ euler::app::State::total_ticks() const
 void
 euler::app::State::tick() const
 {
+
 }
 
 RClass *

@@ -138,11 +138,11 @@ template <> struct nonscalar_value_type<double> {
 };
 
 template <> struct nonscalar_value_type<std::complex<float>> {
-	static constexpr auto value = Nonscalar::ValueType::Complex32;
+	static constexpr auto value = Nonscalar::ValueType::Complex64;
 };
 
 template <> struct nonscalar_value_type<std::complex<double>> {
-	static constexpr auto value = Nonscalar::ValueType::Complex64;
+	static constexpr auto value = Nonscalar::ValueType::Complex128;
 };
 
 template <typename T>

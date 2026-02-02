@@ -2,10 +2,7 @@
 
 #include "euler/physics/prismatic_joint.h"
 
-/* SPDX-License-Identifier: ISC */
-
-#include "euler/physics/prismatic_joint.h"
-
+#include <box2d/box2d.h>
 #include <mruby/array.h>
 #include <mruby/class.h>
 #include <mruby/hash.h>
@@ -14,6 +11,8 @@
 #include "euler/physics/joint.h"
 #include "euler/physics/util.h"
 #include "euler/physics/world.h"
+
+using euler::physics::PrismaticJoint;
 
 /**
  * @overload Euler::Physics::PrismaticJoint#spring_enabled=(flag)
@@ -25,11 +24,10 @@ static mrb_value
 prismatic_joint_enable_spring(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
 	mrb_bool flag;
-	mrb_get_args(mrb, "b", &flag);
-	b2PrismaticJoint_EnableSpring(joint->id, flag);
+	state->mrb()->get_args("b", &flag);
+	joint->enable_spring(flag);
 	return mrb_nil_value();
 }
 
@@ -42,9 +40,8 @@ static mrb_value
 prismatic_joint_is_spring_enabled(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
-	const bool flag = b2PrismaticJoint_IsSpringEnabled(joint->id);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
+	const bool flag = joint->is_spring_enabled();
 	return mrb_bool_value(flag);
 }
 
@@ -58,11 +55,10 @@ static mrb_value
 prismatic_joint_set_spring_hertz(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
 	mrb_float hertz;
-	mrb_get_args(mrb, "f", &hertz);
-	b2PrismaticJoint_SetSpringHertz(joint->id, (float)hertz);
+	state->mrb()->get_args("f", &hertz);
+	joint->set_spring_hertz(static_cast<float>(hertz));
 	return mrb_nil_value();
 }
 
@@ -75,10 +71,9 @@ static mrb_value
 prismatic_joint_spring_hertz(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
-	const float hertz = b2PrismaticJoint_GetSpringHertz(joint->id);
-	return mrb_float_value(mrb, hertz);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
+	const float hertz = joint->spring_hertz();
+	return state->mrb()->float_value(hertz);
 }
 
 /**
@@ -91,11 +86,10 @@ static mrb_value
 prismatic_joint_set_spring_damping_ratio(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
 	mrb_float damping_ratio;
-	mrb_get_args(mrb, "f", &damping_ratio);
-	b2PrismaticJoint_SetSpringDampingRatio(joint->id, (float)damping_ratio);
+	state->mrb()->get_args("f", &damping_ratio);
+	joint->set_spring_damping_ratio(static_cast<float>(damping_ratio));
 	return mrb_nil_value();
 }
 
@@ -108,11 +102,9 @@ static mrb_value
 prismatic_joint_spring_damping_ratio(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
-	const float damping_ratio
-	    = b2PrismaticJoint_GetSpringDampingRatio(joint->id);
-	return mrb_float_value(mrb, damping_ratio);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
+	const float damping_ratio = joint->spring_damping_ratio();
+	return state->mrb()->float_value(damping_ratio);
 }
 
 /**
@@ -125,11 +117,10 @@ static mrb_value
 prismatic_joint_set_target_translation(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
 	mrb_float translation;
-	mrb_get_args(mrb, "f", &translation);
-	b2PrismaticJoint_SetTargetTranslation(joint->id, (float)translation);
+	state->mrb()->get_args("f", &translation);
+	joint->set_target_translation(static_cast<float>(translation));
 	return mrb_nil_value();
 }
 
@@ -142,11 +133,9 @@ static mrb_value
 prismatic_joint_target_translation(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
-	const float translation
-	    = b2PrismaticJoint_GetTargetTranslation(joint->id);
-	return mrb_float_value(mrb, translation);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
+	const float translation = joint->target_translation();
+	return state->mrb()->float_value(translation);
 }
 
 /**
@@ -159,11 +148,10 @@ static mrb_value
 prismatic_joint_enable_limit(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
 	mrb_bool flag;
-	mrb_get_args(mrb, "b", &flag);
-	b2PrismaticJoint_EnableLimit(joint->id, flag);
+	state->mrb()->get_args("b", &flag);
+	joint->enable_limit(flag);
 	return mrb_nil_value();
 }
 
@@ -176,9 +164,8 @@ static mrb_value
 prismatic_joint_is_limit_enabled(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
-	const bool flag = b2PrismaticJoint_IsLimitEnabled(joint->id);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
+	const bool flag = joint->is_limit_enabled();
 	return mrb_bool_value(flag);
 }
 
@@ -193,12 +180,11 @@ static mrb_value
 prismatic_joint_set_limits(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
 	mrb_value arr = mrb_nil_value();
-	mrb_get_args(mrb, "A", &arr);
-	const b2Vec2 limits = value_to_b2_vec(mrb, arr);
-	b2PrismaticJoint_SetLimits(joint->id, limits.x, limits.y);
+	state->mrb()->get_args("A", &arr);
+	const b2Vec2 limits = euler::physics::value_to_b2_vec(mrb, arr);
+	joint->set_limits(limits.x, limits.y);
 	return mrb_nil_value();
 }
 
@@ -212,13 +198,11 @@ static mrb_value
 prismatic_joint_limits(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
-	const float lower_limit = b2PrismaticJoint_GetLowerLimit(joint->id);
-	const float upper_limit = b2PrismaticJoint_GetUpperLimit(joint->id);
-	const mrb_value out = mrb_ary_new_capa(mrb, 2);
-	mrb_ary_push(mrb, out, mrb_float_value(mrb, lower_limit));
-	mrb_ary_push(mrb, out, mrb_float_value(mrb, upper_limit));
+	const auto joint = state->unwrap<PrismaticJoint>(self);
+	const auto [lower_limit, upper_limit] = joint->limits();
+	const mrb_value out = state->mrb()->ary_new_capa(2);
+	state->mrb()->ary_push(out, state->mrb()->float_value(lower_limit));
+	state->mrb()->ary_push(out, state->mrb()->float_value(upper_limit));
 	return out;
 }
 
@@ -232,11 +216,10 @@ static mrb_value
 prismatic_joint_enable_motor(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
 	mrb_bool flag;
-	mrb_get_args(mrb, "b", &flag);
-	b2PrismaticJoint_EnableMotor(joint->id, flag);
+	state->mrb()->get_args("b", &flag);
+	joint->enable_motor(flag);
 	return mrb_nil_value();
 }
 
@@ -249,9 +232,8 @@ static mrb_value
 prismatic_joint_is_motor_enabled(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
-	const bool flag = b2PrismaticJoint_IsMotorEnabled(joint->id);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
+	const bool flag = joint->is_motor_enabled();
 	return mrb_bool_value(flag);
 }
 
@@ -265,11 +247,10 @@ static mrb_value
 prismatic_joint_set_motor_speed(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
 	mrb_float motor_speed;
-	mrb_get_args(mrb, "f", &motor_speed);
-	b2PrismaticJoint_SetMotorSpeed(joint->id, (float)motor_speed);
+	state->mrb()->get_args("f", &motor_speed);
+	joint->set_motor_speed(static_cast<float>(motor_speed));
 	return mrb_nil_value();
 }
 
@@ -282,10 +263,9 @@ static mrb_value
 prismatic_joint_motor_speed(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
-	const float motor_speed = b2PrismaticJoint_GetMotorSpeed(joint->id);
-	return mrb_float_value(mrb, motor_speed);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
+	const float motor_speed = joint->motor_speed();
+	return state->mrb()->float_value(motor_speed);
 }
 
 /**
@@ -298,11 +278,10 @@ static mrb_value
 prismatic_joint_set_max_motor_force(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
 	mrb_float force;
-	mrb_get_args(mrb, "f", &force);
-	b2PrismaticJoint_SetMaxMotorForce(joint->id, (float)force);
+	state->mrb()->get_args("f", &force);
+	joint->set_max_motor_force(static_cast<float>(force));
 	return mrb_nil_value();
 }
 
@@ -315,10 +294,9 @@ static mrb_value
 prismatic_joint_max_motor_force(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
-	const float force = b2PrismaticJoint_GetMaxMotorForce(joint->id);
-	return mrb_float_value(mrb, force);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
+	const float force = joint->max_motor_force();
+	return state->mrb()->float_value(force);
 }
 
 /**
@@ -330,10 +308,9 @@ static mrb_value
 prismatic_joint_motor_force(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
-	const float force = b2PrismaticJoint_GetMotorForce(joint->id);
-	return mrb_float_value(mrb, force);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
+	const float force = joint->motor_force();
+	return state->mrb()->float_value(force);
 }
 
 /**
@@ -345,10 +322,9 @@ static mrb_value
 prismatic_joint_translation(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
-	const float translation = b2PrismaticJoint_GetTranslation(joint->id);
-	return mrb_float_value(mrb, translation);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
+	const float translation = joint->translation();
+	return state->mrb()->float_value(translation);
 }
 
 /**
@@ -360,62 +336,182 @@ static mrb_value
 prismatic_joint_speed(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, prismatic);
-	const float speed = b2PrismaticJoint_GetSpeed(joint->id);
-	return mrb_float_value(mrb, speed);
+	const auto joint = state->unwrap<PrismaticJoint>(self);
+	const float speed = joint->speed();
+	return state->mrb()->float_value(speed);
 }
 
-static struct RClass *
-prismatic_joint_init(mrb_state *mrb, struct RClass *mod, struct RClass *super)
+static RClass *
+prismatic_joint_init(mrb_state *mrb, RClass *mod, RClass *super)
 {
 	const auto state = euler::util::State::get(mrb);
-	struct RClass *joint
-	    = mrb_define_class_under(mrb, mod, "PrismaticJoint", super);
-	mrb_define_method(mrb, joint,
+	RClass *joint
+	    = state->mrb()->define_class_under(mod, "PrismaticJoint", super);
+	state->mrb()->define_method(joint,
 	    "spring_enabled=", prismatic_joint_enable_spring, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "spring_enabled",
+	state->mrb()->define_method(joint, "spring_enabled",
 	    prismatic_joint_is_spring_enabled, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "spring_hertz=", prismatic_joint_set_spring_hertz, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "spring_hertz",
+	state->mrb()->define_method(joint, "spring_hertz",
 	    prismatic_joint_spring_hertz, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "spring_damping_ratio=", prismatic_joint_set_spring_damping_ratio,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "spring_damping_ratio",
+	state->mrb()->define_method(joint, "spring_damping_ratio",
 	    prismatic_joint_spring_damping_ratio, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "target_translation=", prismatic_joint_set_target_translation,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "target_translation",
+	state->mrb()->define_method(joint, "target_translation",
 	    prismatic_joint_target_translation, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "limit_enabled=", prismatic_joint_enable_limit, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "limit_enabled",
+	state->mrb()->define_method(joint, "limit_enabled",
 	    prismatic_joint_is_limit_enabled, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint, "limits=", prismatic_joint_set_limits,
+	state->mrb()->define_method(joint, "limits=", prismatic_joint_set_limits,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "limits", prismatic_joint_limits,
+	state->mrb()->define_method(joint, "limits", prismatic_joint_limits,
 	    MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "motor_enabled=", prismatic_joint_enable_motor, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "motor_enabled",
+	state->mrb()->define_method(joint, "motor_enabled",
 	    prismatic_joint_is_motor_enabled, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "motor_speed=", prismatic_joint_set_motor_speed, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "motor_speed",
+	state->mrb()->define_method(joint, "motor_speed",
 	    prismatic_joint_motor_speed, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "max_motor_force=", prismatic_joint_set_max_motor_force,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "max_motor_force",
+	state->mrb()->define_method(joint, "max_motor_force",
 	    prismatic_joint_max_motor_force, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint, "motor_force",
+	state->mrb()->define_method(joint, "motor_force",
 	    prismatic_joint_motor_force, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint, "translation",
+	state->mrb()->define_method(joint, "translation",
 	    prismatic_joint_translation, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint, "speed", prismatic_joint_speed,
+	state->mrb()->define_method(joint, "speed", prismatic_joint_speed,
 	    MRB_ARGS_REQ(0));
 	return joint;
+}
+
+RClass *
+PrismaticJoint::init(const euler::util::Reference<euler::util::State> &state,
+    RClass *mod, RClass *super)
+{
+	return prismatic_joint_init(state->mrb()->mrb(), mod, super);
+}
+
+void
+PrismaticJoint::enable_spring(bool flag)
+{
+	b2PrismaticJoint_EnableSpring(_id, flag);
+}
+bool
+PrismaticJoint::is_spring_enabled()
+{
+	return b2PrismaticJoint_IsSpringEnabled(_id);
+}
+void
+PrismaticJoint::set_spring_hertz(float hertz)
+{
+	b2PrismaticJoint_SetSpringHertz(_id, hertz);
+}
+float
+PrismaticJoint::spring_hertz()
+{
+	return b2PrismaticJoint_GetSpringHertz(_id);
+}
+void
+PrismaticJoint::set_spring_damping_ratio(float ratio)
+{
+	b2PrismaticJoint_SetSpringDampingRatio(_id, ratio);
+}
+float
+PrismaticJoint::spring_damping_ratio()
+{
+	return b2PrismaticJoint_GetSpringDampingRatio(_id);
+}
+void
+PrismaticJoint::set_target_translation(float translation)
+{
+	b2PrismaticJoint_SetTargetTranslation(_id, translation);
+}
+float
+PrismaticJoint::target_translation()
+{
+	return b2PrismaticJoint_GetTargetTranslation(_id);
+}
+void
+PrismaticJoint::enable_limit(bool flag)
+{
+	b2PrismaticJoint_EnableLimit(_id, flag);
+}
+bool
+PrismaticJoint::is_limit_enabled()
+{
+	return b2PrismaticJoint_IsLimitEnabled(_id);
+}
+void
+PrismaticJoint::set_limits(float lower, float upper)
+{
+	b2PrismaticJoint_SetLimits(_id, lower, upper);
+}
+std::pair<float, float>
+PrismaticJoint::limits()
+{
+	float lower = b2PrismaticJoint_GetLowerLimit(_id);
+	float upper = b2PrismaticJoint_GetUpperLimit(_id);
+	return { lower, upper };
+}
+void
+PrismaticJoint::enable_motor(bool flag)
+{
+	b2PrismaticJoint_EnableMotor(_id, flag);
+}
+bool
+PrismaticJoint::is_motor_enabled()
+{
+	return b2PrismaticJoint_IsMotorEnabled(_id);
+}
+void
+PrismaticJoint::set_motor_speed(float speed)
+{
+	b2PrismaticJoint_SetMotorSpeed(_id, speed);
+}
+float
+PrismaticJoint::motor_speed()
+{
+	return b2PrismaticJoint_GetMotorSpeed(_id);
+}
+void
+PrismaticJoint::set_max_motor_force(float force)
+{
+	b2PrismaticJoint_SetMaxMotorForce(_id, force);
+}
+float
+PrismaticJoint::max_motor_force()
+{
+	return b2PrismaticJoint_GetMaxMotorForce(_id);
+}
+float
+PrismaticJoint::motor_force()
+{
+	return b2PrismaticJoint_GetMotorForce(_id);
+}
+float
+PrismaticJoint::translation()
+{
+	return b2PrismaticJoint_GetTranslation(_id);
+}
+float
+PrismaticJoint::speed()
+{
+	return b2PrismaticJoint_GetSpeed(_id);
+}
+mrb_value
+PrismaticJoint::wrap(const util::Reference<util::State> &state)
+{
+	auto self = util::Reference(this);
+	return state->wrap<PrismaticJoint>(self);
 }

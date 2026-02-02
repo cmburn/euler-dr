@@ -28,8 +28,14 @@ target_link_libraries(euler_math PUBLIC
         armadillo
 )
 
-target_compile_definitions(euler_math PUBLIC EULER_MATH)
+target_compile_definitions(euler_math PUBLIC
+        ${EULER_DEFINITIONS}
+)
 
 target_compile_options(euler_math PRIVATE
         -Wno-changes-meaning
+)
+
+target_compile_options(euler_math PUBLIC
+        ${EULER_CFLAGS}
 )

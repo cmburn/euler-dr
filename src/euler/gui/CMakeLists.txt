@@ -43,7 +43,13 @@ target_link_libraries(euler_gui PUBLIC
         mruby
 )
 
-target_compile_options(euler_gui PRIVATE ${EULER_COMPILE_OPTIONS})
+target_compile_options(euler_gui PUBLIC
+        ${EULER_CFLAGS}
+)
+
+target_compile_definitions(euler_gui PRIVATE
+        ${EULER_DEFINITIONS}
+)
 
 target_link_libraries(euler_gui PRIVATE
         VK2D

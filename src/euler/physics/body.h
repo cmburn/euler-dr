@@ -17,22 +17,29 @@ class Shape;
 class World;
 
 class Body : public util::Object {
-public:
-	static constexpr mrb_data_type TYPE
-	    = util::datatype<Body>("Euler::Physics::Body");
-	static RClass *init(const util::Reference<util::State> &state,
-	    RClass *mod);
-
+	BIND_MRUBY("Euler::Physics::Body", Body, physics.body);
 	Body(b2BodyId id)
 	    : _id(id)
 	{
 	}
+public:
+	static util::Reference<Body> wrap(b2BodyId id);
+	static b2BodyType parse_type(mrb_state *mrb, mrb_value);
+
 
 	b2BodyId
 	id() const
 	{
 		return _id;
 	}
+
+	struct MoveEvent {
+		b2Transform transform;
+		util::Reference<Body> body;
+		bool fell_asleep;
+		mrb_value wrap(mrb_state *mrb);
+		static MoveEvent from_b2(const b2BodyMoveEvent &event);
+	};
 
 	float angular_damping();
 	float angular_velocity();

@@ -23,6 +23,14 @@ add_library(euler_graphics STATIC
         window.h
 )
 
+target_compile_options(euler_graphics PUBLIC
+        ${EULER_CFLAGS}
+)
+
+target_compile_definitions(euler_graphics PUBLIC
+        ${EULER_DEFINITIONS}
+)
+
 target_link_libraries(euler_graphics PUBLIC
         euler_util
         euler_vulkan
@@ -31,4 +39,3 @@ target_link_libraries(euler_graphics PUBLIC
         mruby
 )
 
-target_compile_options(euler_graphics PRIVATE ${EULER_COMPILE_OPTIONS})

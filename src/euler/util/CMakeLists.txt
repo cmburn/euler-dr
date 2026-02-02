@@ -19,10 +19,21 @@ add_library(euler_util STATIC
         system.h
         ext.cpp
         ext.h
+        math.cpp
+        math.h
 )
 
-target_link_libraries(euler_util PUBLIC
-        dragonruby
+target_compile_definitions(euler_util PUBLIC
+        ${EULER_DEFINITIONS}
 )
 
-target_compile_definitions(euler_util PUBLIC EULER_DRAGONRUBY)
+target_compile_options(euler_util PUBLIC
+        ${EULER_CFLAGS}
+)
+
+if (EULER_DRAGONRUBY_BUILD)
+    target_link_libraries(euler_util PUBLIC
+            dragonruby
+    )
+
+endif ()

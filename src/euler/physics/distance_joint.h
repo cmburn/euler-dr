@@ -9,10 +9,15 @@
 
 namespace euler::physics {
 class DistanceJoint final : public Joint {
-public:
-	static constexpr auto TYPE
-	    = util::datatype<DistanceJoint>("Euler::Physics::DistanceJoint");
+	friend class Joint;
+	BIND_MRUBY("Euler::Physics::DistanceJoint", DistanceJoint,
+	    physics.distance_joint);
+	DistanceJoint(const b2JointId id)
+	    : Joint(id)
+	{
+	}
 
+public:
 	void set_length(float length);
 	float length() const;
 	void enable_spring(bool flag);
@@ -35,6 +40,12 @@ public:
 	void set_max_motor_force(float force);
 	float max_motor_force() const;
 	float motor_force() const;
+	Type
+	type() const override
+	{
+		return Type::Distance;
+	}
+	mrb_value wrap(const util::Reference<util::State> &state) override;
 };
 } /* namespace euler::physics */
 

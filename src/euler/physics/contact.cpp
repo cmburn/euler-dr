@@ -1,10 +1,14 @@
 /* SPDX-License-Identifier: ISC */
 
+#include <cassert>
+
 #include "euler/physics/contact.h"
 
 #include <mruby/class.h>
 
+#include "euler/physics/shape.h"
 #include "euler/physics/util.h"
+#include "euler/physics/world.h"
 
 using euler::physics::Contact;
 
@@ -65,6 +69,98 @@ contact_data(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
 	const auto contact = Contact::unwrap(mrb, self);
-	const auto data = contact->data();
-	return euler::physics::contact_data_to_value(mrb, &data);
+	auto data = contact->data();
+	return data.wrap(mrb);
+}
+
+Contact::Data::~Data() = default;
+Contact::Event::~Event() = default;
+Contact::HitEvent::~HitEvent() = default;
+Contact::Events::~Events() = default;
+Contact::~Contact()
+{
+	const auto data = b2Contact_GetData(_id);
+	/* I don't think shapes can collide from different worlds, but just to
+	 * check */
+	assert(data.shapeIdA.world0 == data.shapeIdB.world0);
+	const auto world_id = b2Shape_GetWorld(data.shapeIdA);
+	const auto world = World::wrap(world_id);
+	world->drop_contact(_id);
+}
+
+static mrb_value
+manifold_point_to_value(mrb_state *mrb, const b2ManifoldPoint &mp)
+{
+	const auto state = euler::util::State::get(mrb);
+	auto hash = state->mrb()->hash_new_capa(9);
+	state->mrb()->hash_set(hash, "point",
+	    euler::physics::b2_vec_to_value(mrb, mp.point));
+	auto anchors = state->mrb()->ary_new_capa(2);
+	state->mrb()->ary_push(anchors,
+	    euler::physics::b2_vec_to_value(mrb, mp.anchorA));
+	state->mrb()->ary_push(anchors,
+	    euler::physics::b2_vec_to_value(mrb, mp.anchorB));
+	state->mrb()->hash_set(hash, "anchors", anchors);
+	state->mrb()->hash_set(hash, "separation",
+	    state->mrb()->float_value(mp.separation));
+	state->mrb()->hash_set(hash, "normal_impulse",
+	    state->mrb()->float_value(mp.normalImpulse));
+	state->mrb()->hash_set(hash, "tangent_impulse",
+	    state->mrb()->float_value(mp.tangentImpulse));
+	state->mrb()->hash_set(hash, "total_normal_impulse",
+	    state->mrb()->float_value(mp.totalNormalImpulse));
+	state->mrb()->hash_set(hash, "normal_velocity",
+	    state->mrb()->float_value(mp.normalVelocity));
+	state->mrb()->hash_set(hash, "id", mrb_fixnum_value(mp.id));
+	state->mrb()->hash_set(hash, "persisted", mrb_bool_value(mp.persisted));
+	return hash;
+}
+
+static mrb_value
+manifold_to_value(mrb_state *mrb, const b2Manifold &manifold)
+{
+	const auto state = euler::util::State::get(mrb);
+	mrb_value hash = state->mrb()->hash_new();
+	state->mrb()->hash_set(hash, "normal",
+	    euler::physics::b2_vec_to_value(mrb, manifold.normal));
+	state->mrb()->hash_set(hash, "rolling_impulse",
+	    state->mrb()->float_value(manifold.rollingImpulse));
+	const auto points = state->mrb()->ary_new_capa(manifold.pointCount);
+	for (int i = 0; i < manifold.pointCount; ++i) {
+		const b2ManifoldPoint &mp = manifold.points[i];
+		mrb_value mp_value = manifold_point_to_value(mrb, mp);
+		state->mrb()->ary_push(points, mp_value);
+	}
+	state->mrb()->hash_set(hash, "points", points);
+	return hash;
+}
+
+mrb_value
+Contact::Data::wrap(mrb_state *mrb)
+{
+	const auto state = util::State::get(mrb);
+	const mrb_value hash = state->mrb()->hash_new();
+	// contact
+	const auto contact_value = state->wrap(contact);
+	state->mrb()->hash_set(hash, "contact", contact_value);
+	const auto shape_a_value = state->wrap(shape_a);
+	const auto shape_b_value = state->wrap(shape_b);
+	mrb_value shapes_array = state->mrb()->ary_new_capa(2);
+	state->mrb()->ary_push(shapes_array, shape_a_value);
+	state->mrb()->ary_push(shapes_array, shape_b_value);
+	state->mrb()->hash_set(hash, "shapes", shapes_array);
+	const auto manifold_value = manifold_to_value(mrb, manifold);
+	state->mrb()->hash_set(hash, "manifold", manifold_value);
+	return hash;
+}
+
+RClass *
+Contact::init(const util::Reference<util::State> &state, RClass *mod,
+    RClass *)
+{
+	const auto mrb = state->mrb();
+	auto cls = mrb->define_class_under(mod, "Contact", state->object_class());
+	mrb->define_method(cls, "valid?", contact_is_valid, MRB_ARGS_REQ(0));
+	mrb->define_method(cls, "data", contact_data, MRB_ARGS_REQ(0));
+	return cls;
 }

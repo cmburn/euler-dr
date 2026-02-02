@@ -154,7 +154,7 @@ template <typename T>
 static constexpr mrb_data_type
 datatype(const char *name)
 {
-	return (mrb_data_type) {
+	return mrb_data_type {
 		.struct_name = name,
 		.dfree = util::dfree<T>,
 	};

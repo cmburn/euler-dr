@@ -16,17 +16,9 @@ namespace euler::physics {
 
 mrb_value b2_vec_to_value(mrb_state *mrb, b2Vec2 vec);
 b2Vec2 value_to_b2_vec(mrb_state *mrb, mrb_value val);
-void *tmpbuf(mrb_state *, size_t);
-
-bool try_call_block(mrb_state *mrb, mrb_value block, mrb_value argv[],
-    mrb_int argc, mrb_value *out);
-
-b2Vec2 value_to_b2_vec(mrb_state *, mrb_value);
 b2Rot value_to_b2_rot(mrb_state *, mrb_value);
-mrb_value b2_vec_to_value(mrb_state *, b2Vec2);
 mrb_value b2_rot_to_value(mrb_state *, b2Rot);
 mrb_value b2_transform_to_value(mrb_state *, b2Transform);
-mrb_value b2_manifold_to_value(mrb_state *, const b2Manifold *);
 b2Transform value_to_b2_transform(mrb_state *, mrb_value);
 float hash_read_float(mrb_state *, mrb_value, mrb_value, float);
 mrb_int hash_read_int(mrb_state *, mrb_value, mrb_value, mrb_int);

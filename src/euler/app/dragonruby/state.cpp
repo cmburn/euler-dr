@@ -11,19 +11,10 @@ State::State(const Arguments &args)
 {
 	printf("State::State: %p\n", args.state);
 	_mrb_state
-	    = euler::util::make_reference<MRubyState>(args.state, args.api);
+	    = euler::util::make_reference<RubyState>(args.state, args.api);
 	_log = euler::util::make_reference<Logger>("euler",
 	    args.api->drb_log_write);
-	auto mrb = args.state;
-	printf("State::get: %p\n", mrb);
-	const void *ud_addr = &mrb->ud;
-	printf("sizeof(mrb_state) = %zu\n", sizeof(mrb_state));
-	printf("&mrb->ud = %p\n", ud_addr);
-	printf("mrb - &mrb->ud = %p\n",
-	    (void *)((uintptr_t)mrb - (uintptr_t)ud_addr));
 	args.state->ud = util::Reference(this).wrap();
-	printf("mrb->ud = %p\n", mrb->ud);
-	assert(args.state->ud != nullptr);
 }
 
 euler::util::Reference<euler::util::Logger>
@@ -45,13 +36,13 @@ State::title_storage() const
 }
 
 euler::util::Reference<euler::util::Image>
-State::load_image(const char *path)
+State::load_image(const char *)
 {
 	return nullptr;
 }
 
 void
-State::upload_image(const char *label, const util::Reference<util::Image> &img)
+State::upload_image(const char *, const util::Reference<util::Image> &)
 {
 	// No-op for now
 }

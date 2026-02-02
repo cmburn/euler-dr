@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: ISC */
 
+#include <utility>
+
 #include "euler/physics/body.h"
 
 #include "euler/physics/joint.h"
@@ -357,9 +359,8 @@ body_contact_data(mrb_state *mrb, const mrb_value self)
 	const auto data = body->contact_data();
 	const mrb_value out = state->mrb()->ary_new_capa(data.size());
 	for (const auto &entry : data) {
-		const auto hash
-		    = euler::physics::contact_data_to_value(mrb, &entry);
-		state->mrb()->ary_push(out, hash);
+		auto cd = euler::physics::Contact::Data::from_b2(entry);
+		state->mrb()->ary_push(out, cd.wrap(mrb));
 	}
 	return out;
 }
@@ -872,7 +873,7 @@ body_set_motion_locks(mrb_state *mrb, mrb_value self)
 	const auto body = Body::unwrap(mrb, self);
 	mrb_value locks_value;
 	state->mrb()->get_args("H", &locks_value);
-	b2MotionLocks locks = { 0 };
+	b2MotionLocks locks = { };
 	const mrb_value linear_x_value
 	    = state->mrb()->hash_get(locks_value, B2_SYM(linear_x));
 	locks.linearX = mrb_bool(linear_x_value);
@@ -1001,8 +1002,8 @@ body_shapes(mrb_state *mrb, mrb_value self)
 	const auto body = Body::unwrap(mrb, self);
 	const auto shapes = body->shapes();
 	const mrb_value out = state->mrb()->ary_new_capa(shapes.size());
-	for (const auto &shape : shapes)
-		state->mrb()->ary_push(out, shape->wrap(state));
+	for (auto shape : shapes)
+		state->mrb()->ary_push(out, state->wrap(shape));
 	return out;
 }
 
@@ -1090,7 +1091,9 @@ body_type(mrb_state *mrb, mrb_value self)
 	case b2_staticBody: return B2_SYM(static);
 	case b2_kinematicBody: return B2_SYM(kinematic);
 	case b2_dynamicBody: return B2_SYM(dynamic);
-	default: state->mrb()->raise(E_RUNTIME_ERROR, "unknown body type");
+	default:
+		state->mrb()->raise(E_RUNTIME_ERROR, "unknown body type");
+		std::unreachable();
 	}
 }
 
@@ -1104,6 +1107,7 @@ sym_to_body_type(mrb_state *mrb, const mrb_sym type_sym)
 		return b2_kinematicBody;
 	if (state->mrb()->equal(type, B2_SYM(dynamic))) return b2_dynamicBody;
 	state->mrb()->raise(E_ARGUMENT_ERROR, "invalid body type");
+	std::unreachable();
 }
 
 /**
@@ -1222,7 +1226,7 @@ body_world_vector(mrb_state *mrb, mrb_value self)
 }
 
 RClass *
-Body::init(const util::Reference<util::State> &state, RClass *mod)
+Body::init(const util::Reference<util::State> &state, RClass *mod, RClass *)
 {
 	auto mrb = state->mrb();
 	auto cls = mrb->define_class_under(mod, "Body", state->object_class());
@@ -1340,6 +1344,62 @@ Body::init(const util::Reference<util::State> &state, RClass *mod)
 	mrb->define_method(cls, "world_vector", body_world_vector,
 	    MRB_ARGS_REQ(1));
 	return cls;
+}
+
+euler::util::Reference<Body>
+Body::wrap(b2BodyId id)
+{
+	const auto user_data = b2Body_GetUserData(id);
+	if (user_data != nullptr) {
+		auto body = static_cast<Body *>(user_data);
+		return euler::util::Reference<Body>(body);
+	}
+	auto body = new Body(id);
+	b2Body_SetUserData(id, body);
+	return euler::util::Reference<Body>(body);
+}
+
+b2BodyType
+Body::parse_type(mrb_state *mrb, mrb_value value)
+{
+	auto state = euler::util::State::get(mrb);
+	if (state->mrb()->equal(value, B2_SYM(static))) {
+		return b2_staticBody;
+	}
+	if (state->mrb()->equal(value, B2_SYM(kinematic))) {
+		return b2_kinematicBody;
+	}
+	if (state->mrb()->equal(value, B2_SYM(dynamic))) {
+		return b2_dynamicBody;
+	}
+	state->mrb()->raise(E_ARGUMENT_ERROR, "invalid body type");
+	std::unreachable();
+}
+
+mrb_value
+Body::MoveEvent::wrap(mrb_state *mrb)
+{
+	const auto state = euler::util::State::get(mrb);
+	const auto hash = state->mrb()->hash_new_capa(3);
+	const auto tform = b2_transform_to_value(mrb, transform);
+	const auto asleep = mrb_bool_value(fell_asleep);
+	state->mrb()->hash_set(hash, B2_SYM(transform), tform);
+	state->mrb()->hash_set(hash, B2_SYM(body), state->wrap(body));
+	state->mrb()->hash_set(hash, B2_SYM(fell_asleep), asleep);
+	return hash;
+}
+
+
+Body::MoveEvent
+Body::MoveEvent::from_b2(const b2BodyMoveEvent &event)
+{
+	const auto world_id = b2Body_GetWorld(event.bodyId);
+	const auto state = World::fetch_state(world_id);
+	MoveEvent move_event;
+	move_event.body = Body::wrap(event.bodyId);
+	move_event.transform = event.transform;
+	move_event.fell_asleep = event.fellAsleep;
+	return move_event;
 }
 
 float
@@ -1488,7 +1548,7 @@ Body::joints()
 	std::vector<util::Reference<Joint>> joints;
 	joints.reserve(static_cast<size_t>(count));
 	for (const auto &b2_joint : b2_joints) {
-		auto joint = Joint::from_id(b2_joint);
+		auto joint = Joint::wrap(b2_joint);
 		joints.emplace_back(joint);
 	}
 	return joints;
@@ -1660,7 +1720,8 @@ Body::shapes()
 	std::vector<util::Reference<Shape>> shapes;
 	shapes.reserve(static_cast<size_t>(count));
 	for (const auto &b2_shape : b2_shapes) {
-		auto shape = util::make_reference<Shape>(b2_shape);
+		auto ptr = new Shape(b2_shape);
+		auto shape = util::Reference(ptr);
 		shapes.emplace_back(shape);
 	}
 	return shapes;
@@ -1706,7 +1767,7 @@ euler::util::Reference<euler::physics::World>
 Body::world()
 {
 	const auto world = b2Body_GetWorld(_id);
-	return util::make_reference<World>(world);
+	return World::wrap(world);
 }
 
 b2Vec2

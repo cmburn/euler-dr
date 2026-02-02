@@ -20,9 +20,6 @@ if (EULER_DRAGONRUBY_BUILD)
     target_include_directories(euler_app PUBLIC
             ${EULER_DRAGONRUBY_PATH}/include
     )
-    target_compile_definitions(euler_app PUBLIC
-            -DEULER_DRAGONRUBY
-    )
 endif ()
 
 if (EULER_NATIVE_BUILD)
@@ -36,9 +33,6 @@ if (EULER_NATIVE_BUILD)
             native/storage.cpp
             native/storage.h
     )
-    target_compile_definitions(euler_app PUBLIC
-            -DEULER_NATIVE
-    )
 
     target_include_directories(euler_app PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/../../
@@ -51,8 +45,34 @@ if (EULER_NATIVE_BUILD)
     endif()
 endif ()
 
+message(STATUS "Euler App Definitions: ${EULER_DEFINITIONS}")
+
+target_compile_definitions(euler_app PUBLIC
+        ${EULER_DEFINITIONS}
+)
+
+target_compile_options(euler_app PUBLIC
+        ${EULER_CFLAGS}
+)
+
+#target_link_libraries(euler_app PUBLIC
+#        euler_util
+#        euler_math
+#        # euler_physics
+#)
+
+if (EULER_MATH_BUILD)
+    target_link_libraries(euler_app PUBLIC
+            euler_math
+    )
+endif ()
+
+if (EULER_PHYSICS_BUILD)
+    target_link_libraries(euler_app PUBLIC
+            euler_physics
+    )
+endif ()
+
 target_link_libraries(euler_app PUBLIC
         euler_util
-        euler_math
-        # euler_physics
 )

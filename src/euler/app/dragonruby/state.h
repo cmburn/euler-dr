@@ -51,7 +51,7 @@ public:
 	}
 
 private:
-	util::Reference<MRubyState> _mrb_state;
+	util::Reference<RubyState> _mrb_state;
 	util::Reference<Logger> _log;
 	util::Reference<Storage> _user_storage;
 	util::Reference<Storage> _title_storage;

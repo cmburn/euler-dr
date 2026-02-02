@@ -91,7 +91,6 @@ public:
 	mrb_value const_get(mrb_value, mrb_sym) override;
 	void const_remove(mrb_value, mrb_sym) override;
 	void const_set(mrb_value, mrb_sym, mrb_value) override;
-	mrb_value convert_to_integer(mrb_value val, mrb_int base) override;
 	double cstr_to_dbl(const char *s, mrb_bool badcheck) override;
 	mrb_value cstr_to_inum(const char *s, mrb_int base,
 	    mrb_bool badcheck) override;
@@ -242,7 +241,6 @@ public:
 	mrb_value load_proc(const RProc *proc) override;
 	mrb_value load_string(const char *s) override;
 	mrb_value load_string_cxt(const char *s, mrbc_context *cxt) override;
-	mrb_value make_exception(mrb_int argc, const mrb_value *argv) override;
 	void *malloc(size_t) override;
 	void *malloc_simple(size_t) override;
 	mrb_method_t method_search(RClass *, mrb_sym) override;

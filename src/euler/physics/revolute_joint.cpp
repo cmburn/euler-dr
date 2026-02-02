@@ -15,6 +15,8 @@
 #include "euler/physics/util.h"
 #include "euler/physics/world.h"
 
+using euler::physics::RevoluteJoint;
+
 /**
  * @overload Euler::Physics::RevoluteJoint#spring_enabled=(flag)
  *   Enable or disable the revolute joint's spring.
@@ -25,11 +27,10 @@ static mrb_value
 revolute_joint_enable_spring(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
 	mrb_bool flag;
-	mrb_get_args(mrb, "b", &flag);
-	b2RevoluteJoint_EnableSpring(joint->id, flag);
+	state->mrb()->get_args("b", &flag);
+	joint->enable_spring(flag);
 	return mrb_nil_value();
 }
 
@@ -42,9 +43,8 @@ static mrb_value
 revolute_joint_is_spring_enabled(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
-	const bool flag = b2RevoluteJoint_IsSpringEnabled(joint->id);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
+	const bool flag = joint->is_spring_enabled();
 	return mrb_bool_value(flag);
 }
 
@@ -58,11 +58,10 @@ static mrb_value
 revolute_joint_set_spring_hertz(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
 	mrb_float hertz;
-	mrb_get_args(mrb, "f", &hertz);
-	b2RevoluteJoint_SetSpringHertz(joint->id, (float)hertz);
+	state->mrb()->get_args("f", &hertz);
+	joint->set_spring_hertz((float)hertz);
 	return mrb_nil_value();
 }
 
@@ -75,10 +74,9 @@ static mrb_value
 revolute_joint_spring_hertz(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
-	const float hertz = b2RevoluteJoint_GetSpringHertz(joint->id);
-	return mrb_float_value(mrb, hertz);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
+	const float hertz = joint->spring_hertz();
+	return state->mrb()->float_value(hertz);
 }
 
 /**
@@ -91,11 +89,10 @@ static mrb_value
 revolute_joint_set_spring_damping_ratio(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
 	mrb_float damping_ratio;
-	mrb_get_args(mrb, "f", &damping_ratio);
-	b2RevoluteJoint_SetSpringDampingRatio(joint->id, (float)damping_ratio);
+	state->mrb()->get_args("f", &damping_ratio);
+	joint->set_spring_damping_ratio((float)damping_ratio);
 	return mrb_nil_value();
 }
 
@@ -108,11 +105,9 @@ static mrb_value
 revolute_joint_spring_damping_ratio(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
-	const float damping_ratio
-	    = b2RevoluteJoint_GetSpringDampingRatio(joint->id);
-	return mrb_float_value(mrb, damping_ratio);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
+	const float damping_ratio = joint->spring_damping_ratio();
+	return state->mrb()->float_value(damping_ratio);
 }
 
 /**
@@ -125,11 +120,10 @@ static mrb_value
 revolute_joint_set_target_angle(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
 	mrb_float angle;
-	mrb_get_args(mrb, "f", &angle);
-	b2RevoluteJoint_SetTargetAngle(joint->id, (float)angle);
+	state->mrb()->get_args("f", &angle);
+	joint->set_target_angle((float)angle);
 	return mrb_nil_value();
 }
 
@@ -142,10 +136,9 @@ static mrb_value
 revolute_joint_target_angle(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
-	const float angle = b2RevoluteJoint_GetTargetAngle(joint->id);
-	return mrb_float_value(mrb, angle);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
+	const float angle = joint->target_angle();
+	return state->mrb()->float_value(angle);
 }
 
 /**
@@ -157,10 +150,9 @@ static mrb_value
 revolute_joint_angle(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
-	const float angle = b2RevoluteJoint_GetAngle(joint->id);
-	return mrb_float_value(mrb, angle);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
+	const float angle = joint->angle();
+	return state->mrb()->float_value(angle);
 }
 
 /**
@@ -173,11 +165,10 @@ static mrb_value
 revolute_joint_enable_limit(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
 	mrb_bool flag;
-	mrb_get_args(mrb, "b", &flag);
-	b2RevoluteJoint_EnableLimit(joint->id, flag);
+	state->mrb()->get_args("b", &flag);
+	joint->enable_limit(flag);
 	return mrb_nil_value();
 }
 
@@ -190,9 +181,8 @@ static mrb_value
 revolute_joint_is_limit_enabled(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
-	const bool flag = b2RevoluteJoint_IsLimitEnabled(joint->id);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
+	const bool flag = joint->is_limit_enabled();
 	return mrb_bool_value(flag);
 }
 
@@ -207,12 +197,11 @@ static mrb_value
 revolute_joint_set_limits(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
 	mrb_value arr = mrb_nil_value();
-	mrb_get_args(mrb, "A", &arr);
-	const b2Vec2 limits = value_to_b2_vec(mrb, arr);
-	b2RevoluteJoint_SetLimits(joint->id, limits.x, limits.y);
+	state->mrb()->get_args("A", &arr);
+	const b2Vec2 limits = euler::physics::value_to_b2_vec(mrb, arr);
+	joint->set_limits(limits.x, limits.y);
 	return mrb_nil_value();
 }
 
@@ -226,13 +215,11 @@ static mrb_value
 revolute_joint_limits(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
-	const float lower_limit = b2RevoluteJoint_GetLowerLimit(joint->id);
-	const float upper_limit = b2RevoluteJoint_GetUpperLimit(joint->id);
-	const mrb_value out = mrb_ary_new_capa(mrb, 2);
-	mrb_ary_push(mrb, out, mrb_float_value(mrb, lower_limit));
-	mrb_ary_push(mrb, out, mrb_float_value(mrb, upper_limit));
+	const auto joint = state->unwrap<RevoluteJoint>(self);
+	const auto [lower_limit, upper_limit] = joint->limits();
+	const mrb_value out = state->mrb()->ary_new_capa(2);
+	state->mrb()->ary_push(out, state->mrb()->float_value(lower_limit));
+	state->mrb()->ary_push(out, state->mrb()->float_value(upper_limit));
 	return out;
 }
 
@@ -246,11 +233,10 @@ static mrb_value
 revolute_joint_enable_motor(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
 	mrb_bool flag;
-	mrb_get_args(mrb, "b", &flag);
-	b2RevoluteJoint_EnableMotor(joint->id, flag);
+	state->mrb()->get_args("b", &flag);
+	joint->enable_motor(flag);
 	return mrb_nil_value();
 }
 
@@ -263,9 +249,8 @@ static mrb_value
 revolute_joint_is_motor_enabled(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
-	const bool flag = b2RevoluteJoint_IsMotorEnabled(joint->id);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
+	const bool flag = joint->is_motor_enabled();
 	return mrb_bool_value(flag);
 }
 
@@ -279,11 +264,10 @@ static mrb_value
 revolute_joint_set_motor_speed(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
 	mrb_float motor_speed;
-	mrb_get_args(mrb, "f", &motor_speed);
-	b2RevoluteJoint_SetMotorSpeed(joint->id, (float)motor_speed);
+	state->mrb()->get_args("f", &motor_speed);
+	joint->set_motor_speed((float)motor_speed);
 	return mrb_nil_value();
 }
 
@@ -296,10 +280,9 @@ static mrb_value
 revolute_joint_motor_speed(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
-	const float motor_speed = b2RevoluteJoint_GetMotorSpeed(joint->id);
-	return mrb_float_value(mrb, motor_speed);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
+	const float motor_speed = joint->motor_speed();
+	return state->mrb()->float_value(motor_speed);
 }
 
 /**
@@ -311,10 +294,9 @@ static mrb_value
 revolute_joint_motor_torque(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
-	const float torque = b2RevoluteJoint_GetMotorTorque(joint->id);
-	return mrb_float_value(mrb, torque);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
+	const float torque = joint->motor_torque();
+	return state->mrb()->float_value(torque);
 }
 
 /**
@@ -327,11 +309,10 @@ static mrb_value
 revolute_joint_set_max_motor_torque(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
 	mrb_float max_torque;
-	mrb_get_args(mrb, "f", &max_torque);
-	b2RevoluteJoint_SetMaxMotorTorque(joint->id, (float)max_torque);
+	state->mrb()->get_args("f", &max_torque);
+	joint->set_max_motor_torque((float)max_torque);
 	return mrb_nil_value();
 }
 
@@ -344,60 +325,173 @@ static mrb_value
 revolute_joint_max_motor_torque(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_joint *joint = box2d_joint_unwrap(mrb, self);
-	ASSERT_JOINT_TYPE(joint, revolute);
-	const float max_torque = b2RevoluteJoint_GetMaxMotorTorque(joint->id);
-	return mrb_float_value(mrb, max_torque);
+	const auto joint = state->unwrap<RevoluteJoint>(self);
+	const float max_torque = joint->max_motor_torque();
+	return state->mrb()->float_value(max_torque);
 }
 
-struct RClass *
-box2d_revolute_joint_init(mrb_state *mrb, struct RClass *mod,
-    struct RClass *super)
+RClass *
+box2d_revolute_joint_init(mrb_state *mrb, RClass *mod, RClass *super)
 {
 	const auto state = euler::util::State::get(mrb);
-	struct RClass *joint
-	    = mrb_define_class_under(mrb, mod, "RevoluteJoint", super);
-	mrb_define_method(mrb, joint,
+	RClass *joint
+	    = state->mrb()->define_class_under(mod, "RevoluteJoint", super);
+	state->mrb()->define_method(joint,
 	    "spring_enabled=", revolute_joint_enable_spring, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "spring_enabled",
+	state->mrb()->define_method(joint, "spring_enabled",
 	    revolute_joint_is_spring_enabled, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "spring_hertz=", revolute_joint_set_spring_hertz, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "spring_hertz",
+	state->mrb()->define_method(joint, "spring_hertz",
 	    revolute_joint_spring_hertz, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "spring_damping_ratio=", revolute_joint_set_spring_damping_ratio,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "spring_damping_ratio",
+	state->mrb()->define_method(joint, "spring_damping_ratio",
 	    revolute_joint_spring_damping_ratio, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "target_angle=", revolute_joint_set_target_angle, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "target_angle",
+	state->mrb()->define_method(joint, "target_angle",
 	    revolute_joint_target_angle, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint, "angle", revolute_joint_angle,
+	state->mrb()->define_method(joint, "angle", revolute_joint_angle,
 	    MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "limit_enabled=", revolute_joint_enable_limit, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "limit_enabled",
+	state->mrb()->define_method(joint, "limit_enabled",
 	    revolute_joint_is_limit_enabled, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint, "limits=", revolute_joint_set_limits,
+	state->mrb()->define_method(joint, "limits=", revolute_joint_set_limits,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "limits", revolute_joint_limits,
+	state->mrb()->define_method(joint, "limits", revolute_joint_limits,
 	    MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "motor_enabled=", revolute_joint_enable_motor, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "motor_enabled",
+	state->mrb()->define_method(joint, "motor_enabled",
 	    revolute_joint_is_motor_enabled, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "motor_speed=", revolute_joint_set_motor_speed, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "motor_speed", revolute_joint_motor_speed,
-	    MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint, "motor_torque",
+	state->mrb()->define_method(joint, "motor_speed",
+	    revolute_joint_motor_speed, MRB_ARGS_REQ(0));
+	state->mrb()->define_method(joint, "motor_torque",
 	    revolute_joint_motor_torque, MRB_ARGS_REQ(0));
-	mrb_define_method(mrb, joint,
+	state->mrb()->define_method(joint,
 	    "max_motor_torque=", revolute_joint_set_max_motor_torque,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, joint, "max_motor_torque",
+	state->mrb()->define_method(joint, "max_motor_torque",
 	    revolute_joint_max_motor_torque, MRB_ARGS_REQ(0));
 	return joint;
+}
+RClass *
+RevoluteJoint::init(const euler::util::Reference<euler::util::State> &state,
+    RClass *mod, RClass *super)
+{
+	return box2d_revolute_joint_init(state->mrb()->mrb(), mod, super);
+}
+void
+RevoluteJoint::enable_spring(bool flag)
+{
+	b2RevoluteJoint_EnableSpring(_id, flag);
+}
+bool
+RevoluteJoint::is_spring_enabled() const
+{
+	return b2RevoluteJoint_IsSpringEnabled(_id);
+}
+void
+RevoluteJoint::set_spring_hertz(float hertz)
+{
+	b2RevoluteJoint_SetSpringHertz(_id, hertz);
+}
+float
+RevoluteJoint::spring_hertz() const
+{
+	return b2RevoluteJoint_GetSpringHertz(_id);
+}
+void
+RevoluteJoint::set_spring_damping_ratio(float ratio)
+{
+	b2RevoluteJoint_SetSpringDampingRatio(_id, ratio);
+}
+float
+RevoluteJoint::spring_damping_ratio() const
+{
+	return b2RevoluteJoint_GetSpringDampingRatio(_id);
+}
+void
+RevoluteJoint::set_target_angle(float angle)
+{
+	b2RevoluteJoint_SetTargetAngle(_id, angle);
+}
+float
+RevoluteJoint::target_angle() const
+{
+	return b2RevoluteJoint_GetTargetAngle(_id);
+}
+float
+RevoluteJoint::angle() const
+{
+	return b2RevoluteJoint_GetAngle(_id);
+}
+void
+RevoluteJoint::enable_limit(bool flag)
+{
+	b2RevoluteJoint_EnableLimit(_id, flag);
+}
+bool
+RevoluteJoint::is_limit_enabled() const
+{
+	return b2RevoluteJoint_IsLimitEnabled(_id);
+}
+void
+RevoluteJoint::set_limits(float lower, float upper)
+{
+	b2RevoluteJoint_SetLimits(_id, lower, upper);
+}
+std::pair<float, float>
+RevoluteJoint::limits() const
+{
+	return {
+		b2RevoluteJoint_GetLowerLimit(_id),
+		b2RevoluteJoint_GetUpperLimit(_id),
+	};
+}
+void
+RevoluteJoint::enable_motor(bool flag)
+{
+	b2RevoluteJoint_EnableMotor(_id, flag);
+}
+bool
+RevoluteJoint::is_motor_enabled() const
+{
+	return b2RevoluteJoint_IsMotorEnabled(_id);
+}
+void
+RevoluteJoint::set_motor_speed(float speed)
+{
+	b2RevoluteJoint_SetMotorSpeed(_id, speed);
+}
+float
+RevoluteJoint::motor_speed() const
+{
+	return b2RevoluteJoint_GetMotorSpeed(_id);
+}
+float
+RevoluteJoint::motor_torque() const
+{
+	return b2RevoluteJoint_GetMotorTorque(_id);
+}
+void
+RevoluteJoint::set_max_motor_torque(float torque)
+{
+	b2RevoluteJoint_SetMaxMotorTorque(_id, torque);
+}
+float
+RevoluteJoint::max_motor_torque() const
+{
+	return b2RevoluteJoint_GetMaxMotorTorque(_id);
+}
+mrb_value
+RevoluteJoint::wrap(const util::Reference<util::State> &state)
+{
+	auto self = util::Reference(this);
+	return state->wrap<RevoluteJoint>(self);
 }

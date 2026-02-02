@@ -58,6 +58,10 @@ public:
 			RClass *weld_joint;
 			RClass *wheel_joint;
 			RClass *world;
+			RClass *capsule;
+			RClass *circle;
+			RClass *polygon;
+			RClass *segment;
 		} physics;
 	};
 

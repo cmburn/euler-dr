@@ -36,11 +36,11 @@ chain_surface_materials(mrb_state *mrb, const mrb_value self)
 	const auto state = euler::util::State::get(mrb);
 	const auto chain = Chain::unwrap(mrb, self);
 	const auto materials = chain->surface_materials();
-	const mrb_value out = mrb_ary_new_capa(mrb, materials.size());
+	const mrb_value out = state->mrb()->ary_new_capa(materials.size());
 	for (const auto &sm : materials) {
 		const mrb_value mat
 		    = euler::physics::surface_material_to_value(mrb, &sm);
-		mrb_ary_push(mrb, out, mat);
+		state->mrb()->ary_push(out, mat);
 	}
 	return out;
 }
@@ -64,7 +64,7 @@ chain_set_surface_materials(mrb_state *mrb, const mrb_value self)
 	const auto state = euler::util::State::get(mrb);
 	const auto chain = Chain::unwrap(mrb, self);
 	mrb_value array;
-	mrb_get_args(mrb, "A", &array);
+	state->mrb()->get_args("A", &array);
 	const mrb_int len = RARRAY_LEN(array);
 	const int chain_len = chain->surface_material_count();
 	if (len != 1 && len != chain_len) {
@@ -75,7 +75,8 @@ chain_set_surface_materials(mrb_state *mrb, const mrb_value self)
 	}
 	const bool single = (len == 1);
 	for (int i = 0; i < chain_len; ++i) {
-		const mrb_value item = mrb_ary_ref(mrb, array, single ? 0 : i);
+		const mrb_value item
+		    = state->mrb()->ary_ref(array, single ? 0 : i);
 		const b2SurfaceMaterial sm
 		    = euler::physics::value_to_surface_material(mrb, item);
 		chain->set_surface_material(sm, i);
@@ -102,7 +103,7 @@ chain_set_surface_material(mrb_state *mrb, const mrb_value self)
 	const auto chain = Chain::unwrap(mrb, self);
 	mrb_value material_value;
 	mrb_int index;
-	mrb_get_args(mrb, "oi", &material_value, &index);
+	state->mrb()->get_args("oi", &material_value, &index);
 	const b2SurfaceMaterial sm
 	    = euler::physics::value_to_surface_material(mrb, material_value);
 	chain->set_surface_material(sm, static_cast<int>(index));
@@ -132,11 +133,10 @@ chain_segments(mrb_state *mrb, mrb_value self)
 	const auto state = euler::util::State::get(mrb);
 	const auto chain = Chain::unwrap(mrb, self);
 	const auto segments = chain->segments();
-	const mrb_value out = mrb_ary_new_capa(mrb, segments.size());
-	for (const auto &segment : segments) {
-		const mrb_value segment_value
-		    = euler::physics::segment_wrap(mrb, segment);
-		mrb_ary_push(mrb, out, segment_value);
+	const mrb_value out = state->mrb()->ary_new_capa(segments.size());
+	for (auto segment : segments) {
+		const mrb_value segment_value = state->wrap(segment);
+		state->mrb()->ary_push(out, segment_value);
 	}
 	return out;
 }
@@ -156,22 +156,116 @@ chain_is_valid(mrb_state *mrb, mrb_value self)
 }
 
 RClass *
-box2d_chain_init(mrb_state *mrb, struct RClass *mod)
+box2d_chain_init(mrb_state *mrb, RClass *mod)
 {
 	const auto state = euler::util::State::get(mrb);
-	struct RClass *chain
-	    = mrb_define_class_under(mrb, mod, "World", mrb->object_class);
+	RClass *chain
+	    = state->mrb()->define_class_under(mod, "World", mrb->object_class);
 	MRB_SET_INSTANCE_TT(chain, MRB_TT_DATA);
-	mrb_define_method(mrb, chain, "surface_materials",
+	state->mrb()->define_method(chain, "surface_materials",
 	    chain_surface_materials, MRB_ARGS_NONE());
-	mrb_define_method(mrb, chain,
+	state->mrb()->define_method(chain,
 	    "surface_materials=", chain_set_surface_materials, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, chain, "set_surface_material",
+	state->mrb()->define_method(chain, "set_surface_material",
 	    chain_set_surface_material, MRB_ARGS_REQ(2));
-	mrb_define_method(mrb, chain, "world", chain_world, MRB_ARGS_NONE());
-	mrb_define_method(mrb, chain, "segments", chain_segments,
+	state->mrb()->define_method(chain, "world", chain_world,
 	    MRB_ARGS_NONE());
-	mrb_define_method(mrb, chain, "valid?", chain_is_valid,
+	state->mrb()->define_method(chain, "segments", chain_segments,
+	    MRB_ARGS_NONE());
+	state->mrb()->define_method(chain, "valid?", chain_is_valid,
 	    MRB_ARGS_NONE());
 	return chain;
+}
+
+RClass *
+Chain::init(const util::Reference<util::State> &state, RClass *mod, RClass *)
+{
+	return box2d_chain_init(state->mrb()->mrb(), mod);
+}
+
+euler::util::Reference<Chain>
+Chain::unwrap(mrb_state *mrb, mrb_value self)
+{
+	const auto state = euler::util::State::get(mrb);
+	return state->unwrap<Chain>(self);
+}
+
+euler::util::Reference<Chain>
+Chain::wrap(b2ChainId id)
+{
+	auto world_id = b2Chain_GetWorld(id);
+	auto world = World::wrap(world_id);
+	return world->wrap_chain(id);
+}
+
+std::vector<b2SurfaceMaterial>
+Chain::surface_materials() const
+{
+	const auto count = static_cast<int>(surface_material_count());
+	std::vector<b2SurfaceMaterial> materials;
+	materials.reserve(count);
+	for (int i = 0; i < count; ++i) {
+		auto sm = b2Chain_GetSurfaceMaterial(_id, i);
+		materials.push_back(sm);
+	}
+	return materials;
+}
+
+size_t
+Chain::surface_material_count() const
+{
+	const auto count = b2Chain_GetSurfaceMaterialCount(_id);
+	return static_cast<size_t>(count);
+}
+
+void
+Chain::set_surface_materials(const std::vector<b2SurfaceMaterial> &materials)
+{
+	for (size_t i = 0; i < materials.size(); ++i) {
+		b2Chain_SetSurfaceMaterial(_id, &materials[i],
+		    static_cast<int>(i));
+	}
+}
+
+void
+Chain::set_surface_material(const b2SurfaceMaterial &material, int index)
+{
+	b2Chain_SetSurfaceMaterial(_id, &material, index);
+}
+
+euler::util::Reference<euler::physics::World>
+Chain::world() const
+{
+	auto world_id = b2Chain_GetWorld(_id);
+	return World::wrap(world_id);
+}
+
+std::vector<euler::util::Reference<euler::physics::Shape>>
+Chain::segments() const
+{
+	const auto count = b2Chain_GetSegmentCount(_id);
+	std::vector<b2ShapeId> segments;
+	segments.reserve(count);
+	b2Chain_GetSegments(_id, segments.data(), count);
+	std::vector<util::Reference<Shape>> shapes;
+	shapes.reserve(count);
+	for (int i = 0; i < count; ++i) {
+		auto ptr = new Shape(segments[i]);
+		auto shape = util::Reference(ptr);
+		shapes.push_back(shape);
+	}
+	return shapes;
+}
+
+bool
+Chain::is_valid() const
+{
+	return b2Chain_IsValid(_id);
+}
+
+Chain::~Chain()
+{
+	auto world_id = b2Chain_GetWorld(_id);
+	auto world = World::wrap(world_id);
+	world->drop_chain(_id);
 }

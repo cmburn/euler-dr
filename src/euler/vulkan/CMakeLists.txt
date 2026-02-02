@@ -20,3 +20,11 @@ target_link_libraries(euler_vulkan PUBLIC
         armadillo
         VK2D
 )
+
+target_compile_options(euler_vulkan PUBLIC
+        ${EULER_CFLAGS}
+)
+
+target_compile_definitions(euler_vulkan PUBLIC
+        ${EULER_DEFINITIONS}
+)

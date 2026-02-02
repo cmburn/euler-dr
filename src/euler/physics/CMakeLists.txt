@@ -33,11 +33,22 @@ add_library(euler_physics STATIC
 
 target_link_libraries(euler_physics PUBLIC
         box2d
-        euler_math
         euler_util
-        dragonruby
 )
 
 target_compile_definitions(euler_physics PUBLIC
-    EULER_PHYSICS
+        ${EULER_DEFINITIONS}
 )
+target_compile_options(euler_physics PUBLIC
+        ${EULER_CFLAGS}
+)
+
+if (EULER_MATH_BUILD)
+    target_link_libraries(euler_physics PUBLIC euler_math)
+endif ()
+
+target_compile_options(euler_physics PUBLIC
+        ${EULER_CFLAGS}
+)
+
+

@@ -1,10 +1,20 @@
 /* SPDX-License-Identifier: ISC */
 
+#include <assert.h>
+
 #include "euler/physics/world.h"
 
+#include <box2d/box2d.h>
 #include <box2d/types.h>
 
-static struct b2WorldDef
+#include <utility>
+
+#include "euler/physics/shape.h"
+#include "euler/physics/util.h"
+
+using euler::physics::World;
+
+static b2WorldDef
 parse_world_new_args(mrb_state *mrb)
 {
 	const auto state = euler::util::State::get(mrb);
@@ -31,12 +41,12 @@ parse_world_new_args(mrb_state *mrb)
 		ENABLE_SLEEP,
 		ENABLE_CONTINUOUS,
 		ENABLE_CONTACT_SOFTENING,
-		KW_COUNT = sizeof(KW_NAMES) / sizeof(KW_NAMES[0]),
+		KW_COUNT = std::size(KW_NAMES),
 	};
 	mrb_sym kw_syms[KW_COUNT];
 	for (size_t i = 0; i < KW_COUNT; ++i) {
 		const size_t len = strlen(KW_NAMES[i]);
-		kw_syms[i] = mrb_intern_static(mrb, KW_NAMES[i], len);
+		kw_syms[i] = state->mrb()->intern_static(KW_NAMES[i], len);
 	}
 	mrb_value kw_values[KW_COUNT];
 	const mrb_kwargs kwargs = {
@@ -44,37 +54,38 @@ parse_world_new_args(mrb_state *mrb)
 		.required = 0,
 		.table = kw_syms,
 		.values = kw_values,
-		.rest = NULL,
+		.rest = nullptr,
 	};
-	mrb_get_args(mrb, ":", &kwargs);
-	struct b2WorldDef world_def = b2DefaultWorldDef();
-	struct b2Vec2 gravity = world_def.gravity;
+	state->mrb()->get_args(":", &kwargs);
+	b2WorldDef world_def = b2DefaultWorldDef();
+	b2Vec2 gravity = world_def.gravity;
 	if (!mrb_undef_p(kw_values[GRAVITY]))
-		gravity = value_to_b2_vec(mrb, kw_values[GRAVITY]);
+		gravity
+		    = euler::physics::value_to_b2_vec(mrb, kw_values[GRAVITY]);
 	world_def.gravity = gravity;
 	if (!mrb_undef_p(kw_values[RESTITUTION_THRESHOLD])) {
-		world_def.restitutionThreshold
-		    = (float)mrb_float(kw_values[RESTITUTION_THRESHOLD]);
+		world_def.restitutionThreshold = static_cast<float>(
+		    mrb_float(kw_values[RESTITUTION_THRESHOLD]));
 	}
 	if (!mrb_undef_p(kw_values[HIT_EVENT_THRESHOLD])) {
-		world_def.hitEventThreshold
-		    = (float)mrb_float(kw_values[HIT_EVENT_THRESHOLD]);
+		world_def.hitEventThreshold = static_cast<float>(
+		    mrb_float(kw_values[HIT_EVENT_THRESHOLD]));
 	}
 	if (!mrb_undef_p(kw_values[CONTACT_HERTZ])) {
 		world_def.contactHertz
-		    = (float)mrb_float(kw_values[CONTACT_HERTZ]);
+		    = static_cast<float>(mrb_float(kw_values[CONTACT_HERTZ]));
 	}
 	if (!mrb_undef_p(kw_values[CONTACT_DAMPING_RATIO])) {
-		world_def.contactDampingRatio
-		    = (float)mrb_float(kw_values[CONTACT_DAMPING_RATIO]);
+		world_def.contactDampingRatio = static_cast<float>(
+		    mrb_float(kw_values[CONTACT_DAMPING_RATIO]));
 	}
 	if (!mrb_undef_p(kw_values[CONTACT_SPEED])) {
 		world_def.contactSpeed
-		    = (float)mrb_float(kw_values[CONTACT_SPEED]);
+		    = static_cast<float>(mrb_float(kw_values[CONTACT_SPEED]));
 	}
 	if (!mrb_undef_p(kw_values[MAXIMUM_LINEAR_SPEED])) {
-		world_def.maximumLinearSpeed
-		    = (float)mrb_float(kw_values[MAXIMUM_LINEAR_SPEED]);
+		world_def.maximumLinearSpeed = static_cast<float>(
+		    mrb_float(kw_values[MAXIMUM_LINEAR_SPEED]));
 	}
 	if (!mrb_undef_p(kw_values[ENABLE_SLEEP]))
 		world_def.enableSleep = mrb_bool(kw_values[ENABLE_SLEEP]);
@@ -89,36 +100,22 @@ parse_world_new_args(mrb_state *mrb)
 	return world_def;
 }
 
-static mrb_value
-world_new(mrb_state *mrb, const mrb_value self)
+mrb_value
+world_allocate(mrb_state *mrb, mrb_value)
 {
 	const auto state = euler::util::State::get(mrb);
-	const b2WorldDef def = parse_world_new_args(mrb);
-	(void)self;
-	const b2WorldId id = b2CreateWorld(&def);
-	struct box2d_world *data
-	    = (struct box2d_world *)tmpbuf(mrb, sizeof(struct box2d_world));
-	assert(data != NULL);
-	data->id = id;
-	data->mrb = mrb;
-	data->custom_filter_fn = mrb_nil_value();
-	data->pre_solve_fn = mrb_nil_value();
-	mrb_gc_register(mrb, data->custom_filter_fn);
-	mrb_gc_register(mrb, data->pre_solve_fn);
-	struct RClass *cls = read_box2d_class(mrb);
-	struct RData *obj = Data_Wrap_Struct(mrb, cls, &BOX2D_WORLD_TYPE, data);
-	data->self = mrb_obj_value(obj);
-	b2World_SetUserData(id, &data);
-	return data->self;
+	auto world = new World();
+	auto ref = euler::util::Reference(world);
+	return state->wrap(ref);
 }
 
-static mrb_value
-world_destroy(mrb_state *mrb, const mrb_value self)
+mrb_value
+world_initialize(mrb_state *mrb, const mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	struct box2d_world *world = box2d_world_unwrap(mrb, self);
-	destroy_world(mrb, world);
-	mrb_data_init(self, NULL, NULL);
+	const ::b2WorldDef def = parse_world_new_args(mrb);
+	const auto world = state->unwrap<World>(self);
+	world->initialize(def);
 	return mrb_nil_value();
 }
 
@@ -131,8 +128,8 @@ static mrb_value
 world_is_valid(mrb_state *mrb, const mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
-	const bool valid = b2World_IsValid(world->id);
+	const auto world = state->unwrap<World>(self);
+	const bool valid = world->is_valid();
 	return mrb_bool_value(valid);
 }
 
@@ -154,13 +151,13 @@ world_step(mrb_state *mrb, const mrb_value self)
 		SUBSTEPS = 0,
 		KW_COUNT = sizeof(KW_NAMES) / sizeof(KW_NAMES[0]),
 	};
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	mrb_float time_step = 1.0f / 60.0f;
 	int substep_count = 4;
 	mrb_sym kw_syms[KW_COUNT];
 	for (size_t i = 0; i < KW_COUNT; ++i) {
 		const size_t len = strlen(KW_NAMES[i]);
-		kw_syms[i] = mrb_intern_static(mrb, KW_NAMES[i], len);
+		kw_syms[i] = state->mrb()->intern_static(KW_NAMES[i], len);
 	}
 	mrb_value kw_values[KW_COUNT];
 	const mrb_kwargs kwargs = {
@@ -168,29 +165,15 @@ world_step(mrb_state *mrb, const mrb_value self)
 		.required = 0,
 		.table = kw_syms,
 		.values = kw_values,
-		.rest = NULL,
+		.rest = nullptr,
 	};
-	mrb_get_args(mrb, "|f:", &time_step, &kwargs);
+	state->mrb()->get_args("|f:", &time_step, &kwargs);
 	if (!mrb_undef_p(kw_values[SUBSTEPS])) {
-		substep_count = (int)mrb_integer(kw_values[SUBSTEPS]);
+		substep_count
+		    = static_cast<int>(mrb_integer(kw_values[SUBSTEPS]));
 	}
-	b2World_Step(world->id, time_step, substep_count);
+	world->step(static_cast<float>(time_step), substep_count);
 	return mrb_nil_value();
-}
-
-static mrb_value
-body_move_event_to_hash(mrb_state *mrb, const struct box2d_world *world,
-    const b2BodyMoveEvent *event)
-{
-	const auto state = euler::util::State::get(mrb);
-	const mrb_value hash = mrb_hash_new(mrb);
-	const mrb_value body = box2d_body_wrap(mrb, event->bodyId);
-	mrb_hash_set(mrb, hash, B2_SYM(transform),
-	    b2_transform_to_value(mrb, event->transform));
-	mrb_hash_set(mrb, hash, B2_SYM(body), body);
-	mrb_hash_set(mrb, hash, B2_SYM(fell_asleep),
-	    mrb_bool_value(event->fellAsleep));
-	return hash;
 }
 
 /**
@@ -207,28 +190,11 @@ static mrb_value
 world_body_events(mrb_state *mrb, const mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
-	const b2BodyEvents body_events = b2World_GetBodyEvents(world->id);
-	const mrb_value ary = mrb_ary_new_capa(mrb, body_events.moveCount);
-	for (int i = 0; i < body_events.moveCount; ++i) {
-		const mrb_value event = body_move_event_to_hash(mrb, world,
-		    &body_events.moveEvents[i]);
-		mrb_ary_push(mrb, ary, event);
-	}
+	const auto world = state->unwrap<World>(self);
+	auto events = world->body_events();
+	const mrb_value ary = state->mrb()->ary_new_capa(events.size());
+	for (auto &event : events) state->mrb()->ary_push(ary, event.wrap(mrb));
 	return ary;
-}
-
-static mrb_value
-sensor_touch_event_to_hash(mrb_state *mrb, const struct box2d_world *world,
-    const b2ShapeId sensor, const b2ShapeId visitor)
-{
-	const auto state = euler::util::State::get(mrb);
-	const mrb_value hash = mrb_hash_new(mrb);
-	const mrb_value sensor_shape = box2d_shape_wrap(mrb, sensor);
-	const mrb_value visitor_shape = box2d_shape_wrap(mrb, visitor);
-	mrb_hash_set(mrb, hash, B2_SYM(sensor), sensor_shape);
-	mrb_hash_set(mrb, hash, B2_SYM(visitor), visitor_shape);
-	return hash;
 }
 
 /**
@@ -240,142 +206,118 @@ static mrb_value
 world_sensor_events(mrb_state *mrb, const mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
-	const b2SensorEvents sensor_events = b2World_GetSensorEvents(world->id);
-	const mrb_value begin_ary
-	    = mrb_ary_new_capa(mrb, sensor_events.beginCount);
-	for (int i = 0; i < sensor_events.beginCount; ++i) {
-		const b2SensorBeginTouchEvent *event
-		    = &sensor_events.beginEvents[i];
-		const mrb_value event_hash = sensor_touch_event_to_hash(mrb,
-		    world, event->sensorShapeId, event->visitorShapeId);
-		mrb_ary_push(mrb, begin_ary, event_hash);
-	}
-	const mrb_value end_ary = mrb_ary_new_capa(mrb, sensor_events.endCount);
-	for (int i = 0; i < sensor_events.endCount; ++i) {
-		const b2SensorEndTouchEvent *event
-		    = &sensor_events.endEvents[i];
-		const mrb_value event_hash = sensor_touch_event_to_hash(mrb,
-		    world, event->sensorShapeId, event->visitorShapeId);
-		mrb_ary_push(mrb, end_ary, event_hash);
-	}
-	const mrb_value result = mrb_hash_new(mrb);
-	mrb_hash_set(mrb, result, B2_SYM(begin), begin_ary);
-	mrb_hash_set(mrb, result, B2_SYM(end), end_ary);
-	return result;
+	const auto world = state->unwrap<World>(self);
+	return world->sensor_events().wrap(mrb);
 }
 
-static mrb_value
-contact_bound_event_to_hash(mrb_state *mrb, const struct box2d_world *world,
-    const b2ShapeId shape_a, const b2ShapeId shape_b)
-{
-	const auto state = euler::util::State::get(mrb);
-	const mrb_value hash = mrb_hash_new(mrb);
-	const mrb_value a = box2d_shape_wrap(mrb, shape_a);
-	const mrb_value b = box2d_shape_wrap(mrb, shape_b);
-	mrb_hash_set(mrb, hash, B2_SYM(a), a);
-	mrb_hash_set(mrb, hash, B2_SYM(b), b);
-	return hash;
-}
+// static mrb_value
+// contact_bound_event_to_hash(mrb_state *mrb, const box2d_world *world,
+//     const b2ShapeId shape_a, const b2ShapeId shape_b)
+// {
+// 	const auto state = euler::util::State::get(mrb);
+// 	const mrb_value hash = state->mrb()->hash_new();
+// 	// const mrb_value a = box2d_shape_wrap(mrb, shape_a);
+// 	// const mrb_value b = box2d_shape_wrap(mrb, shape_b);
+// 	state->mrb()->hash_set(hash, B2_SYM(a), a);
+// 	state->mrb()->hash_set(hash, B2_SYM(b), b);
+// 	return hash;
+// }
 
 static mrb_value
 world_contact_events(mrb_state *mrb, const mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
-	const b2ContactEvents contact_events
-	    = b2World_GetContactEvents(world->id);
-	const mrb_value begin_ary
-	    = mrb_ary_new_capa(mrb, contact_events.beginCount);
-	for (int i = 0; i < contact_events.beginCount; ++i) {
-		const b2ContactBeginTouchEvent *event
-		    = &contact_events.beginEvents[i];
-		const mrb_value event_hash = contact_bound_event_to_hash(mrb,
-		    world, event->shapeIdA, event->shapeIdB);
-		mrb_ary_push(mrb, begin_ary, event_hash);
-	}
-	const mrb_value end_ary
-	    = mrb_ary_new_capa(mrb, contact_events.endCount);
-	for (int i = 0; i < contact_events.endCount; ++i) {
-		const b2ContactEndTouchEvent *event
-		    = &contact_events.endEvents[i];
-		const mrb_value event_hash = contact_bound_event_to_hash(mrb,
-		    world, event->shapeIdA, event->shapeIdB);
-		mrb_ary_push(mrb, end_ary, event_hash);
-	}
-	const mrb_value hit_ary
-	    = mrb_ary_new_capa(mrb, contact_events.hitCount);
-	for (int i = 0; i < contact_events.hitCount; ++i) {
-		const b2ContactHitEvent *event = &contact_events.hitEvents[i];
-		const mrb_value a = box2d_shape_wrap(mrb, event->shapeIdA);
-		const mrb_value b = box2d_shape_wrap(mrb, event->shapeIdB);
-		const mrb_value point = b2_vec_to_value(mrb, event->point);
-		const mrb_value normal = b2_vec_to_value(mrb, event->normal);
-		const mrb_value hash = mrb_hash_new(mrb);
-		mrb_hash_set(mrb, hash, B2_SYM(a), a);
-		mrb_hash_set(mrb, hash, B2_SYM(b), b);
-		mrb_hash_set(mrb, hash, B2_SYM(point), point);
-		mrb_hash_set(mrb, hash, B2_SYM(normal), normal);
-		const mrb_value as = mrb_float_value(mrb, event->approachSpeed);
-		mrb_hash_set(mrb, hash, B2_SYM(approach_speed), as);
-		mrb_ary_push(mrb, hit_ary, hash);
-	}
-	const mrb_value result = mrb_hash_new(mrb);
-	mrb_hash_set(mrb, result, B2_SYM(begin), begin_ary);
-	mrb_hash_set(mrb, result, B2_SYM(end), end_ary);
-	mrb_hash_set(mrb, result, B2_SYM(hit), hit_ary);
-	return result;
+	const auto world = state->unwrap<World>(self);
+	return world->contact_events().wrap(mrb);
+	// const b2ContactEvents contact_events = world->GetContactEvents();
+	//  const auto contact_events = world->contact_events();
+	//  const mrb_value begin_ary
+	//      = state->mrb()->ary_new_capa(contact_events.beginCount);
+	//  for (int i = 0; i < contact_events.beginCount; ++i) {
+	//  	const b2ContactBeginTouchEvent *event
+	//  	    = &contact_events.beginEvents[i];
+	//  	const mrb_value event_hash = contact_bound_event_to_hash(mrb,
+	//  	    world, event->shapeIdA, event->shapeIdB);
+	//  	state->mrb()->ary_push(begin_ary, event_hash);
+	//  }
+	//  const mrb_value end_ary
+	//      = state->mrb()->ary_new_capa(contact_events.endCount);
+	//  for (int i = 0; i < contact_events.endCount; ++i) {
+	//  	const b2ContactEndTouchEvent *event
+	//  	    = &contact_events.endEvents[i];
+	//  	const mrb_value event_hash = contact_bound_event_to_hash(mrb,
+	//  	    world, event->shapeIdA, event->shapeIdB);
+	//  	state->mrb()->ary_push(end_ary, event_hash);
+	//  }
+	//  const mrb_value hit_ary
+	//      = state->mrb()->ary_new_capa(contact_events.hitCount);
+	//  for (int i = 0; i < contact_events.hitCount; ++i) {
+	//  	const b2ContactHitEvent *event = &contact_events.hitEvents[i];
+	//  	const mrb_value a = box2d_shape_wrap(mrb, event->shapeIdA);
+	//  	const mrb_value b = box2d_shape_wrap(mrb, event->shapeIdB);
+	//  	const mrb_value point = b2_vec_to_value(mrb, event->point);
+	//  	const mrb_value normal = b2_vec_to_value(mrb, event->normal);
+	//  	const mrb_value hash = state->mrb()->hash_new();
+	//  	state->mrb()->hash_set(hash, B2_SYM(a), a);
+	//  	state->mrb()->hash_set(hash, B2_SYM(b), b);
+	//  	state->mrb()->hash_set(hash, B2_SYM(point), point);
+	//  	state->mrb()->hash_set(hash, B2_SYM(normal), normal);
+	//  	const mrb_value as
+	//  	    = state->mrb()->float_value(event->approachSpeed);
+	//  	state->mrb()->hash_set(hash, B2_SYM(approach_speed), as);
+	//  	state->mrb()->ary_push(hit_ary, hash);
+	//  }
+	//  const mrb_value result = state->mrb()->hash_new();
+	//  state->mrb()->hash_set(result, B2_SYM(begin), begin_ary);
+	//  state->mrb()->hash_set(result, B2_SYM(end), end_ary);
+	//  state->mrb()->hash_set(result, B2_SYM(hit), hit_ary);
+	//  return result;
 }
 
 static mrb_value
 world_joint_events(mrb_state *mrb, const mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
-	const b2JointEvents joint_events = b2World_GetJointEvents(world->id);
-	const mrb_value ary = mrb_ary_new_capa(mrb, joint_events.count);
-	for (int i = 0; i < joint_events.count; ++i) {
-		const b2JointEvent *event = &joint_events.jointEvents[i];
-		const mrb_value joint = box2d_joint_wrap(mrb, event->jointId);
-		mrb_ary_push(mrb, ary, joint);
-	}
-	return ary;
+	const auto world = state->unwrap<World>(self);
+	// const b2JointEvents joint_events = world->GetJointEvents();
+	// const mrb_value ary = state->mrb()->ary_new_capa(joint_events.count);
+	// for (int i = 0; i < joint_events.count; ++i) {
+	// 	const b2JointEvent *event = &joint_events.jointEvents[i];
+	// 	const mrb_value joint = box2d_joint_wrap(mrb, event->jointId);
+	// 	state->mrb()->ary_push(ary, joint);
+	// }
+	// return ary;
+	return world->joint_events().wrap(mrb);
 }
-
-struct result_context {
-	mrb_state *mrb;
-	const struct box2d_world *world;
-	mrb_value block;
-	mrb_value result;
-};
-
-/*
- * if there's a block, yield each shape to the block
- * if the block is nil, return an array of all shapes found
- */
-static bool
-overlap_result_fn(const b2ShapeId shape_id, void *user_data)
-{
-	const auto state = euler::util::State::get(mrb);
-	const struct result_context *ctx = (struct result_context *)user_data;
-	mrb_state *mrb = ctx->mrb;
-	const mrb_value shape = box2d_shape_wrap(mrb, shape_id);
-	if (mrb_nil_p(ctx->block)) {
-		mrb_ary_push(ctx->mrb, ctx->result, shape);
-		return true;
-	}
-	const mrb_value result = mrb_yield(ctx->mrb, ctx->block, shape);
-	if (!mrb_bool(result)) return false;
-	mrb_ary_push(ctx->mrb, ctx->result, shape);
-	return true;
-}
+//
+//
+// /*
+//  * if there's a block, yield each shape to the block
+//  * if the block is nil, return an array of all shapes found
+//  */
+// static bool
+// overlap_result_fn(const b2ShapeId shape_id, void *user_data)
+// {
+// 	const auto state = euler::util::State::get(mrb);
+// 	const result_context *ctx = (struct result_context *)user_data;
+// 	mrb_state *mrb = ctx->mrb;
+// 	const mrb_value shape = box2d_shape_wrap(mrb, shape_id);
+// 	if (mrb_nil_p(ctx->block)) {
+// 		mrb_ary_push(ctx->mrb, ctx->result, shape);
+// 		return true;
+// 	}
+// 	const mrb_value result = mrb_yield(ctx->mrb, ctx->block, shape);
+// 	if (!mrb_bool(result)) return false;
+// 	mrb_ary_push(ctx->mrb, ctx->result, shape);
+// 	return true;
+// }
 
 /* TODO: arg cleanup */
 static mrb_value
 world_overlap_aabb(mrb_state *mrb, const mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	static const char *KW_NAMES[] = {
 		"lower_bound",
 		"upper_bound",
@@ -388,7 +330,7 @@ world_overlap_aabb(mrb_state *mrb, const mrb_value self)
 	mrb_sym kw_syms[KW_COUNT];
 	for (size_t i = 0; i < KW_COUNT; ++i) {
 		const size_t len = strlen(KW_NAMES[i]);
-		kw_syms[i] = mrb_intern_static(mrb, KW_NAMES[i], len);
+		kw_syms[i] = state->mrb()->intern_static(KW_NAMES[i], len);
 	}
 	mrb_value kw_values[KW_COUNT];
 	const mrb_kwargs kwargs = {
@@ -396,27 +338,29 @@ world_overlap_aabb(mrb_state *mrb, const mrb_value self)
 		.required = KW_COUNT,
 		.table = kw_syms,
 		.values = kw_values,
-		.rest = NULL,
+		.rest = nullptr,
 	};
 	mrb_value block;
-	mrb_get_args(mrb, "&:", &block, &kwargs);
-	const struct b2Vec2 lower_bound
-	    = value_to_b2_vec(mrb, kw_values[LOWER_BOUND]);
-	const struct b2Vec2 upper_bound
-	    = value_to_b2_vec(mrb, kw_values[UPPER_BOUND]);
-	const struct b2AABB aabb = {
+	state->mrb()->get_args("&:", &block, &kwargs);
+	const b2Vec2 lower_bound
+	    = euler::physics::value_to_b2_vec(mrb, kw_values[LOWER_BOUND]);
+	const b2Vec2 upper_bound
+	    = euler::physics::value_to_b2_vec(mrb, kw_values[UPPER_BOUND]);
+	const b2AABB aabb = {
 		.lowerBound = lower_bound,
 		.upperBound = upper_bound,
 	};
-	struct result_context ctx = {
-		.mrb = mrb,
-		.world = world,
-		.block = block,
-		.result = mrb_nil_p(block) ? mrb_ary_new(mrb) : mrb_nil_value(),
-	};
-	const b2QueryFilter filter = b2DefaultQueryFilter();
-	b2World_OverlapAABB(world->id, aabb, filter, overlap_result_fn, &ctx);
-	return ctx.result;
+	mrb_value result = mrb_nil_value();
+	if (!mrb_nil_p(block)) result = state->mrb()->ary_new();
+	world->overlap_aabb(aabb, [&](auto &shape) {
+		if (mrb_nil_p(block)) {
+			state->mrb()->ary_push(result, state->wrap(shape));
+			return true;
+		}
+		auto yield_result = mrb_yield(mrb, block, state->wrap(shape));
+		return mrb_true_p(yield_result);
+	});
+	return result;
 }
 
 static b2ShapeProxy
@@ -425,32 +369,34 @@ read_shape_proxy(mrb_state *mrb, const mrb_value value)
 	const auto state = euler::util::State::get(mrb);
 	/* should be a hash with two keys: points and radius */
 	if (!mrb_hash_p(value))
-		mrb_raise(mrb, E_TYPE_ERROR, "Expected hash for shape proxy");
-	const mrb_value points_value = mrb_hash_get(mrb, value, B2_SYM(points));
+		state->mrb()->raise(E_TYPE_ERROR,
+		    "Expected hash for shape proxy");
+	const mrb_value points_value
+	    = state->mrb()->hash_get(value, B2_SYM(points));
 	if (!mrb_array_p(points_value)) {
-		mrb_raise(mrb, E_TYPE_ERROR,
+		state->mrb()->raise(E_TYPE_ERROR,
 		    "Expected array for shape proxy points");
 	}
 	if (RARRAY_LEN(points_value) == 0) {
-		mrb_raise(mrb, E_ARGUMENT_ERROR,
+		state->mrb()->raise(E_ARGUMENT_ERROR,
 		    "Shape proxy points array cannot be empty");
 	}
-	const int n_points = (int)RARRAY_LEN(points_value);
+	const int n_points = static_cast<int>(RARRAY_LEN(points_value));
 	if (n_points > B2_MAX_POLYGON_VERTICES) {
-		mrb_raise(mrb, E_ARGUMENT_ERROR,
+		state->mrb()->raise(E_ARGUMENT_ERROR,
 		    "Shape proxy points array exceeds maximum vertices");
 	}
-	b2Vec2 points[B2_MAX_POLYGON_VERTICES] = { 0 };
+	b2Vec2 points[B2_MAX_POLYGON_VERTICES] = {};
 	for (int i = 0; i < n_points; ++i) {
 		const mrb_value point_value = mrb_ary_entry(points_value, i);
-		points[i] = value_to_b2_vec(mrb, point_value);
+		points[i] = euler::physics::value_to_b2_vec(mrb, point_value);
 	}
 	// radius is optional, defaults to 0
 	float radius = 0.0f;
-	if (mrb_hash_key_p(mrb, value, B2_SYM(radius))) {
+	if (state->mrb()->hash_key_p(value, B2_SYM(radius))) {
 		const mrb_value radius_value
-		    = mrb_hash_get(mrb, value, B2_SYM(radius));
-		radius = (float)mrb_float(radius_value);
+		    = state->mrb()->hash_get(value, B2_SYM(radius));
+		radius = static_cast<float>(mrb_float(radius_value));
 	}
 	return b2MakeProxy(points, n_points, radius);
 }
@@ -465,7 +411,7 @@ world_overlap_shape(mrb_state *mrb, mrb_value self)
 	 * 2. Single shape proxy hash
 	 * 3. Arguments of shape proxy hash directly as keywords
 	 */
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	const mrb_value block = mrb_nil_value();
 	static const char *KW_NAMES[] = {
 		"points",
@@ -474,12 +420,12 @@ world_overlap_shape(mrb_state *mrb, mrb_value self)
 	enum {
 		POINTS = 0,
 		RADIUS,
-		KW_COUNT = sizeof(KW_NAMES) / sizeof(KW_NAMES[0]),
+		KW_COUNT = std::size(KW_NAMES),
 	};
 	mrb_sym kw_syms[KW_COUNT];
 	for (size_t i = 0; i < KW_COUNT; ++i) {
 		const size_t len = strlen(KW_NAMES[i]);
-		kw_syms[i] = mrb_intern_static(mrb, KW_NAMES[i], len);
+		kw_syms[i] = state->mrb()->intern_static(KW_NAMES[i], len);
 	}
 	mrb_value kw_values[KW_COUNT];
 	const mrb_kwargs kwargs = {
@@ -487,61 +433,45 @@ world_overlap_shape(mrb_state *mrb, mrb_value self)
 		.required = 1,
 		.table = kw_syms,
 		.values = kw_values,
-		.rest = NULL,
+		.rest = nullptr,
 	};
-	mrb_get_args(mrb, "&:", &block, &kwargs);
-	mrb_value hash = mrb_hash_new(mrb);
+	state->mrb()->get_args("&:", &block, &kwargs);
+	mrb_value hash = state->mrb()->hash_new();
 	mrb_value points = kw_values[POINTS];
 	if (!mrb_array_p(points)) {
-		mrb_raise(mrb, E_TYPE_ERROR,
+		state->mrb()->raise(E_TYPE_ERROR,
 		    "Expected array for shape proxy points");
 	}
 	if (RARRAY_LEN(points) == 0) {
-		mrb_raise(mrb, E_ARGUMENT_ERROR,
+		state->mrb()->raise(E_ARGUMENT_ERROR,
 		    "Shape proxy points array cannot be empty");
 	}
 	if (RARRAY_LEN(points) > B2_MAX_POLYGON_VERTICES) {
-		mrb_raisef(mrb, E_ARGUMENT_ERROR,
+		state->mrb()->raisef(E_ARGUMENT_ERROR,
 		    "Shape proxy points array exceeds maximum vertices (%d)",
 		    B2_MAX_POLYGON_VERTICES);
 	}
-	mrb_hash_set(mrb, hash, B2_SYM(points), kw_values[POINTS]);
+	state->mrb()->hash_set(hash, B2_SYM(points), kw_values[POINTS]);
 	if (!mrb_undef_p(kw_values[RADIUS]))
-		mrb_hash_set(mrb, hash, B2_SYM(radius), kw_values[RADIUS]);
+		state->mrb()->hash_set(hash, B2_SYM(radius), kw_values[RADIUS]);
 	const b2ShapeProxy sp = read_shape_proxy(mrb, hash);
-	struct result_context ctx = {
-		.mrb = mrb,
-		.world = world,
-		.block = block,
-		.result = mrb_nil_p(block) ? mrb_ary_new(mrb) : mrb_nil_value(),
-	};
-	const b2QueryFilter filter = b2DefaultQueryFilter();
-	b2World_OverlapShape(world->id, &sp, filter, overlap_result_fn, &ctx);
-	return ctx.result;
-}
-
-static float
-cast_result_fn(b2ShapeId id, b2Vec2 point, b2Vec2 normal, float fraction,
-    void *context)
-{
-	const auto state = euler::util::State::get(mrb);
-	const struct result_context *ctx = (struct result_context *)context;
-	const mrb_value shape = box2d_shape_wrap(ctx->mrb, id);
-	const mrb_value point_hash = b2_vec_to_value(ctx->mrb, point);
-	const mrb_value normal_hash = b2_vec_to_value(ctx->mrb, normal);
-	const mrb_value fraction_value = mrb_float_value(ctx->mrb, fraction);
-	mrb_value args[] = { shape, point_hash, normal_hash, fraction_value };
-	mrb_value result = mrb_nil_value();
-	if (!try_call_block(ctx->mrb, ctx->block, args, 4, &result))
-		return 0.0f; /* stop the ray cast on error */
-	if (mrb_nil_p(result)) return 0.0f;
-	const mrb_value float_value = mrb_ensure_float_type(ctx->mrb, result);
-	return (float)mrb_float(float_value);
+	auto result = mrb_nil_value();
+	if (!mrb_nil_p(block)) result = state->mrb()->ary_new();
+	world->overlap_shape(sp, [&](auto &shape) {
+		if (mrb_nil_p(block)) {
+			state->mrb()->ary_push(result, state->wrap(shape));
+			return true;
+		}
+		auto yield_result = mrb_yield(mrb, block, state->wrap(shape));
+		state->mrb()->ary_push(result, yield_result);
+		return true;
+	});
+	return result;
 }
 
 static void
-read_cast_ray_args(mrb_state *mrb, struct b2Vec2 *origin,
-    struct b2Vec2 *translation, b2QueryFilter *filter, mrb_value *block)
+read_cast_ray_args(mrb_state *mrb, b2Vec2 *origin, b2Vec2 *translation,
+    b2QueryFilter *filter, mrb_value *block)
 {
 	const auto state = euler::util::State::get(mrb);
 	static const char *KW_NAMES[] = {
@@ -556,7 +486,7 @@ read_cast_ray_args(mrb_state *mrb, struct b2Vec2 *origin,
 	mrb_sym kw_syms[KW_COUNT];
 	for (size_t i = 0; i < KW_COUNT; ++i) {
 		const size_t len = strlen(KW_NAMES[i]);
-		kw_syms[i] = mrb_intern_static(mrb, KW_NAMES[i], len);
+		kw_syms[i] = state->mrb()->intern_static(KW_NAMES[i], len);
 	}
 	mrb_value kw_values[KW_COUNT];
 	const mrb_kwargs kwargs = {
@@ -564,57 +494,85 @@ read_cast_ray_args(mrb_state *mrb, struct b2Vec2 *origin,
 		.required = KW_COUNT,
 		.table = kw_syms,
 		.values = kw_values,
-		.rest = NULL,
+		.rest = nullptr,
 	};
-	if (block == NULL) mrb_get_args(mrb, ":", &kwargs);
-	else mrb_get_args(mrb, "&:", block, &kwargs);
-	*origin = value_to_b2_vec(mrb, kw_values[ORIGIN]);
-	*translation = value_to_b2_vec(mrb, kw_values[TRANSLATION]);
+	if (block == nullptr) state->mrb()->get_args(":", &kwargs);
+	else state->mrb()->get_args("&:", block, &kwargs);
+	*origin = euler::physics::value_to_b2_vec(mrb, kw_values[ORIGIN]);
+	*translation
+	    = euler::physics::value_to_b2_vec(mrb, kw_values[TRANSLATION]);
 	*filter = b2DefaultQueryFilter();
 }
 
+/* If no block is given, returns all shapes. If a block is given, the behavior
+ * is determined by the block.
+ * return -1: ignore this shape and continue
+ * return 0, nil: terminate the ray cast
+ * return fraction: clip the ray to this point
+ * return 1: don't clip the ray and continue */
 static mrb_value
 world_cast_ray(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	b2Vec2 origin, translation;
 	b2QueryFilter filter;
 	mrb_value block = mrb_nil_value();
 	read_cast_ray_args(mrb, &origin, &translation, &filter, &block);
-	struct result_context ctx = {
-		.mrb = mrb,
-		.world = world,
-		.block = block,
-		.result = mrb_nil_p(block) ? mrb_ary_new(mrb) : mrb_nil_value(),
+	// result_context ctx = {
+	// 	.mrb = mrb,
+	// 	.world = world,
+	// 	.block = block,
+	// 	.result
+	// 	= mrb_nil_p(block) ? state->mrb()->ary_new() : mrb_nil_value(),
+	// };
+	// world->CastRay(origin, translation, filter, cast_result_fn, &ctx);
+	// return ctx.result;
+	auto result = mrb_nil_value();
+	if (!mrb_nil_p(block)) result = state->mrb()->ary_new();
+	const auto fn = [&](auto &shape, auto point, auto normal,
+			    auto fraction) -> float {
+		if (mrb_nil_p(block)) {
+			state->mrb()->ary_push(result, state->wrap(shape));
+			return 1.0f;
+		}
+		auto block_result
+		    = state->mrb()->call(block, state->wrap(shape),
+			euler::physics::b2_vec_to_value(mrb, point),
+			euler::physics::b2_vec_to_value(mrb, normal),
+			state->mrb()->float_value(fraction));
+		if (mrb_nil_p(block_result)) return 0.0f;
+		const mrb_value float_value
+		    = state->mrb()->ensure_float_type(block_result);
+		return mrb_float(float_value);
 	};
-	b2World_CastRay(world->id, origin, translation, filter, cast_result_fn,
-	    &ctx);
-	return ctx.result;
+	(void)world->cast_ray(origin, translation, fn);
+	return result;
 }
 
 static mrb_value
 world_cast_ray_closest(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	b2Vec2 origin, translation;
 	b2QueryFilter filter;
-	read_cast_ray_args(mrb, &origin, &translation, &filter, NULL);
-	b2RayResult result
-	    = b2World_CastRayClosest(world->id, origin, translation, filter);
+	read_cast_ray_args(mrb, &origin, &translation, &filter, nullptr);
+	auto result = world->cast_ray_closest(origin, translation, filter);
 	mrb_value shape = mrb_nil_value();
-	if (B2_IS_NON_NULL(result.shapeId))
-		shape = box2d_shape_wrap(mrb, result.shapeId);
-	const mrb_value out = mrb_hash_new_capa(mrb, 5);
-	mrb_hash_set(mrb, out, B2_SYM(shape), shape);
-	mrb_hash_set(mrb, out, B2_SYM(point),
-	    b2_vec_to_value(mrb, result.point));
-	mrb_hash_set(mrb, out, B2_SYM(normal),
-	    b2_vec_to_value(mrb, result.normal));
-	mrb_hash_set(mrb, out, B2_SYM(fraction),
-	    mrb_float_value(mrb, result.fraction));
-	mrb_hash_set(mrb, out, B2_SYM(hit), mrb_bool_value(result.hit));
+	if (B2_IS_NON_NULL(result.shapeId)) {
+		auto ref = euler::physics::Shape::wrap(result.shapeId);
+		shape = state->wrap(ref);
+	}
+	const mrb_value out = state->mrb()->hash_new_capa(5);
+	state->mrb()->hash_set(out, B2_SYM(shape), shape);
+	state->mrb()->hash_set(out, B2_SYM(point),
+	    euler::physics::b2_vec_to_value(mrb, result.point));
+	state->mrb()->hash_set(out, B2_SYM(normal),
+	    euler::physics::b2_vec_to_value(mrb, result.normal));
+	state->mrb()->hash_set(out, B2_SYM(fraction),
+	    state->mrb()->float_value(result.fraction));
+	state->mrb()->hash_set(out, B2_SYM(hit), mrb_bool_value(result.hit));
 	return out;
 }
 
@@ -622,7 +580,7 @@ static mrb_value
 world_cast_shape(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	mrb_value block = mrb_nil_value();
 	static const char *KW_NAMES[] = {
 		"shape",
@@ -636,7 +594,7 @@ world_cast_shape(mrb_state *mrb, mrb_value self)
 	mrb_sym kw_syms[KW_COUNT];
 	for (size_t i = 0; i < KW_COUNT; ++i) {
 		const size_t len = strlen(KW_NAMES[i]);
-		kw_syms[i] = mrb_intern_static(mrb, KW_NAMES[i], len);
+		kw_syms[i] = state->mrb()->intern_static(KW_NAMES[i], len);
 	}
 	mrb_value kw_values[KW_COUNT];
 	const mrb_kwargs kwargs = {
@@ -644,21 +602,32 @@ world_cast_shape(mrb_state *mrb, mrb_value self)
 		.required = KW_COUNT,
 		.table = kw_syms,
 		.values = kw_values,
-		.rest = NULL,
+		.rest = nullptr,
 	};
-	mrb_get_args(mrb, "&:", &block, &kwargs);
+	state->mrb()->get_args("&:", &block, &kwargs);
 	const b2ShapeProxy sp = read_shape_proxy(mrb, kw_values[SHAPE]);
-	const b2Vec2 translation = value_to_b2_vec(mrb, kw_values[TRANSLATION]);
-	struct result_context ctx = {
-		.mrb = mrb,
-		.world = world,
-		.block = block,
-		.result = mrb_nil_p(block) ? mrb_ary_new(mrb) : mrb_nil_value(),
+	const b2Vec2 translation
+	    = euler::physics::value_to_b2_vec(mrb, kw_values[TRANSLATION]);
+	auto result = mrb_nil_value();
+	if (!mrb_nil_p(block)) result = state->mrb()->ary_new();
+	const auto fn = [&](auto &shape, auto point, auto normal,
+			    auto fraction) -> float {
+		if (mrb_nil_p(block)) {
+			state->mrb()->ary_push(result, state->wrap(shape));
+			return 1.0f;
+		}
+		auto block_result = state->mrb()->funcall(block, "call", 4,
+		    state->wrap(shape),
+		    euler::physics::b2_vec_to_value(mrb, point),
+		    euler::physics::b2_vec_to_value(mrb, normal),
+		    state->mrb()->float_value(fraction));
+		if (mrb_nil_p(block_result)) return 0.0f;
+		const mrb_value float_value
+		    = state->mrb()->ensure_float_type(block_result);
+		return mrb_float(float_value);
 	};
-	const struct b2QueryFilter filter = b2DefaultQueryFilter();
-	b2World_CastShape(world->id, &sp, translation, filter, cast_result_fn,
-	    &ctx);
-	return ctx.result;
+	(void)world->cast_shape(sp, translation, fn);
+	return result;
 }
 
 static b2Capsule
@@ -666,29 +635,30 @@ read_capsule_value(mrb_state *mrb, const mrb_value value)
 {
 	const auto state = euler::util::State::get(mrb);
 	if (!mrb_hash_p(value)) {
-		mrb_raise(mrb, E_TYPE_ERROR, "Expected hash for capsule");
+		state->mrb()->raise(E_TYPE_ERROR, "Expected hash for capsule");
 	}
 
-	const mrb_value points = mrb_hash_get(mrb, value, B2_SYM(points));
+	const mrb_value points = state->mrb()->hash_get(value, B2_SYM(points));
 	if (!mrb_array_p(points)) {
-		mrb_raise(mrb, E_TYPE_ERROR,
+		state->mrb()->raise(E_TYPE_ERROR,
 		    "Expected array for capsule points");
 	}
 	if (RARRAY_LEN(points) != 2) {
-		mrb_raise(mrb, E_ARGUMENT_ERROR,
+		state->mrb()->raise(E_ARGUMENT_ERROR,
 		    "Expected array of length 2 for capsule points");
 	}
-	const struct b2Vec2 center1
-	    = value_to_b2_vec(mrb, mrb_ary_entry(points, 0));
-	const struct b2Vec2 center2
-	    = value_to_b2_vec(mrb, mrb_ary_entry(points, 1));
-	const mrb_value radius_value = mrb_hash_get(mrb, value, B2_SYM(radius));
+	const b2Vec2 center1
+	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 0));
+	const b2Vec2 center2
+	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 1));
+	const mrb_value radius_value
+	    = state->mrb()->hash_get(value, B2_SYM(radius));
 	if (!mrb_float_p(radius_value) && !mrb_integer_p(radius_value)) {
-		mrb_raise(mrb, E_TYPE_ERROR,
+		state->mrb()->raise(E_TYPE_ERROR,
 		    "Expected float for capsule radius");
 	}
-	const float radius = (float)mrb_float(radius_value);
-	return (b2Capsule) {
+	const float radius = static_cast<float>(mrb_float(radius_value));
+	return b2Capsule {
 		.center1 = center1,
 		.center2 = center2,
 		.radius = radius,
@@ -699,7 +669,7 @@ static mrb_value
 world_cast_mover(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	mrb_value block = mrb_nil_value();
 	static const char *KW_NAMES[] = {
 		"mover",
@@ -713,7 +683,7 @@ world_cast_mover(mrb_state *mrb, mrb_value self)
 	mrb_sym kw_syms[KW_COUNT];
 	for (size_t i = 0; i < KW_COUNT; ++i) {
 		const size_t len = strlen(KW_NAMES[i]);
-		kw_syms[i] = mrb_intern_static(mrb, KW_NAMES[i], len);
+		kw_syms[i] = state->mrb()->intern_static(KW_NAMES[i], len);
 	}
 	mrb_value kw_values[KW_COUNT];
 	const mrb_kwargs kwargs = {
@@ -721,77 +691,60 @@ world_cast_mover(mrb_state *mrb, mrb_value self)
 		.required = KW_COUNT,
 		.table = kw_syms,
 		.values = kw_values,
-		.rest = NULL,
+		.rest = nullptr,
 	};
-	mrb_get_args(mrb, "&:", &block, &kwargs);
+	state->mrb()->get_args("&:", &block, &kwargs);
 	const b2Capsule mover = read_capsule_value(mrb, kw_values[MOVER]);
-	const b2Vec2 translation = value_to_b2_vec(mrb, kw_values[TRANSLATION]);
+	const b2Vec2 translation
+	    = euler::physics::value_to_b2_vec(mrb, kw_values[TRANSLATION]);
 	const b2QueryFilter filter = b2DefaultQueryFilter();
-	const float out
-	    = b2World_CastMover(world->id, &mover, translation, filter);
-	return mrb_float_value(mrb, out);
-}
-
-static bool
-plane_result_fn(const b2ShapeId shape_id, const b2PlaneResult *plane,
-    void *context)
-{
-	const auto state = euler::util::State::get(mrb);
-	struct result_context *ctx = (struct result_context *)context;
-	mrb_state *mrb = ctx->mrb;
-	const mrb_value shape = box2d_shape_wrap(ctx->mrb, shape_id);
-	if (mrb_nil_p(ctx->block)) {
-		mrb_ary_push(ctx->mrb, ctx->result, shape);
-		return true;
-	}
-	const mrb_value plane_result = mrb_hash_new_capa(mrb, 3);
-	const mrb_value col_plane = mrb_hash_new_capa(mrb, 2);
-	mrb_hash_set(mrb, col_plane, B2_SYM(normal),
-	    b2_vec_to_value(mrb, plane->plane.normal));
-	mrb_hash_set(mrb, col_plane, B2_SYM(offset),
-	    mrb_float_value(mrb, plane->plane.offset));
-	mrb_hash_set(mrb, plane_result, B2_SYM(plane), col_plane);
-	mrb_hash_set(mrb, plane_result, B2_SYM(point),
-	    b2_vec_to_value(mrb, plane->point));
-	mrb_hash_set(mrb, plane_result, B2_SYM(hit),
-	    mrb_bool_value(plane->hit));
-	// const mrb_value result = mrb_yield(ctx->mrb, ctx->block, shape);
-	mrb_value args[2] = { shape, plane_result };
-	mrb_value result;
-	if (!try_call_block(mrb, ctx->block, args, 2, &result)) return false;
-	if (mrb_false_p(result)) return false;
-	if (!mrb_nil_p(result)) mrb_ary_push(ctx->mrb, ctx->result, shape);
-	return true;
+	const auto out = world->cast_mover(&mover, translation, filter);
+	return state->mrb()->float_value(out);
 }
 
 static mrb_value
 world_collide_mover(mrb_state *mrb, const mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	mrb_value block = mrb_nil_value();
 	mrb_value mover_value = mrb_nil_value();
-	mrb_get_args(mrb, "H&", &mover_value, &block);
+	state->mrb()->get_args("H&", &mover_value, &block);
 	const b2Capsule mover = read_capsule_value(mrb, mover_value);
-	struct result_context ctx = {
-		.mrb = mrb,
-		.world = world,
-		.block = block,
-		.result = mrb_nil_p(block) ? mrb_ary_new(mrb) : mrb_nil_value(),
-	};
-	const b2QueryFilter filter = b2DefaultQueryFilter();
-	b2World_CollideMover(world->id, &mover, filter, plane_result_fn, &ctx);
-	return ctx.result;
+	auto result = mrb_nil_value();
+	if (!mrb_nil_p(block)) result = state->mrb()->ary_new();
+	world->collide_mover(&mover, [&](auto shape, auto plane) {
+		if (mrb_nil_p(block)) {
+			state->mrb()->ary_push(result, state->wrap(shape));
+			return true;
+		}
+		const mrb_value plane_result = state->mrb()->hash_new_capa(3);
+		const mrb_value col_plane = state->mrb()->hash_new_capa(2);
+		state->mrb()->hash_set(col_plane, B2_SYM(normal),
+		    euler::physics::b2_vec_to_value(mrb, plane->plane.normal));
+		state->mrb()->hash_set(col_plane, B2_SYM(offset),
+		    state->mrb()->float_value(plane->plane.offset));
+		state->mrb()->hash_set(plane_result, B2_SYM(plane), col_plane);
+		state->mrb()->hash_set(plane_result, B2_SYM(point),
+		    euler::physics::b2_vec_to_value(mrb, plane->point));
+		state->mrb()->hash_set(plane_result, B2_SYM(hit),
+		    mrb_bool_value(plane->hit));
+		// mrb_value args[2] = { state->wrap(shape), plane_result };
+		auto ans = state->mrb()->call(block, state->wrap(shape),
+		    plane_result);
+		return mrb_true_p(ans);
+	});
+	return result;
 }
 
 static mrb_value
 world_enable_sleeping(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	mrb_bool value;
-	mrb_get_args(mrb, "b", &value);
-	b2World_EnableSleeping(world->id, value);
+	state->mrb()->get_args("b", &value);
+	world->enable_sleeping(value);
 	return mrb_nil_value();
 }
 
@@ -799,8 +752,8 @@ static mrb_value
 world_is_sleeping_enabled(mrb_state *mrb, const mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
-	const bool enabled = b2World_IsSleepingEnabled(world->id);
+	const auto world = state->unwrap<World>(self);
+	const bool enabled = world->is_sleeping_enabled();
 	return mrb_bool_value(enabled);
 }
 
@@ -808,10 +761,10 @@ static mrb_value
 world_enable_continuous(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	mrb_bool value;
-	mrb_get_args(mrb, "b", &value);
-	b2World_EnableContinuous(world->id, value);
+	state->mrb()->get_args("b", &value);
+	world->enable_continuous(value);
 	return mrb_nil_value();
 }
 
@@ -819,8 +772,8 @@ static mrb_value
 world_is_continuous_enabled(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
-	const bool enabled = b2World_IsContinuousEnabled(world->id);
+	const auto world = state->unwrap<World>(self);
+	const bool enabled = world->is_continuous_enabled();
 	return mrb_bool_value(enabled);
 }
 
@@ -828,10 +781,10 @@ static mrb_value
 world_set_restitution_threshold(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	mrb_float value;
-	mrb_get_args(mrb, "f", &value);
-	b2World_SetRestitutionThreshold(world->id, value);
+	state->mrb()->get_args("f", &value);
+	world->set_restitution_threshold(static_cast<float>(value));
 	return mrb_nil_value();
 }
 
@@ -839,19 +792,19 @@ static mrb_value
 world_restitution_threshold(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
-	const float threshold = b2World_GetRestitutionThreshold(world->id);
-	return mrb_float_value(mrb, threshold);
+	const auto world = state->unwrap<World>(self);
+	const float threshold = world->restitution_threshold();
+	return state->mrb()->float_value(threshold);
 }
 
 static mrb_value
 world_set_hit_event_threshold(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	mrb_float value;
-	mrb_get_args(mrb, "f", &value);
-	b2World_SetHitEventThreshold(world->id, value);
+	state->mrb()->get_args("f", &value);
+	world->set_hit_event_threshold(static_cast<float>(value));
 	return mrb_nil_value();
 }
 
@@ -859,87 +812,30 @@ static mrb_value
 world_hit_event_threshold(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
-	const float threshold = b2World_GetHitEventThreshold(world->id);
-	return mrb_float_value(mrb, threshold);
-}
-
-static void
-lock_check(mrb_state *mrb, const char *fn)
-{
-	const auto state = euler::util::State::get(mrb);
-	if (box2d_can_lock_state(mrb)) return;
-	mrb_raisef(mrb, E_ARGUMENT_ERROR,
-	    "World#%s is not allowed unless locking is enabled", fn);
-}
-
-static bool
-custom_filter_fn(b2ShapeId shapeA, b2ShapeId shapeB, void *context)
-{
-	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = (struct box2d_world *)context;
-	mrb_state *mrb = world->mrb;
-	lock_check(mrb, "on_custom_filter");
-	box2d_lock_state(mrb);
-	const mrb_value shape_a = box2d_shape_wrap(mrb, shapeA);
-	const mrb_value shape_b = box2d_shape_wrap(mrb, shapeB);
-	mrb_value args[2] = { shape_a, shape_b };
-	mrb_value result;
-	box2d_unlock_state(mrb);
-	if (!try_call_block(mrb, world->custom_filter_fn, args, 2, &result))
-		return false;
-	return mrb_bool(result);
+	const auto world = state->unwrap<World>(self);
+	const float threshold = world->hit_event_threshold();
+	return state->mrb()->float_value(threshold);
 }
 
 static mrb_value
-world_on_custom_filter(mrb_state *mrb, mrb_value self)
+world_set_custom_filter(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	lock_check(mrb, "on_custom_filter");
-	struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	mrb_value block;
-	mrb_get_args(mrb, "&!", &block);
-	world->custom_filter_fn = block;
-	b2World_SetCustomFilterCallback(world->id, custom_filter_fn,
-	    (void *)world);
+	state->mrb()->get_args("&!", &block);
+	world->set_custom_filter(mrb, block);
 	return mrb_nil_value();
-}
-
-static bool
-pre_solve_fn(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Vec2 point,
-    b2Vec2 normal, void *context)
-{
-	const auto state = euler::util::State::get(mrb);
-	struct box2d_world *world = (struct box2d_world *)context;
-	mrb_state *mrb = world->mrb;
-	lock_check(mrb, "on_pre_solve");
-	box2d_lock_state(mrb);
-	const mrb_value shape_a = box2d_shape_wrap(mrb, shapeIdA);
-	const mrb_value shape_b = box2d_shape_wrap(mrb, shapeIdB);
-	const mrb_value point_vec = b2_vec_to_value(mrb, point);
-	const mrb_value normal_vec = b2_vec_to_value(mrb, normal);
-	mrb_value args[4] = {
-		shape_a,
-		shape_b,
-		point_vec,
-		normal_vec,
-	};
-	mrb_value result;
-	box2d_unlock_state(mrb);
-	if (!try_call_block(mrb, world->pre_solve_fn, args, 4, &result))
-		return false;
-	return mrb_bool(result);
 }
 
 static mrb_value
 world_on_pre_solve(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	mrb_value block;
-	mrb_get_args(mrb, "&!", &block);
-	world->pre_solve_fn = block;
-	b2World_SetPreSolveCallback(world->id, pre_solve_fn, world);
+	state->mrb()->get_args("&!", &block);
+	world->set_pre_solve(mrb, block);
 	return mrb_nil_value();
 }
 
@@ -947,11 +843,11 @@ static mrb_value
 world_set_gravity(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	mrb_value value;
-	mrb_get_args(mrb, "H", &value);
-	const struct b2Vec2 gravity = value_to_b2_vec(mrb, value);
-	b2World_SetGravity(world->id, gravity);
+	state->mrb()->get_args("H", &value);
+	const b2Vec2 gravity = euler::physics::value_to_b2_vec(mrb, value);
+	world->set_gravity(gravity);
 	return mrb_nil_value();
 }
 
@@ -959,16 +855,16 @@ static mrb_value
 world_gravity(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
-	const struct b2Vec2 gravity = b2World_GetGravity(world->id);
-	return b2_vec_to_value(mrb, gravity);
+	const auto world = state->unwrap<World>(self);
+	const b2Vec2 gravity = world->gravity();
+	return euler::physics::b2_vec_to_value(mrb, gravity);
 }
 
 static mrb_value
 world_explode(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	static const char *KW_NAMES[] = {
 		"position",
 		"radius",
@@ -980,12 +876,12 @@ world_explode(mrb_state *mrb, mrb_value self)
 		RADIUS,
 		FALLOFF,
 		IMPULSE_PER_LENGTH,
-		KW_COUNT = sizeof(KW_NAMES) / sizeof(KW_NAMES[0]),
+		KW_COUNT = std::size(KW_NAMES),
 	};
 	mrb_sym kw_syms[KW_COUNT];
 	for (size_t i = 0; i < KW_COUNT; ++i) {
 		const size_t len = strlen(KW_NAMES[i]);
-		kw_syms[i] = mrb_intern_static(mrb, KW_NAMES[i], len);
+		kw_syms[i] = state->mrb()->intern_static(KW_NAMES[i], len);
 	}
 	mrb_value kw_values[KW_COUNT];
 	const mrb_kwargs kwargs = {
@@ -993,21 +889,23 @@ world_explode(mrb_state *mrb, mrb_value self)
 		.required = 0,
 		.table = kw_syms,
 		.values = kw_values,
-		.rest = NULL,
+		.rest = nullptr,
 	};
-	mrb_get_args(mrb, ":", &kwargs);
+	state->mrb()->get_args(":", &kwargs);
 	b2ExplosionDef def = b2DefaultExplosionDef();
-	if (!mrb_undef_p(kw_values[POSITION]))
-		def.position = value_to_b2_vec(mrb, kw_values[POSITION]);
-	if (!mrb_undef_p(kw_values[RADIUS]))
-		def.radius = (float)mrb_float(kw_values[RADIUS]);
-	if (!mrb_undef_p(kw_values[FALLOFF]))
-		def.falloff = (float)mrb_float(kw_values[FALLOFF]);
-	if (!mrb_undef_p(kw_values[IMPULSE_PER_LENGTH])) {
-		def.impulsePerLength
-		    = (float)mrb_float(kw_values[IMPULSE_PER_LENGTH]);
+	if (!mrb_undef_p(kw_values[POSITION])) {
+		def.position
+		    = euler::physics::value_to_b2_vec(mrb, kw_values[POSITION]);
 	}
-	b2World_Explode(world->id, &def);
+	if (!mrb_undef_p(kw_values[RADIUS]))
+		def.radius = static_cast<float>(mrb_float(kw_values[RADIUS]));
+	if (!mrb_undef_p(kw_values[FALLOFF]))
+		def.falloff = static_cast<float>(mrb_float(kw_values[FALLOFF]));
+	if (!mrb_undef_p(kw_values[IMPULSE_PER_LENGTH])) {
+		def.impulsePerLength = static_cast<float>(
+		    mrb_float(kw_values[IMPULSE_PER_LENGTH]));
+	}
+	world->explode(def);
 	return mrb_nil_value();
 }
 
@@ -1015,36 +913,29 @@ static mrb_value
 world_set_contact_tuning(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
-	static const char *KW_NAMES[] = {
-		"hertz",
-		"damping_ratio",
-		"push_speed",
+	const auto world = state->unwrap<World>(self);
+	mrb_value hash;
+	state->mrb()->get_args("H", &hash);
+	float hertz = 0.0f;
+	float damping_ratio = 0.0f;
+	float push_speed = 0.0f;
+	const std::array keys = {
+		std::pair(B2_SYM(hertz), &hertz),
+		std::pair(B2_SYM(damping_ratio), &damping_ratio),
+		std::pair(B2_SYM(push_speed), &push_speed),
 	};
-	enum {
-		HERTZ = 0,
-		DAMPING_RATIO,
-		PUSH_SPEED,
-		KW_COUNT = sizeof(KW_NAMES) / sizeof(KW_NAMES[0]),
-	};
-	mrb_sym kw_syms[KW_COUNT];
-	for (size_t i = 0; i < KW_COUNT; ++i) {
-		const size_t len = strlen(KW_NAMES[i]);
-		kw_syms[i] = mrb_intern_static(mrb, KW_NAMES[i], len);
+	for (const auto &key : keys) {
+		if (!state->mrb()->hash_key_p(hash, key.first)) {
+			const auto sym = mrb_symbol(key.first);
+			const char *key_name = state->mrb()->sym_name(sym);
+			state->mrb()->raisef(E_ARGUMENT_ERROR,
+			    "Missing required key %s in contact_tuning hash",
+			    key_name);
+		}
+		const auto value = state->mrb()->hash_get(hash, key.first);
+		*(key.second) = static_cast<float>(mrb_float(value));
 	}
-	mrb_value kw_values[KW_COUNT];
-	const mrb_kwargs kwargs = {
-		.num = KW_COUNT,
-		.required = KW_COUNT,
-		.table = kw_syms,
-		.values = kw_values,
-		.rest = NULL,
-	};
-	mrb_get_args(mrb, ":", &kwargs);
-	const float hertz = (float)mrb_float(kw_values[HERTZ]);
-	const float damping_ratio = (float)mrb_float(kw_values[DAMPING_RATIO]);
-	const float push_speed = (float)mrb_float(kw_values[PUSH_SPEED]);
-	b2World_SetContactTuning(world->id, hertz, damping_ratio, push_speed);
+	world->set_contact_tuning(hertz, damping_ratio, push_speed);
 	return mrb_nil_value();
 }
 
@@ -1052,10 +943,10 @@ static mrb_value
 world_set_maximum_linear_speed(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	mrb_float value;
-	mrb_get_args(mrb, "f", &value);
-	b2World_SetMaximumLinearSpeed(world->id, value);
+	state->mrb()->get_args("f", &value);
+	world->set_maximum_linear_speed(static_cast<float>(value));
 	return mrb_nil_value();
 }
 
@@ -1063,17 +954,17 @@ static mrb_value
 world_maximum_linear_speed(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
-	const float speed = b2World_GetMaximumLinearSpeed(world->id);
-	return mrb_float_value(mrb, speed);
+	const auto world = state->unwrap<World>(self);
+	const float speed = world->maximum_linear_speed();
+	return state->mrb()->float_value(speed);
 }
 
 static mrb_value
 world_awake_body_count(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
-	const int count = b2World_GetAwakeBodyCount(world->id);
+	const auto world = state->unwrap<World>(self);
+	const int count = world->awake_body_count();
 	return mrb_fixnum_value(count);
 }
 
@@ -1082,7 +973,7 @@ read_motion_locks_args(mrb_state *mrb, mrb_value locks_value)
 {
 	const auto state = euler::util::State::get(mrb);
 	if (!mrb_array_p(locks_value)) {
-		mrb_raise(mrb, E_TYPE_ERROR,
+		state->mrb()->raise(E_TYPE_ERROR,
 		    "Expected array of locked directions for "
 		    "motion_locks");
 	}
@@ -1090,18 +981,17 @@ read_motion_locks_args(mrb_state *mrb, mrb_value locks_value)
 	for (mrb_int i = 0; i < RARRAY_LEN(locks_value); ++i) {
 		const mrb_value a = mrb_ary_entry(locks_value, i);
 		if (!mrb_symbol_p(a)) {
-			mrb_raise(mrb, E_TYPE_ERROR,
+			state->mrb()->raise(E_TYPE_ERROR,
 			    "Expected symbols in motion_locks array");
 		}
-		const mrb_sym lock_sym = mrb_symbol(a);
-		if (mrb_equal(mrb, a, B2_SYM(linear_x))) x = true;
-		if (mrb_equal(mrb, a, B2_SYM(x))) x = true;
-		if (mrb_equal(mrb, a, B2_SYM(linear_y))) y = true;
-		if (mrb_equal(mrb, a, B2_SYM(y))) y = true;
-		if (mrb_equal(mrb, a, B2_SYM(angular_z))) z = true;
-		if (mrb_equal(mrb, a, B2_SYM(z))) z = true;
+		if (state->mrb()->equal(a, B2_SYM(linear_x))) x = true;
+		if (state->mrb()->equal(a, B2_SYM(x))) x = true;
+		if (state->mrb()->equal(a, B2_SYM(linear_y))) y = true;
+		if (state->mrb()->equal(a, B2_SYM(y))) y = true;
+		if (state->mrb()->equal(a, B2_SYM(angular_z))) z = true;
+		if (state->mrb()->equal(a, B2_SYM(z))) z = true;
 	}
-	return (b2MotionLocks) {
+	return b2MotionLocks {
 		.linearX = x,
 		.linearY = y,
 		.angularZ = z,
@@ -1112,7 +1002,7 @@ static mrb_value
 world_create_body(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const struct box2d_world *world = box2d_world_unwrap(mrb, self);
+	const auto world = state->unwrap<World>(self);
 	static const char *KW_NAMES[] = {
 		"type",
 		"rotation",
@@ -1146,13 +1036,12 @@ world_create_body(mrb_state *mrb, mrb_value self)
 		BULLET,
 		ENABLED,
 		ALLOW_FAST_ROTATION,
-
-		KW_COUNT = sizeof(KW_NAMES) / sizeof(KW_NAMES[0]),
+		KW_COUNT = std::size(KW_NAMES),
 	};
 	mrb_sym kw_syms[KW_COUNT];
 	for (size_t i = 0; i < KW_COUNT; ++i) {
 		const size_t len = strlen(KW_NAMES[i]);
-		kw_syms[i] = mrb_intern_static(mrb, KW_NAMES[i], len);
+		kw_syms[i] = state->mrb()->intern_static(KW_NAMES[i], len);
 	}
 	mrb_value kw_values[KW_COUNT];
 	const mrb_kwargs kwargs = {
@@ -1160,39 +1049,44 @@ world_create_body(mrb_state *mrb, mrb_value self)
 		.required = 0,
 		.table = kw_syms,
 		.values = kw_values,
-		.rest = NULL,
+		.rest = nullptr,
 	};
-	mrb_get_args(mrb, ":", &kwargs);
+	state->mrb()->get_args(":", &kwargs);
 	b2BodyDef def = b2DefaultBodyDef();
 	if (!mrb_nil_p(kw_values[TYPE])) {
-		def.type = box2d_parse_body_type(mrb, kw_values[TYPE]);
+		def.type
+		    = euler::physics::Body::parse_type(mrb, kw_values[TYPE]);
 	}
 	if (!mrb_nil_p(kw_values[POSITION])) {
-		def.position = value_to_b2_vec(mrb, kw_values[POSITION]);
+		def.position
+		    = euler::physics::value_to_b2_vec(mrb, kw_values[POSITION]);
 	}
 	if (!mrb_nil_p(kw_values[TYPE]))
-		def.rotation = value_to_b2_rot(mrb, kw_values[ROTATION]);
+		def.rotation
+		    = euler::physics::value_to_b2_rot(mrb, kw_values[ROTATION]);
 	if (!mrb_nil_p(kw_values[LINEAR_VELOCITY])) {
-		def.linearVelocity
-		    = value_to_b2_vec(mrb, kw_values[LINEAR_VELOCITY]);
+		def.linearVelocity = euler::physics::value_to_b2_vec(mrb,
+		    kw_values[LINEAR_VELOCITY]);
 	}
 	if (!mrb_nil_p(kw_values[ANGULAR_VELOCITY])) {
-		def.angularVelocity
-		    = (float)mrb_float(kw_values[ANGULAR_VELOCITY]);
+		def.angularVelocity = static_cast<float>(
+		    mrb_float(kw_values[ANGULAR_VELOCITY]));
 	}
 	if (!mrb_nil_p(kw_values[LINEAR_DAMPING])) {
-		def.linearDamping = (float)mrb_float(kw_values[LINEAR_DAMPING]);
+		def.linearDamping
+		    = static_cast<float>(mrb_float(kw_values[LINEAR_DAMPING]));
 	}
 	if (!mrb_nil_p(kw_values[ANGULAR_DAMPING])) {
 		def.angularDamping
-		    = (float)mrb_float(kw_values[ANGULAR_DAMPING]);
+		    = static_cast<float>(mrb_float(kw_values[ANGULAR_DAMPING]));
 	}
 	if (!mrb_nil_p(kw_values[GRAVITY_SCALE])) {
-		def.gravityScale = (float)mrb_float(kw_values[GRAVITY_SCALE]);
+		def.gravityScale
+		    = static_cast<float>(mrb_float(kw_values[GRAVITY_SCALE]));
 	}
 	if (!mrb_nil_p(kw_values[SLEEP_THRESHOLD])) {
 		def.sleepThreshold
-		    = (float)mrb_float(kw_values[SLEEP_THRESHOLD]);
+		    = static_cast<float>(mrb_float(kw_values[SLEEP_THRESHOLD]));
 	}
 	if (!mrb_nil_p(kw_values[MOTION_LOCKS])) {
 		// expect an array of symbols
@@ -1215,88 +1109,415 @@ world_create_body(mrb_state *mrb, mrb_value self)
 		def.allowFastRotation
 		    = mrb_bool(kw_values[ALLOW_FAST_ROTATION]);
 	}
-	const b2BodyId body_id = b2CreateBody(world->id, &def);
-	return box2d_body_wrap(mrb, body_id);
+	auto body = world->create_body(def);
+	return state->wrap(body);
 }
 
-struct RClass *
-box2d_world_init(mrb_state *mrb, struct RClass *mod)
+RClass *
+box2d_world_init(mrb_state *mrb, RClass *mod)
 {
 	const auto state = euler::util::State::get(mrb);
-	struct RClass *world
-	    = mrb_define_class_under(mrb, mod, "World", mrb->object_class);
-	MRB_SET_INSTANCE_TT(world, MRB_TT_CDATA);
-	mrb_define_method(mrb, world, "valid?", world_is_valid,
+	RClass *world
+	    = state->mrb()->define_class_under(mod, "World", mrb->object_class);
+	MRB_SET_INSTANCE_TT(world, MRB_TT_DATA);
+
+	state->mrb()->define_method(world, "valid?", world_is_valid,
 	    MRB_ARGS_NONE());
-	mrb_define_method(mrb, world, "step", world_step, MRB_ARGS_KEY(2, 0));
-	mrb_define_method(mrb, world, "body_events", world_body_events,
-	    MRB_ARGS_NONE());
-	mrb_define_method(mrb, world, "sensor_events", world_sensor_events,
-	    MRB_ARGS_NONE());
-	mrb_define_method(mrb, world, "contact_events", world_contact_events,
-	    MRB_ARGS_NONE());
-	mrb_define_method(mrb, world, "joint_events", world_joint_events,
-	    MRB_ARGS_NONE());
-	mrb_define_method(mrb, world, "overlap_aabb", world_overlap_aabb,
+	state->mrb()->define_method(world, "step", world_step,
 	    MRB_ARGS_KEY(2, 0));
-	mrb_define_method(mrb, world, "overlap_shape", world_overlap_shape,
+	state->mrb()->define_method(world, "body_events", world_body_events,
+	    MRB_ARGS_NONE());
+	state->mrb()->define_method(world, "sensor_events", world_sensor_events,
+	    MRB_ARGS_NONE());
+	state->mrb()->define_method(world, "contact_events",
+	    world_contact_events, MRB_ARGS_NONE());
+	state->mrb()->define_method(world, "joint_events", world_joint_events,
+	    MRB_ARGS_NONE());
+	state->mrb()->define_method(world, "overlap_aabb", world_overlap_aabb,
 	    MRB_ARGS_KEY(2, 0));
-	mrb_define_method(mrb, world, "cast_ray", world_cast_ray,
+	state->mrb()->define_method(world, "overlap_shape", world_overlap_shape,
 	    MRB_ARGS_KEY(2, 0));
-	mrb_define_method(mrb, world, "cast_ray_closest",
+	state->mrb()->define_method(world, "cast_ray", world_cast_ray,
+	    MRB_ARGS_KEY(2, 0));
+	state->mrb()->define_method(world, "cast_ray_closest",
 	    world_cast_ray_closest, MRB_ARGS_KEY(2, 0));
-	mrb_define_method(mrb, world, "cast_shape", world_cast_shape,
+	state->mrb()->define_method(world, "cast_shape", world_cast_shape,
 	    MRB_ARGS_KEY(2, 0));
-	mrb_define_method(mrb, world, "cast_mover", world_cast_mover,
+	state->mrb()->define_method(world, "cast_mover", world_cast_mover,
 	    MRB_ARGS_KEY(2, 0));
-	mrb_define_method(mrb, world, "collide_mover", world_collide_mover,
+	state->mrb()->define_method(world, "collide_mover", world_collide_mover,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, world, "enable_sleeping", world_enable_sleeping,
-	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, world, "sleeping_enabled?",
+	state->mrb()->define_method(world, "enable_sleeping",
+	    world_enable_sleeping, MRB_ARGS_REQ(1));
+	state->mrb()->define_method(world, "sleeping_enabled?",
 	    world_is_sleeping_enabled, MRB_ARGS_NONE());
-	mrb_define_method(mrb, world,
+	state->mrb()->define_method(world,
 	    "continuous_enabled=", world_enable_continuous, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, world, "continuous_enabled",
+	state->mrb()->define_method(world, "continuous_enabled",
 	    world_is_continuous_enabled, MRB_ARGS_NONE());
-	mrb_alias_method(mrb, world, mrb_intern_lit(mrb, "enable_continuous"),
-	    mrb_intern_lit(mrb, "continuous_enabled="));
-	mrb_define_method(mrb, world,
+	state->mrb()->alias_method(world,
+	    state->mrb()->intern_cstr("enable_continuous"),
+	    state->mrb()->intern_cstr("continuous_enabled="));
+	state->mrb()->define_method(world,
 	    "restitution_threshold=", world_set_restitution_threshold,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, world, "restitution_threshold",
+	state->mrb()->define_method(world, "restitution_threshold",
 	    world_restitution_threshold, MRB_ARGS_NONE());
-	mrb_define_method(mrb, world,
+	state->mrb()->define_method(world,
 	    "hit_event_threshold=", world_set_hit_event_threshold,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, world, "hit_event_threshold",
+	state->mrb()->define_method(world, "hit_event_threshold",
 	    world_hit_event_threshold, MRB_ARGS_NONE());
-	mrb_define_method(mrb, world, "on_custom_filter",
-	    world_on_custom_filter, MRB_ARGS_BLOCK());
-	mrb_define_method(mrb, world, "on_pre_solve", world_on_pre_solve,
+	state->mrb()->define_method(world, "on_custom_filter",
+	    world_set_custom_filter, MRB_ARGS_BLOCK());
+	state->mrb()->define_method(world, "on_pre_solve", world_on_pre_solve,
 	    MRB_ARGS_BLOCK());
-	mrb_define_method(mrb, world, "gravity=", world_set_gravity,
+	state->mrb()->define_method(world, "gravity=", world_set_gravity,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, world, "gravity", world_gravity,
+	state->mrb()->define_method(world, "gravity", world_gravity,
 	    MRB_ARGS_NONE());
-	mrb_define_method(mrb, world, "explode", world_explode,
+	state->mrb()->define_method(world, "explode", world_explode,
 	    MRB_ARGS_KEY(4, 0));
-	mrb_define_method(mrb, world,
+	state->mrb()->define_method(world,
 	    "contact_tuning=", world_set_contact_tuning, MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, world,
+	state->mrb()->define_method(world,
 	    "maximum_linear_speed=", world_set_maximum_linear_speed,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, world, "maximum_linear_speed",
+	state->mrb()->define_method(world, "maximum_linear_speed",
 	    world_maximum_linear_speed, MRB_ARGS_NONE());
-	mrb_define_method(mrb, world, "awake_body_count",
+	state->mrb()->define_method(world, "awake_body_count",
 	    world_awake_body_count, MRB_ARGS_NONE());
-	mrb_define_method(mrb, world, "create_body", world_create_body,
+	state->mrb()->define_method(world, "create_body", world_create_body,
 	    MRB_ARGS_KEY(15, 0));
 	return world;
 }
-
+bool
+World::overlap_result_fn(b2ShapeId shape_id, void *user_data)
+{
+	auto shape = Shape::wrap(shape_id);
+	const auto fn = static_cast<OverlapFn *>(user_data);
+	return (*fn)(shape);
+}
+float
+World::cast_result_fn(b2ShapeId shape_id, b2Vec2 point, b2Vec2 normal,
+    float fraction, void *context)
+{
+	auto shape = Shape::wrap(shape_id);
+	const auto fn = static_cast<CastResultFn *>(context);
+	return (*fn)(shape, point, normal, fraction);
+}
+bool
+World::plane_result_fn(const b2ShapeId shape_id, const b2PlaneResult *plane,
+    void *context)
+{
+	auto shape = Shape::wrap(shape_id);
+	const auto fn = static_cast<PlaneResultFn *>(context);
+	return (*fn)(shape, plane);
+}
+bool
+World::custom_filter_fn(b2ShapeId shape_a_id, b2ShapeId shape_b_id,
+    void *context)
+{
+	auto shape_a = Shape::wrap(shape_a_id);
+	auto shape_b = Shape::wrap(shape_b_id);
+	const auto fn = static_cast<CustomFilterFn *>(context);
+	return (*fn)(shape_a, shape_b);
+}
+bool
+World::pre_solve_fn(b2ShapeId shape_a_id, b2ShapeId shape_b_id, b2Vec2 point,
+    b2Vec2 normal, void *context)
+{
+	auto shape_a = Shape::wrap(shape_a_id);
+	auto shape_b = Shape::wrap(shape_b_id);
+	const auto fn = static_cast<PreSolveFn *>(context);
+	return (*fn)(shape_a, shape_b, point, normal);
+}
 void
-euler::physics::World::init(const util::Reference<util::State> &state)
+World::initialize(const b2WorldDef &def)
+{
+	assert(B2_IS_NULL(_id));
+	_id = b2CreateWorld(&def);
+	b2World_SetUserData(_id, this);
+}
+
+euler::util::Reference<World>
+World::wrap(b2WorldId id)
+{
+	auto user_data = b2World_GetUserData(id);
+	if (user_data != nullptr) return { static_cast<World *>(user_data) };
+	auto world = new World(id);
+	b2World_SetUserData(id, world);
+	return { world };
+}
+
+euler::util::Reference<euler::util::State>
+World::fetch_state(b2WorldId id)
+{
+	auto world = wrap(id);
+	return world->state();
+}
+
+World::~World()
+{
+	b2DestroyWorld(_id);
+	if (!mrb_nil_p(_custom_filter_block))
+		state()->mrb()->gc_unregister(_custom_filter_block);
+	if (!mrb_nil_p(_pre_solve_block))
+		state()->mrb()->gc_unregister(_pre_solve_block);
+}
+bool
+World::is_valid() const
+{
+	return b2World_IsValid(_id);
+}
+void
+World::step(float dt, int substep_count)
+{
+	b2World_Step(_id, dt, substep_count);
+}
+std::vector<euler::physics::Body::MoveEvent>
+World::body_events() const
+{
+	std::vector<Body::MoveEvent> events;
+	b2BodyEvents b2_events = b2World_GetBodyEvents(_id);
+	events.reserve(b2_events.moveCount);
+	for (int i = 0; i < b2_events.moveCount; ++i) {
+		const auto me = b2_events.moveEvents[i];
+		const auto event = Body::MoveEvent::from_b2(me);
+		events.push_back(event);
+	}
+	return events;
+}
+euler::physics::Shape::SensorEvents
+World::sensor_events() const
+{
+	const auto events = b2World_GetSensorEvents(_id);
+	return Shape::SensorEvents::from_b2(events);
+}
+euler::physics::Contact::Events
+World::contact_events() const
+{
+	const auto events = b2World_GetContactEvents(_id);
+	return Contact::Events::from_b2(events);
+}
+euler::physics::Joint::Events
+World::joint_events() const
+{
+	const auto events = b2World_GetJointEvents(_id);
+	return Joint::Events::from_b2(events);
+}
+b2TreeStats
+World::overlap_aabb(const b2AABB &aabb, const b2QueryFilter filter,
+    OverlapFn callback) const
+{
+	const auto ptr = static_cast<void *>(&callback);
+	return b2World_OverlapAABB(_id, aabb, filter, overlap_result_fn, ptr);
+}
+b2TreeStats
+World::overlap_aabb(const b2AABB &aabb, OverlapFn callback) const
+{
+	return overlap_aabb(aabb, b2DefaultQueryFilter(), std::move(callback));
+}
+b2TreeStats
+World::overlap_shape(const b2ShapeProxy &proxy, const b2QueryFilter filter,
+    OverlapFn callback) const
+{
+	const auto ptr = static_cast<void *>(&callback);
+	return b2World_OverlapShape(_id, &proxy, filter, overlap_result_fn,
+	    ptr);
+}
+b2TreeStats
+World::overlap_shape(const b2ShapeProxy &proxy, OverlapFn callback) const
+{
+	return overlap_shape(proxy, b2DefaultQueryFilter(),
+	    std::move(callback));
+}
+b2TreeStats
+World::cast_ray(b2Vec2 point, b2Vec2 normal, b2QueryFilter filter,
+    CastResultFn callback) const
+{
+	const auto ptr = static_cast<void *>(&callback);
+	return b2World_CastRay(_id, point, normal, filter, cast_result_fn, ptr);
+}
+b2TreeStats
+World::cast_ray(b2Vec2 point, b2Vec2 normal, CastResultFn callback) const
+{
+	return cast_ray(point, normal, b2DefaultQueryFilter(),
+	    std::move(callback));
+}
+b2RayResult
+World::cast_ray_closest(b2Vec2 origin, b2Vec2 translation, b2QueryFilter filter)
+{
+	return b2World_CastRayClosest(_id, origin, translation, filter);
+}
+b2TreeStats
+World::cast_shape(const b2ShapeProxy &proxy, b2Vec2 translation,
+    b2QueryFilter filter, CastResultFn callback) const
+{
+	const auto ptr = static_cast<void *>(&callback);
+	return b2World_CastShape(_id, &proxy, translation, filter,
+	    cast_result_fn, ptr);
+}
+b2TreeStats
+World::cast_shape(const b2ShapeProxy &proxy, b2Vec2 translation,
+    CastResultFn callback) const
+{
+	return cast_shape(proxy, translation, b2DefaultQueryFilter(),
+	    std::move(callback));
+}
+float
+World::cast_mover(const b2Capsule *mover, b2Vec2 translation,
+    const b2QueryFilter filter) const
+{
+	return b2World_CastMover(_id, mover, translation, filter);
+}
+void
+World::collide_mover(const b2Capsule *mover, const b2QueryFilter filter,
+    PlaneResultFn callback) const
+{
+	const auto ptr = static_cast<void *>(&callback);
+	b2World_CollideMover(_id, mover, filter, plane_result_fn, ptr);
+}
+void
+World::collide_mover(const b2Capsule *mover, PlaneResultFn callback) const
+{
+	collide_mover(mover, b2DefaultQueryFilter(), std::move(callback));
+}
+void
+World::enable_sleeping(bool enable)
+{
+	b2World_EnableSleeping(_id, enable);
+}
+bool
+World::is_sleeping_enabled() const
+{
+	return b2World_IsSleepingEnabled(_id);
+}
+void
+World::enable_continuous(bool enable)
+{
+	b2World_EnableContinuous(_id, enable);
+}
+bool
+World::is_continuous_enabled() const
+{
+	return b2World_IsContinuousEnabled(_id);
+}
+void
+World::set_restitution_threshold(float threshold)
+{
+	b2World_SetRestitutionThreshold(_id, threshold);
+}
+float
+World::restitution_threshold()
+{
+	return b2World_GetRestitutionThreshold(_id);
+}
+void
+World::set_hit_event_threshold(float threshold)
+{
+	b2World_SetHitEventThreshold(_id, threshold);
+}
+float
+World::hit_event_threshold()
+{
+	return b2World_GetHitEventThreshold(_id);
+}
+void
+World::set_custom_filter(CustomFilterFn callback)
+{
+	const auto ptr = static_cast<void *>(&callback);
+	b2World_SetCustomFilterCallback(_id, custom_filter_fn, ptr);
+}
+void
+World::set_pre_solve(PreSolveFn callback)
+{
+	const auto ptr = static_cast<void *>(&callback);
+	b2World_SetPreSolveCallback(_id, pre_solve_fn, ptr);
+}
+void
+World::set_gravity(const b2Vec2 &gravity)
+{
+	b2World_SetGravity(_id, gravity);
+}
+b2Vec2
+World::gravity() const
+{
+	return b2World_GetGravity(_id);
+}
+void
+World::explode(const b2ExplosionDef &def)
+{
+	b2World_Explode(_id, &def);
+}
+void
+World::set_contact_tuning(float hertz, float damping_ratio, float push_speed)
+{
+	b2World_SetContactTuning(_id, hertz, damping_ratio, push_speed);
+}
+void
+World::set_maximum_linear_speed(float speed)
+{
+	b2World_SetMaximumLinearSpeed(_id, speed);
+}
+float
+World::maximum_linear_speed() const
+{
+	return b2World_GetMaximumLinearSpeed(_id);
+}
+int
+World::awake_body_count() const
+{
+	return b2World_GetAwakeBodyCount(_id);
+}
+euler::util::Reference<euler::physics::Body>
+World::create_body(const b2BodyDef &def) const
+{
+	auto id = b2CreateBody(_id, &def);
+	return Body::wrap(id);
+}
+
+euler::util::Reference<euler::physics::Chain>
+World::wrap_chain(const b2ChainId &id)
+{
+	const auto key = Chain::Key(id);
+	if (_chains.contains(key)) { return _chains[key].strengthen(); }
+	const auto ptr = new Chain(id);
+	auto ref = util::Reference(ptr);
+	_chains[key] = ref.weaken();
+	return ref;
+}
+
+euler::util::Reference<euler::physics::Contact>
+World::wrap_contact(const b2ContactId &id)
+{
+	const auto key = Contact::Key(id);
+	if (_contacts.contains(key)) { return _contacts[key].strengthen(); }
+	const auto ptr = new Contact(id);
+	auto ref = util::Reference(ptr);
+	_contacts[key] = ref.weaken();
+	return ref;
+}
+void
+World::set_custom_filter(mrb_state *mrb, mrb_value block)
 {
 	const auto state = euler::util::State::get(mrb);
+	if (!mrb_nil_p(_custom_filter_block))
+		state->mrb()->gc_unregister(_custom_filter_block);
+	if (!mrb_nil_p(block)) state->mrb()->gc_register(block);
+	_custom_filter_block = block;
+}
+void
+World::set_pre_solve(mrb_state *mrb, mrb_value block)
+{
+	const auto state = euler::util::State::get(mrb);
+	if (!mrb_nil_p(_pre_solve_block))
+		state->mrb()->gc_unregister(_pre_solve_block);
+	if (!mrb_nil_p(block)) state->mrb()->gc_register(block);
+	_pre_solve_block = block;
+}
+euler::util::Reference<euler::util::State>
+World::state() const
+{
+	return _state.strengthen();
 }
