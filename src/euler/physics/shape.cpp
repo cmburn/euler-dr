@@ -1098,7 +1098,7 @@ filter_to_hash(mrb_state *mrb, const b2Filter *filter)
 	state->mrb()->hash_set(hash, B2_SYM(mask_bits),
 	    mrb_fixnum_value((mrb_int)filter->maskBits));
 	state->mrb()->hash_set(hash, B2_SYM(group_index),
-	    mrb_fixnum_value((mrb_int)filter->groupIndex));
+	    mrb_fixnum_value(filter->groupIndex));
 	return hash;
 }
 
@@ -1368,10 +1368,10 @@ shape_apply_wind(mrb_state *mrb, mrb_value self)
 	const auto shape = state->unwrap<Shape>(self);
 	mrb_value wind_val;
 	float drag, lift;
-	bool wake;
+	bool wake = true;
 	state->mrb()->get_args("off|b", &wind_val, &drag, &lift, &wake);
 	const b2Vec2 wind = euler::physics::value_to_b2_vec(mrb, wind_val);
-	shape->apply_wind(wind, (float)drag, (float)lift, wake);
+	shape->apply_wind(wind, drag, lift, wake);
 	return mrb_nil_value();
 }
 

@@ -38,7 +38,7 @@ public:
 		util::Reference<Shape> shape_a;
 		util::Reference<Shape> shape_b;
 		util::Reference<Contact> contact;
-		mrb_value wrap(mrb_state *mrb) const;
+		mrb_value wrap(mrb_state *mrb);
 	};
 
 	struct HitEvent {
@@ -49,6 +49,7 @@ public:
 		b2Vec2 point;
 		b2Vec2 normal;
 		float approach_speed;
+		mrb_value wrap(mrb_state *mrb);
 	};
 
 	struct Events {
@@ -57,7 +58,7 @@ public:
 		std::vector<Event> end_events;
 		std::vector<HitEvent> hit_events;
 		static Events from_b2(const b2ContactEvents &events);
-		mrb_value wrap(mrb_state *mrb) const;
+		mrb_value wrap(mrb_state *mrb);
 	};
 
 	struct Key {

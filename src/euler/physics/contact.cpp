@@ -76,16 +76,32 @@ contact_data(mrb_state *mrb, mrb_value self)
 Contact::Data::~Data() = default;
 Contact::Event::~Event() = default;
 Contact::HitEvent::~HitEvent() = default;
-Contact::Events::~Events() = default;
-Contact::~Contact()
+
+mrb_value
+Contact::HitEvent::wrap(mrb_state *mrb)
 {
-	world()->drop_contact(_id);
+	const auto state = util::State::get(mrb);
+	const mrb_value hash = state->mrb()->hash_new_capa(7);
+	const auto shape_a_value = state->wrap(shape_a);
+	state->mrb()->hash_set(hash, "shape_a", shape_a_value);
+	const auto shape_b_value = state->wrap(shape_b);
+	state->mrb()->hash_set(hash, "shape_b", shape_b_value);
+	const auto contact_value = state->wrap(contact);
+	state->mrb()->hash_set(hash, "contact", contact_value);
+	state->mrb()->hash_set(hash, "point", b2_vec_to_value(mrb, point));
+	state->mrb()->hash_set(hash, "normal", b2_vec_to_value(mrb, normal));
+	state->mrb()->hash_set(hash, "approach_speed",
+	    state->mrb()->float_value(approach_speed));
+	return hash;
 }
 
-euler::util::Reference<Contact>
-Contact::wrap(b2ContactId id)
-{
+Contact::Events::~Events() = default;
+Contact::~Contact() { world()->drop_contact(_id); }
 
+euler::util::Reference<Contact>
+Contact::wrap(const b2ContactId id)
+{
+	return world(id)->wrap_contact(id);
 }
 
 static mrb_value
@@ -166,29 +182,103 @@ Contact::Data::from_b2(const b2ContactData &data)
 }
 
 mrb_value
-Contact::Event::wrap(mrb_state *mrb) const
+Contact::Event::wrap(mrb_state *mrb)
 {
-
+	const auto state = util::State::get(mrb);
+	const mrb_value hash = state->mrb()->hash_new_capa(3);
+	const auto shape_a_value = state->wrap(shape_a);
+	state->mrb()->hash_set(hash, "shape_a", shape_a_value);
+	const auto shape_b_value = state->wrap(shape_b);
+	state->mrb()->hash_set(hash, "shape_b", shape_b_value);
+	const auto contact_value = state->wrap(contact);
+	state->mrb()->hash_set(hash, "contact", contact_value);
+	return hash;
 }
 
 Contact::Events
 Contact::Events::from_b2(const b2ContactEvents &events)
 {
+	Events out;
+	out.start_events.reserve(events.beginCount);
+	for (int i = 0; i < events.beginCount; ++i) {
+		const auto &event = events.beginEvents[i];
+		const auto shape_a = Shape::wrap(event.shapeIdA);
+		const auto shape_b = Shape::wrap(event.shapeIdB);
+		const auto contact = Contact::wrap(event.contactId);
+		out.start_events.emplace_back(Event {
+		    .shape_a = shape_a,
+		    .shape_b = shape_b,
+		    .contact = contact,
+		});
+	}
+	out.end_events.reserve(events.endCount);
+	for (int i = 0; i < events.endCount; ++i) {
+		const auto &event = events.endEvents[i];
+		const auto shape_a = Shape::wrap(event.shapeIdA);
+		const auto shape_b = Shape::wrap(event.shapeIdB);
+		const auto contact = Contact::wrap(event.contactId);
+		out.end_events.emplace_back(Event {
+		    .shape_a = shape_a,
+		    .shape_b = shape_b,
+		    .contact = contact,
+		});
+	}
+	out.hit_events.reserve(events.hitCount);
+	for (int i = 0; i < events.hitCount; ++i) {
+		const auto &event = events.hitEvents[i];
+		const auto shape_a = Shape::wrap(event.shapeIdA);
+		const auto shape_b = Shape::wrap(event.shapeIdB);
+		const auto contact = Contact::wrap(event.contactId);
+		out.hit_events.emplace_back(HitEvent {
+		    .shape_a = shape_a,
+		    .shape_b = shape_b,
+		    .contact = contact,
+		    .point = event.point,
+		    .normal = event.normal,
+		    .approach_speed = event.approachSpeed,
+		});
+	}
+	return out;
 }
 
 mrb_value
-Contact::Events::wrap(mrb_state *mrb) const
+Contact::Events::wrap(mrb_state *mrb)
 {
+	const auto state = util::State::get(mrb);
+	const mrb_value begin_ary
+	    = state->mrb()->ary_new_capa(start_events.size());
+	for (auto &event : start_events) {
+		const mrb_value event_value = event.wrap(mrb);
+		state->mrb()->ary_push(begin_ary, event_value);
+	}
+	const mrb_value end_ary = state->mrb()->ary_new_capa(end_events.size());
+	for (auto &event : end_events) {
+		const mrb_value event_value = event.wrap(mrb);
+		state->mrb()->ary_push(end_ary, event_value);
+	}
+	const mrb_value hit_ary = state->mrb()->ary_new_capa(hit_events.size());
+	for (auto &event : hit_events) {
+		const mrb_value event_value = event.wrap(mrb);
+		state->mrb()->ary_push(hit_ary, event_value);
+	}
+	const mrb_value result = state->mrb()->hash_new();
+	state->mrb()->hash_set(result, "begin", begin_ary);
+	state->mrb()->hash_set(result, "end", end_ary);
+	state->mrb()->hash_set(result, "hit", hit_ary);
+	return result;
 }
 
 bool
 Contact::is_valid() const
 {
+	return b2Contact_IsValid(_id);
 }
 
 Contact::Data
 Contact::data() const
 {
+	const auto b2_data = b2Contact_GetData(_id);
+	return Data::from_b2(b2_data);
 }
 
 euler::util::Reference<euler::physics::World>
@@ -209,11 +299,11 @@ Contact::world(b2ContactId id)
 }
 
 RClass *
-Contact::init(const util::Reference<util::State> &state, RClass *mod,
-    RClass *)
+Contact::init(const util::Reference<util::State> &state, RClass *mod, RClass *)
 {
 	const auto mrb = state->mrb();
-	auto cls = mrb->define_class_under(mod, "Contact", state->object_class());
+	auto cls
+	    = mrb->define_class_under(mod, "Contact", state->object_class());
 	mrb->define_method(cls, "valid?", contact_is_valid, MRB_ARGS_REQ(0));
 	mrb->define_method(cls, "data", contact_data, MRB_ARGS_REQ(0));
 	return cls;
