@@ -49,14 +49,14 @@ public:
 	struct SensorEvent {
 		util::Reference<Shape> sensor;
 		util::Reference<Shape> visitor;
-		mrb_value wrap(mrb_state *mrb) const;
+		mrb_value wrap(mrb_state *mrb) ;
 	};
 
 	struct SensorEvents {
 		std::vector<SensorEvent> start;
 		std::vector<SensorEvent> end;
 		static SensorEvents from_b2(const b2SensorEvents &events);
-		mrb_value wrap(mrb_state *mrb) const;
+		mrb_value wrap(mrb_state *mrb) ;
 	};
 
 	static mrb_value type_to_symbol(mrb_state *mrb, Type type);

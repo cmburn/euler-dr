@@ -20,7 +20,7 @@ static mrb_value
 contact_is_valid(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const auto contact = Contact::unwrap(mrb, self);
+	const auto contact = state->unwrap<Contact>(self);
 	const bool valid = contact->is_valid();
 	return mrb_bool_value(valid);
 }
@@ -68,24 +68,24 @@ static mrb_value
 contact_data(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const auto contact = Contact::unwrap(mrb, self);
+	// const auto contact = Contact::unwrap(mrb, self);
+	const auto contact = state->unwrap<Contact>(self);
 	auto data = contact->data();
 	return data.wrap(mrb);
 }
-
 Contact::Data::~Data() = default;
 Contact::Event::~Event() = default;
 Contact::HitEvent::~HitEvent() = default;
 Contact::Events::~Events() = default;
 Contact::~Contact()
 {
-	const auto data = b2Contact_GetData(_id);
-	/* I don't think shapes can collide from different worlds, but just to
-	 * check */
-	assert(data.shapeIdA.world0 == data.shapeIdB.world0);
-	const auto world_id = b2Shape_GetWorld(data.shapeIdA);
-	const auto world = World::wrap(world_id);
-	world->drop_contact(_id);
+	world()->drop_contact(_id);
+}
+
+euler::util::Reference<Contact>
+Contact::wrap(b2ContactId id)
+{
+
 }
 
 static mrb_value
@@ -152,6 +152,60 @@ Contact::Data::wrap(mrb_state *mrb)
 	const auto manifold_value = manifold_to_value(mrb, manifold);
 	state->mrb()->hash_set(hash, "manifold", manifold_value);
 	return hash;
+}
+
+Contact::Data
+Contact::Data::from_b2(const b2ContactData &data)
+{
+	Data contact_data;
+	contact_data.contact = Contact::wrap(data.contactId);
+	contact_data.shape_a = Shape::wrap(data.shapeIdA);
+	contact_data.shape_b = Shape::wrap(data.shapeIdB);
+	contact_data.manifold = data.manifold;
+	return contact_data;
+}
+
+mrb_value
+Contact::Event::wrap(mrb_state *mrb) const
+{
+
+}
+
+Contact::Events
+Contact::Events::from_b2(const b2ContactEvents &events)
+{
+}
+
+mrb_value
+Contact::Events::wrap(mrb_state *mrb) const
+{
+}
+
+bool
+Contact::is_valid() const
+{
+}
+
+Contact::Data
+Contact::data() const
+{
+}
+
+euler::util::Reference<euler::physics::World>
+Contact::world()
+{
+	return world(_id);
+}
+
+euler::util::Reference<euler::physics::World>
+Contact::world(b2ContactId id)
+{
+	const auto data = b2Contact_GetData(id);
+	/* I don't think shapes can collide from different worlds, but just to
+	 * check */
+	assert(data.shapeIdA.world0 == data.shapeIdB.world0);
+	const auto world_id = b2Shape_GetWorld(data.shapeIdA);
+	return World::wrap(world_id);
 }
 
 RClass *

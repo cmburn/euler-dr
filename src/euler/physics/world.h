@@ -64,7 +64,7 @@ public:
 	static util::Reference<util::State> fetch_state(b2WorldId id);
 
 	mrb_value wrap(const util::Reference<util::State> &state);
-	~World();
+	~World() override;
 
 	[[nodiscard]] b2WorldId
 	id() const

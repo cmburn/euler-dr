@@ -11,7 +11,7 @@ namespace euler::math {
 class RowVector : public Nonscalar {
 	BIND_MRUBY("Euler::Math::RowVector", RowVector, math.row_vector);
 public:
-	Type type() const override { return Type::RowVector; }
+	[[nodiscard]] Type type() const override { return Type::RowVector; }
 	virtual mrb_value columns(const util::Reference<util::State> &state)
 	    = 0;
 	virtual mrb_value rows(const util::Reference<util::State> &state) = 0;

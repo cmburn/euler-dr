@@ -113,7 +113,7 @@ mrb_value
 world_initialize(mrb_state *mrb, const mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
-	const ::b2WorldDef def = parse_world_new_args(mrb);
+	const b2WorldDef def = parse_world_new_args(mrb);
 	const auto world = state->unwrap<World>(self);
 	world->initialize(def);
 	return mrb_nil_value();
@@ -1191,6 +1191,20 @@ box2d_world_init(mrb_state *mrb, RClass *mod)
 	    MRB_ARGS_KEY(15, 0));
 	return world;
 }
+
+RClass *
+World::init(const util::Reference<util::State> &state, RClass *mod, RClass *)
+{
+	return box2d_world_init(state->mrb()->mrb(), mod);
+}
+
+mrb_value
+World::wrap(const util::Reference<util::State> &state)
+{
+	auto self = util::Reference(this);
+	return state->wrap<World>(self);
+}
+
 bool
 World::overlap_result_fn(b2ShapeId shape_id, void *user_data)
 {
@@ -1498,10 +1512,23 @@ World::wrap_contact(const b2ContactId &id)
 	_contacts[key] = ref.weaken();
 	return ref;
 }
+
+void
+World::drop_chain(const b2ChainId &id)
+{
+	_chains.erase(Chain::Key(id));
+}
+
+void
+World::drop_contact(const b2ContactId &id)
+{
+	_contacts.erase(Contact::Key(id));
+}
+
 void
 World::set_custom_filter(mrb_state *mrb, mrb_value block)
 {
-	const auto state = euler::util::State::get(mrb);
+	const auto state = util::State::get(mrb);
 	if (!mrb_nil_p(_custom_filter_block))
 		state->mrb()->gc_unregister(_custom_filter_block);
 	if (!mrb_nil_p(block)) state->mrb()->gc_register(block);
@@ -1510,7 +1537,7 @@ World::set_custom_filter(mrb_state *mrb, mrb_value block)
 void
 World::set_pre_solve(mrb_state *mrb, mrb_value block)
 {
-	const auto state = euler::util::State::get(mrb);
+	const auto state = util::State::get(mrb);
 	if (!mrb_nil_p(_pre_solve_block))
 		state->mrb()->gc_unregister(_pre_solve_block);
 	if (!mrb_nil_p(block)) state->mrb()->gc_register(block);

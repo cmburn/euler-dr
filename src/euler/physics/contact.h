@@ -76,12 +76,13 @@ public:
 
 	~Contact();
 
-
+	static util::Reference<Contact> wrap(b2ContactId id);
 	bool is_valid() const;
 	Data data() const;
-	static util::Reference<Contact> unwrap(mrb_state *mrb, mrb_value self);
 
 private:
+	util::Reference<World> world();
+	static util::Reference<World> world(b2ContactId id);
 	b2ContactId _id;
 };
 } /* namespace euler::physics */
@@ -91,6 +92,7 @@ template <> struct std::hash<euler::physics::Contact::Key> {
 	operator()(const euler::physics::Contact::Key &key) const noexcept
 	{
 		const auto ints = key.to_ints();
+		// TODO: better hash algorithm
 		size_t h1 = std::hash<uint32_t>()(ints[0]);
 		size_t h2 = std::hash<uint32_t>()(ints[1]);
 		size_t h3 = std::hash<uint32_t>()(ints[2]);
