@@ -25,48 +25,92 @@ public:
 		DragonRuby,
 	};
 
-	struct Module {
-		RClass *mod;
+	struct Modules {
+		RClass *mod = nullptr;
 
 		struct {
-			RClass *mod;
-			RClass *state;
+			RClass *mod = nullptr;
+			RClass *state = nullptr;
 		} app;
 
 		struct {
-			RClass *mod;
+			RClass *module = nullptr;
+			RClass *base = nullptr;
+			RClass *display = nullptr;
+			RClass *window = nullptr;
+			RClass *keyboard_device = nullptr;
+			RClass *keyboard = nullptr;
+			RClass *text_editing = nullptr;
+			RClass *text_editing_candidates = nullptr;
+			RClass *text_input = nullptr;
+			RClass *mouse_device = nullptr;
+			RClass *mouse_motion = nullptr;
+			RClass *mouse_button = nullptr;
+			RClass *mouse_wheel = nullptr;
+			RClass *joystick_device = nullptr;
+			RClass *joystick_axis_motion = nullptr;
+			RClass *joystick_ball_motion = nullptr;
+			RClass *joystick_hat_motion = nullptr;
+			RClass *joystick_button = nullptr;
+			RClass *joystick_battery_updated = nullptr;
+			RClass *gamepad_device = nullptr;
+			RClass *gamepad_axis_motion = nullptr;
+			RClass *gamepad_button = nullptr;
+			RClass *gamepad_touchpad = nullptr;
+			RClass *gamepad_sensor = nullptr;
+			RClass *audio_device = nullptr;
+			RClass *camera_device = nullptr;
+			RClass *sensor = nullptr;
+			RClass *quit = nullptr;
+			RClass *user = nullptr;
+			RClass *touch_finger = nullptr;
+			RClass *pen_proximity = nullptr;
+			RClass *pen_touch = nullptr;
+			RClass *pen_motion = nullptr;
+			RClass *pen_button = nullptr;
+			RClass *pen_axis = nullptr;
+			RClass *render = nullptr;
+			RClass *drop = nullptr;
+			RClass *clipboard = nullptr;
+		} event;
+
+		struct {
+			RClass *mod = nullptr;
+			RClass *color = nullptr;
+			RClass *version = nullptr;
+			RClass *logger = nullptr;
 		} util;
 
 		struct {
-			RClass *mod;
-			RClass *nonscalar;
-			RClass *cube;
-			RClass *matrix;
-			RClass *row_vector;
-			RClass *sparse_matrix;
-			RClass *size;
-			RClass *vector;
+			RClass *mod = nullptr;
+			RClass *nonscalar = nullptr;
+			RClass *cube = nullptr;
+			RClass *matrix = nullptr;
+			RClass *row_vector = nullptr;
+			RClass *sparse_matrix = nullptr;
+			RClass *size = nullptr;
+			RClass *vector = nullptr;
 		} math;
 
 		struct {
-			RClass *mod;
-			RClass *body;
-			RClass *chain;
-			RClass *contact;
-			RClass *distance_joint;
-			RClass *filter_joint;
-			RClass *joint;
-			RClass *motor_joint;
-			RClass *prismatic_joint;
-			RClass *revolute_joint;
-			RClass *shape;
-			RClass *weld_joint;
-			RClass *wheel_joint;
-			RClass *world;
-			RClass *capsule;
-			RClass *circle;
-			RClass *polygon;
-			RClass *segment;
+			RClass *mod = nullptr;
+			RClass *body = nullptr;
+			RClass *chain = nullptr;
+			RClass *contact = nullptr;
+			RClass *distance_joint = nullptr;
+			RClass *filter_joint = nullptr;
+			RClass *joint = nullptr;
+			RClass *motor_joint = nullptr;
+			RClass *prismatic_joint = nullptr;
+			RClass *revolute_joint = nullptr;
+			RClass *shape = nullptr;
+			RClass *weld_joint = nullptr;
+			RClass *wheel_joint = nullptr;
+			RClass *world = nullptr;
+			RClass *capsule = nullptr;
+			RClass *circle = nullptr;
+			RClass *polygon = nullptr;
+			RClass *segment = nullptr;
 		} physics;
 	};
 
@@ -88,8 +132,8 @@ public:
 	    = 0;
 	virtual void initialize() = 0;
 	virtual void tick() const = 0;
-	[[nodiscard]] virtual const Module &modules() const = 0;
-	[[nodiscard]] virtual Module &modules() = 0;
+	[[nodiscard]] virtual const Modules &modules() const = 0;
+	[[nodiscard]] virtual Modules &modules() = 0;
 	[[nodiscard]] virtual void *unwrap(mrb_value value,
 	    const mrb_data_type *type) const
 	    = 0;
@@ -112,10 +156,15 @@ public:
 	}
 };
 
-#define EULER_SYM(SYM)                                                         \
-	(mrb_symbol_value(                                                     \
-	    (::euler::util::State::get(mrb)->mrb()->intern_static(#SYM,        \
-		sizeof(#SYM) - 1))))
+#define EULER_SYM_LIT(LIT)                                                     \
+	((::euler::util::State::get(mrb)->mrb()->intern_static(LIT,            \
+	    sizeof(LIT) - 1)))
+
+#define EULER_SYM(SYM) EULER_SYM_LIT(#SYM)
+
+#define EULER_IVSYM(SYM) EULER_SYM_LIT("@" #SYM)
+
+#define EULER_SYM_VAL(SYM) (mrb_symbol_value(EULER_SYM(SYM)))
 
 } /* namespace euler::util */
 

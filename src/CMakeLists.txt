@@ -34,6 +34,8 @@ if (EULER_PHYSICS_BUILD)
     add_subdirectory(euler/physics)
 endif ()
 
+add_compile_definitions(EULER_INTERNAL_BUILD)
+
 add_subdirectory(euler/app)
 add_subdirectory(euler/util)
 
@@ -54,8 +56,8 @@ if (EULER_DRAGONRUBY_BUILD)
 endif ()
 
 if (EULER_NATIVE_BUILD)
+    add_subdirectory(euler/event)
     add_subdirectory(euler/graphics)
     add_subdirectory(euler/gui)
     add_subdirectory(euler/vulkan)
-
 endif ()

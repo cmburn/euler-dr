@@ -51,11 +51,10 @@ log_severity(mrb_state *mrb, const mrb_value self)
 	return mrb_nil_value();
 }
 
-void
-Logger::init(const Reference<State> &state, RClass *mod)
+RClass *
+Logger::init(const Reference<State> &state, RClass *mod, RClass *)
 {
-	const auto super = state->mrb()->mrb()->object_class;
-	const auto cls = state->mrb()->define_class_under(mod, "Logger", super);
+	const auto cls = state->mrb()->define_class_under(mod, "Logger", state->object_class());
 	MRB_SET_INSTANCE_TT(cls, MRB_TT_DATA);
 	state->mrb()->define_method(cls, "log", ::log, MRB_ARGS_REQ(2));
 	state->mrb()->define_method(cls, "debug", log_severity<Severity::Debug>,
@@ -70,4 +69,5 @@ Logger::init(const Reference<State> &state, RClass *mod)
 	    MRB_ARGS_REQ(1));
 	state->mrb()->define_method(cls, "unknown",
 	    log_severity<Severity::Unknown>, MRB_ARGS_REQ(1));
+	return cls;
 }

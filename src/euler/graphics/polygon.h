@@ -3,7 +3,9 @@
 #ifndef EULER_RENDERER_POLYGON_H
 #define EULER_RENDERER_POLYGON_H
 
-#include <glm/glm.hpp>
+// #include <glm/glm.hpp>
+#include <vector>
+
 
 typedef struct VK2DPolygon_t *VK2DPolygon;
 

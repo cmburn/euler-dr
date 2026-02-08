@@ -32,13 +32,13 @@ joint_type(mrb_state *mrb, mrb_value self)
 	const auto state = euler::util::State::get(mrb);
 	const auto joint = state->unwrap<Joint>(self);
 	switch (b2Joint_GetType(joint->id())) {
-	case b2_distanceJoint: return EULER_SYM(distance);
-	case b2_filterJoint: return EULER_SYM(filter);
-	case b2_motorJoint: return EULER_SYM(motor);
-	case b2_prismaticJoint: return EULER_SYM(prismatic);
-	case b2_revoluteJoint: return EULER_SYM(revolute);
-	case b2_weldJoint: return EULER_SYM(weld);
-	case b2_wheelJoint: return EULER_SYM(wheel);
+	case b2_distanceJoint: return EULER_SYM_VAL(distance);
+	case b2_filterJoint: return EULER_SYM_VAL(filter);
+	case b2_motorJoint: return EULER_SYM_VAL(motor);
+	case b2_prismaticJoint: return EULER_SYM_VAL(prismatic);
+	case b2_revoluteJoint: return EULER_SYM_VAL(revolute);
+	case b2_weldJoint: return EULER_SYM_VAL(weld);
+	case b2_wheelJoint: return EULER_SYM_VAL(wheel);
 	default:
 		state->mrb()->raise(E_TYPE_ERROR, "Unknown joint type");
 		std::unreachable();
@@ -187,9 +187,9 @@ joint_set_constraint_tuning(mrb_state *mrb, mrb_value self)
 	mrb_value tuning_value;
 	state->mrb()->get_args("H", &tuning_value);
 	const mrb_value hertz_value
-	    = state->mrb()->hash_get(tuning_value, EULER_SYM(hertz));
-	const mrb_value damping_ratio_value
-	    = state->mrb()->hash_get(tuning_value, EULER_SYM(damping_ratio));
+	    = state->mrb()->hash_get(tuning_value, EULER_SYM_VAL(hertz));
+	const mrb_value damping_ratio_value = state->mrb()->hash_get(
+	    tuning_value, EULER_SYM_VAL(damping_ratio));
 	const float hertz = (float)mrb_float(hertz_value);
 	const float damping_ratio = (float)mrb_float(damping_ratio_value);
 	b2Joint_SetConstraintTuning(joint->id(), hertz, damping_ratio);
@@ -205,9 +205,9 @@ joint_constraint_tuning(mrb_state *mrb, mrb_value self)
 	float damping_ratio = 0.0f;
 	b2Joint_GetConstraintTuning(joint->id(), &hertz, &damping_ratio);
 	const mrb_value out = state->mrb()->hash_new_capa(2);
-	state->mrb()->hash_set(out, EULER_SYM(hertz),
+	state->mrb()->hash_set(out, EULER_SYM_VAL(hertz),
 	    state->mrb()->float_value(hertz));
-	state->mrb()->hash_set(out, EULER_SYM(damping_ratio),
+	state->mrb()->hash_set(out, EULER_SYM_VAL(damping_ratio),
 	    state->mrb()->float_value(damping_ratio));
 	return out;
 }
@@ -313,7 +313,7 @@ Joint::Event::wrap(mrb_state *mrb) const
 {
 	auto state = euler::util::State::get(mrb);
 	mrb_value out = state->mrb()->hash_new_capa(1);
-	state->mrb()->hash_set(out, EULER_SYM(joint), joint->wrap(state));
+	state->mrb()->hash_set(out, EULER_SYM_VAL(joint), joint->wrap(state));
 	return out;
 }
 

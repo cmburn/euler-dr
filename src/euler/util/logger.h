@@ -15,11 +15,12 @@
 
 namespace euler::util {
 class Logger : public Object {
+	BIND_MRUBY("Euler::Util::Logger", Logger, util.logger);
 public:
-	static constexpr mrb_data_type TYPE = {
-		.struct_name = "Euler::Util::Logger",
-		.dfree = dfree<Logger>,
-	};
+	// static constexpr mrb_data_type TYPE = {
+	// 	.struct_name = "Euler::Util::Logger",
+	// 	.dfree = dfree<Logger>,
+	// };
 
 	enum class Severity {
 		Debug,
@@ -84,8 +85,6 @@ public:
 		log(Severity::Fatal, message, std::forward<Args>(args)...);
 		std::abort();
 	}
-
-	static void init(const Reference<State> &state, RClass *mod);
 
 protected:
 	virtual void write_log(Severity level, const std::string &message) const

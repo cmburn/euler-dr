@@ -26,6 +26,7 @@ public:
 	    : _log(log->copy("vulkan"))
 	{
 	}
+
 	~Renderer() override;
 
 	void initialize(const util::Reference<Surface> &surface);

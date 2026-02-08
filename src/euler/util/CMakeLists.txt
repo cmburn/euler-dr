@@ -21,6 +21,8 @@ add_library(euler_util STATIC
         ext.h
         math.cpp
         math.h
+        version.cpp
+        version.h
 )
 
 target_compile_definitions(euler_util PUBLIC

@@ -218,8 +218,8 @@ world_sensor_events(mrb_state *mrb, const mrb_value self)
 // 	const mrb_value hash = state->mrb()->hash_new();
 // 	// const mrb_value a = box2d_shape_wrap(mrb, shape_a);
 // 	// const mrb_value b = box2d_shape_wrap(mrb, shape_b);
-// 	state->mrb()->hash_set(hash, EULER_SYM(a), a);
-// 	state->mrb()->hash_set(hash, EULER_SYM(b), b);
+// 	state->mrb()->hash_set(hash, EULER_SYM_VAL(a), a);
+// 	state->mrb()->hash_set(hash, EULER_SYM_VAL(b), b);
 // 	return hash;
 // }
 
@@ -258,19 +258,19 @@ world_contact_events(mrb_state *mrb, const mrb_value self)
 	//  	const mrb_value point = b2_vec_to_value(mrb, event->point);
 	//  	const mrb_value normal = b2_vec_to_value(mrb, event->normal);
 	//  	const mrb_value hash = state->mrb()->hash_new();
-	//  	state->mrb()->hash_set(hash, EULER_SYM(a), a);
-	//  	state->mrb()->hash_set(hash, EULER_SYM(b), b);
-	//  	state->mrb()->hash_set(hash, EULER_SYM(point), point);
-	//  	state->mrb()->hash_set(hash, EULER_SYM(normal), normal);
+	//  	state->mrb()->hash_set(hash, EULER_SYM_VAL(a), a);
+	//  	state->mrb()->hash_set(hash, EULER_SYM_VAL(b), b);
+	//  	state->mrb()->hash_set(hash, EULER_SYM_VAL(point), point);
+	//  	state->mrb()->hash_set(hash, EULER_SYM_VAL(normal), normal);
 	//  	const mrb_value as
 	//  	    = state->mrb()->float_value(event->approachSpeed);
-	//  	state->mrb()->hash_set(hash, EULER_SYM(approach_speed), as);
+	//  	state->mrb()->hash_set(hash, EULER_SYM_VAL(approach_speed), as);
 	//  	state->mrb()->ary_push(hit_ary, hash);
 	//  }
 	//  const mrb_value result = state->mrb()->hash_new();
-	//  state->mrb()->hash_set(result, EULER_SYM(begin), begin_ary);
-	//  state->mrb()->hash_set(result, EULER_SYM(end), end_ary);
-	//  state->mrb()->hash_set(result, EULER_SYM(hit), hit_ary);
+	//  state->mrb()->hash_set(result, EULER_SYM_VAL(begin), begin_ary);
+	//  state->mrb()->hash_set(result, EULER_SYM_VAL(end), end_ary);
+	//  state->mrb()->hash_set(result, EULER_SYM_VAL(hit), hit_ary);
 	//  return result;
 }
 
@@ -373,7 +373,7 @@ read_shape_proxy(mrb_state *mrb, const mrb_value value)
 		state->mrb()->raise(E_TYPE_ERROR,
 		    "Expected hash for shape proxy");
 	const mrb_value points_value
-	    = state->mrb()->hash_get(value, EULER_SYM(points));
+	    = state->mrb()->hash_get(value, EULER_SYM_VAL(points));
 	if (!mrb_array_p(points_value)) {
 		state->mrb()->raise(E_TYPE_ERROR,
 		    "Expected array for shape proxy points");
@@ -394,9 +394,9 @@ read_shape_proxy(mrb_state *mrb, const mrb_value value)
 	}
 	// radius is optional, defaults to 0
 	float radius = 0.0f;
-	if (state->mrb()->hash_key_p(value, EULER_SYM(radius))) {
+	if (state->mrb()->hash_key_p(value, EULER_SYM_VAL(radius))) {
 		const mrb_value radius_value
-		    = state->mrb()->hash_get(value, EULER_SYM(radius));
+		    = state->mrb()->hash_get(value, EULER_SYM_VAL(radius));
 		radius = static_cast<float>(mrb_float(radius_value));
 	}
 	return b2MakeProxy(points, n_points, radius);
@@ -452,9 +452,9 @@ world_overlap_shape(mrb_state *mrb, mrb_value self)
 		    "Shape proxy points array exceeds maximum vertices (%d)",
 		    B2_MAX_POLYGON_VERTICES);
 	}
-	state->mrb()->hash_set(hash, EULER_SYM(points), kw_values[POINTS]);
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(points), kw_values[POINTS]);
 	if (!mrb_undef_p(kw_values[RADIUS]))
-		state->mrb()->hash_set(hash, EULER_SYM(radius),
+		state->mrb()->hash_set(hash, EULER_SYM_VAL(radius),
 		    kw_values[RADIUS]);
 	const b2ShapeProxy sp = read_shape_proxy(mrb, hash);
 	auto result = mrb_nil_value();
@@ -568,14 +568,15 @@ world_cast_ray_closest(mrb_state *mrb, mrb_value self)
 		shape = state->wrap(ref);
 	}
 	const mrb_value out = state->mrb()->hash_new_capa(5);
-	state->mrb()->hash_set(out, EULER_SYM(shape), shape);
-	state->mrb()->hash_set(out, EULER_SYM(point),
+	state->mrb()->hash_set(out, EULER_SYM_VAL(shape), shape);
+	state->mrb()->hash_set(out, EULER_SYM_VAL(point),
 	    euler::physics::b2_vec_to_value(mrb, result.point));
-	state->mrb()->hash_set(out, EULER_SYM(normal),
+	state->mrb()->hash_set(out, EULER_SYM_VAL(normal),
 	    euler::physics::b2_vec_to_value(mrb, result.normal));
-	state->mrb()->hash_set(out, EULER_SYM(fraction),
+	state->mrb()->hash_set(out, EULER_SYM_VAL(fraction),
 	    state->mrb()->float_value(result.fraction));
-	state->mrb()->hash_set(out, EULER_SYM(hit), mrb_bool_value(result.hit));
+	state->mrb()->hash_set(out, EULER_SYM_VAL(hit),
+	    mrb_bool_value(result.hit));
 	return out;
 }
 
@@ -642,7 +643,7 @@ read_capsule_value(mrb_state *mrb, const mrb_value value)
 	}
 
 	const mrb_value points
-	    = state->mrb()->hash_get(value, EULER_SYM(points));
+	    = state->mrb()->hash_get(value, EULER_SYM_VAL(points));
 	if (!mrb_array_p(points)) {
 		state->mrb()->raise(E_TYPE_ERROR,
 		    "Expected array for capsule points");
@@ -656,7 +657,7 @@ read_capsule_value(mrb_state *mrb, const mrb_value value)
 	const b2Vec2 center2
 	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 1));
 	const mrb_value radius_value
-	    = state->mrb()->hash_get(value, EULER_SYM(radius));
+	    = state->mrb()->hash_get(value, EULER_SYM_VAL(radius));
 	if (!mrb_float_p(radius_value) && !mrb_integer_p(radius_value)) {
 		state->mrb()->raise(E_TYPE_ERROR,
 		    "Expected float for capsule radius");
@@ -724,15 +725,15 @@ world_collide_mover(mrb_state *mrb, const mrb_value self)
 		}
 		const mrb_value plane_result = state->mrb()->hash_new_capa(3);
 		const mrb_value col_plane = state->mrb()->hash_new_capa(2);
-		state->mrb()->hash_set(col_plane, EULER_SYM(normal),
+		state->mrb()->hash_set(col_plane, EULER_SYM_VAL(normal),
 		    euler::physics::b2_vec_to_value(mrb, plane->plane.normal));
-		state->mrb()->hash_set(col_plane, EULER_SYM(offset),
+		state->mrb()->hash_set(col_plane, EULER_SYM_VAL(offset),
 		    state->mrb()->float_value(plane->plane.offset));
-		state->mrb()->hash_set(plane_result, EULER_SYM(plane),
+		state->mrb()->hash_set(plane_result, EULER_SYM_VAL(plane),
 		    col_plane);
-		state->mrb()->hash_set(plane_result, EULER_SYM(point),
+		state->mrb()->hash_set(plane_result, EULER_SYM_VAL(point),
 		    euler::physics::b2_vec_to_value(mrb, plane->point));
-		state->mrb()->hash_set(plane_result, EULER_SYM(hit),
+		state->mrb()->hash_set(plane_result, EULER_SYM_VAL(hit),
 		    mrb_bool_value(plane->hit));
 		// mrb_value args[2] = { state->wrap(shape), plane_result };
 		auto ans = state->mrb()->call(block, state->wrap(shape),
@@ -925,9 +926,9 @@ world_set_contact_tuning(mrb_state *mrb, mrb_value self)
 	float damping_ratio = 0.0f;
 	float push_speed = 0.0f;
 	const std::array keys = {
-		std::pair(EULER_SYM(hertz), &hertz),
-		std::pair(EULER_SYM(damping_ratio), &damping_ratio),
-		std::pair(EULER_SYM(push_speed), &push_speed),
+		std::pair(EULER_SYM_VAL(hertz), &hertz),
+		std::pair(EULER_SYM_VAL(damping_ratio), &damping_ratio),
+		std::pair(EULER_SYM_VAL(push_speed), &push_speed),
 	};
 	for (const auto &key : keys) {
 		if (!state->mrb()->hash_key_p(hash, key.first)) {
@@ -989,12 +990,12 @@ read_motion_locks_args(mrb_state *mrb, mrb_value locks_value)
 			state->mrb()->raise(E_TYPE_ERROR,
 			    "Expected symbols in motion_locks array");
 		}
-		if (state->mrb()->equal(a, EULER_SYM(linear_x))) x = true;
-		if (state->mrb()->equal(a, EULER_SYM(x))) x = true;
-		if (state->mrb()->equal(a, EULER_SYM(linear_y))) y = true;
-		if (state->mrb()->equal(a, EULER_SYM(y))) y = true;
-		if (state->mrb()->equal(a, EULER_SYM(angular_z))) z = true;
-		if (state->mrb()->equal(a, EULER_SYM(z))) z = true;
+		if (state->mrb()->equal(a, EULER_SYM_VAL(linear_x))) x = true;
+		if (state->mrb()->equal(a, EULER_SYM_VAL(x))) x = true;
+		if (state->mrb()->equal(a, EULER_SYM_VAL(linear_y))) y = true;
+		if (state->mrb()->equal(a, EULER_SYM_VAL(y))) y = true;
+		if (state->mrb()->equal(a, EULER_SYM_VAL(angular_z))) z = true;
+		if (state->mrb()->equal(a, EULER_SYM_VAL(z))) z = true;
 	}
 	return b2MotionLocks {
 		.linearX = x,

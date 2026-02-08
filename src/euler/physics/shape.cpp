@@ -471,9 +471,9 @@ read_offset(mrb_state *mrb, mrb_value offset, b2Vec2 *position, b2Rot *rotation)
 		    ":offset must be a hash with :position and :rotation keys");
 	}
 	const auto pos_value
-	    = state->mrb()->hash_get(offset, EULER_SYM(position));
+	    = state->mrb()->hash_get(offset, EULER_SYM_VAL(position));
 	const auto rot_value
-	    = state->mrb()->hash_get(offset, EULER_SYM(rotation));
+	    = state->mrb()->hash_get(offset, EULER_SYM_VAL(rotation));
 	*position = euler::physics::value_to_b2_vec(mrb, pos_value);
 	*rotation = euler::physics::value_to_b2_rot(mrb, rot_value);
 }
@@ -564,25 +564,25 @@ polygon_initialize_raw(mrb_state *mrb, mrb_value hash)
 {
 	const auto state = euler::util::State::get(mrb);
 	b2Polygon polygon;
-	auto verts = state->mrb()->hash_get(hash, EULER_SYM(vertices));
+	auto verts = state->mrb()->hash_get(hash, EULER_SYM_VAL(vertices));
 	assert(RARRAY_LEN(verts) <= B2_MAX_POLYGON_VERTICES);
 	for (mrb_int i = 0; i < RARRAY_LEN(verts); ++i) {
 		const auto entry = state->mrb()->ary_entry(verts, i);
 		const auto vec = euler::physics::value_to_b2_vec(mrb, entry);
 		polygon.vertices[i] = vec;
 	}
-	auto norms = state->mrb()->hash_get(hash, EULER_SYM(normals));
+	auto norms = state->mrb()->hash_get(hash, EULER_SYM_VAL(normals));
 	assert(RARRAY_LEN(norms) <= B2_MAX_POLYGON_VERTICES);
 	for (mrb_int i = 0; i < RARRAY_LEN(norms); ++i) {
 		const auto entry = state->mrb()->ary_entry(norms, i);
 		const auto vec = euler::physics::value_to_b2_vec(mrb, entry);
 		polygon.normals[i] = vec;
 	}
-	auto centroid = state->mrb()->hash_get(hash, EULER_SYM(centroid));
+	auto centroid = state->mrb()->hash_get(hash, EULER_SYM_VAL(centroid));
 	polygon.centroid = euler::physics::value_to_b2_vec(mrb, centroid);
-	auto radius = state->mrb()->hash_get(hash, EULER_SYM(radius));
+	auto radius = state->mrb()->hash_get(hash, EULER_SYM_VAL(radius));
 	polygon.radius = euler::physics::coerce_float(mrb, radius);
-	auto count = state->mrb()->hash_get(hash, EULER_SYM(count));
+	auto count = state->mrb()->hash_get(hash, EULER_SYM_VAL(count));
 	polygon.count = mrb_integer(count);
 	return polygon;
 }
@@ -707,11 +707,11 @@ polygon_wrap(mrb_state *mrb, b2Polygon polygon)
 	const mrb_value radius = state->mrb()->float_value(polygon.radius);
 	const mrb_value count = state->mrb()->int_value(polygon.count);
 	const mrb_value hash = state->mrb()->hash_new_capa(4);
-	state->mrb()->hash_set(hash, EULER_SYM(vertices), verts);
-	state->mrb()->hash_set(hash, EULER_SYM(normals), normals);
-	state->mrb()->hash_set(hash, EULER_SYM(centroid), centroid);
-	state->mrb()->hash_set(hash, EULER_SYM(radius), radius);
-	state->mrb()->hash_set(hash, EULER_SYM(count), count);
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(vertices), verts);
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(normals), normals);
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(centroid), centroid);
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(radius), radius);
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(count), count);
 	const mrb_value args[] = { hash };
 	const mrb_value obj = state->mrb()->obj_new(polygon_class, 1, args);
 	return obj;
@@ -724,18 +724,18 @@ polygon_shape(mrb_state *mrb, mrb_value self)
 	const auto hash = state->mrb()->hash_new_capa(4);
 	const auto verts = state->mrb()->iv_get(self,
 	    state->mrb()->intern_cstr("@vertices"));
-	state->mrb()->hash_set(hash, EULER_SYM(vertices), verts);
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(vertices), verts);
 	const auto norms
 	    = state->mrb()->iv_get(self, state->mrb()->intern_cstr("@normals"));
-	state->mrb()->hash_set(hash, EULER_SYM(normals), norms);
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(normals), norms);
 	const auto centroid = state->mrb()->iv_get(self,
 	    state->mrb()->intern_cstr("@centroid"));
-	state->mrb()->hash_set(hash, EULER_SYM(centroid), centroid);
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(centroid), centroid);
 	const auto radius
 	    = state->mrb()->iv_get(self, state->mrb()->intern_cstr("@radius"));
-	state->mrb()->hash_set(hash, EULER_SYM(radius), radius);
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(radius), radius);
 	const auto count = state->mrb()->int_value(RARRAY_LEN(verts));
-	state->mrb()->hash_set(hash, EULER_SYM(count), count);
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(count), count);
 	return polygon_initialize_raw(mrb, hash);
 }
 
@@ -1075,17 +1075,18 @@ hash_to_filter(mrb_state *mrb, mrb_value hash)
 {
 	const auto state = euler::util::State::get(mrb);
 	b2Filter filter = b2DefaultFilter();
-	if (state->mrb()->hash_key_p(hash, EULER_SYM(category_bits))) {
-		filter.categoryBits = (uint16_t)euler::physics::hash_read_int(
-		    mrb, hash, EULER_SYM(category_bits), filter.categoryBits);
+	if (state->mrb()->hash_key_p(hash, EULER_SYM_VAL(category_bits))) {
+		filter.categoryBits
+		    = (uint16_t)euler::physics::hash_read_int(mrb, hash,
+			EULER_SYM_VAL(category_bits), filter.categoryBits);
 	}
-	if (state->mrb()->hash_key_p(hash, EULER_SYM(mask_bits))) {
+	if (state->mrb()->hash_key_p(hash, EULER_SYM_VAL(mask_bits))) {
 		filter.maskBits = (uint16_t)euler::physics::hash_read_int(mrb,
-		    hash, EULER_SYM(mask_bits), filter.maskBits);
+		    hash, EULER_SYM_VAL(mask_bits), filter.maskBits);
 	}
-	if (state->mrb()->hash_key_p(hash, EULER_SYM(group_index))) {
+	if (state->mrb()->hash_key_p(hash, EULER_SYM_VAL(group_index))) {
 		filter.groupIndex = (int16_t)euler::physics::hash_read_int(mrb,
-		    hash, EULER_SYM(group_index), filter.groupIndex);
+		    hash, EULER_SYM_VAL(group_index), filter.groupIndex);
 	}
 	return filter;
 }
@@ -1095,11 +1096,11 @@ filter_to_hash(mrb_state *mrb, const b2Filter *filter)
 {
 	const auto state = euler::util::State::get(mrb);
 	const mrb_value hash = state->mrb()->hash_new_capa(3);
-	state->mrb()->hash_set(hash, EULER_SYM(category_bits),
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(category_bits),
 	    mrb_fixnum_value((mrb_int)filter->categoryBits));
-	state->mrb()->hash_set(hash, EULER_SYM(mask_bits),
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(mask_bits),
 	    mrb_fixnum_value((mrb_int)filter->maskBits));
-	state->mrb()->hash_set(hash, EULER_SYM(group_index),
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(group_index),
 	    mrb_fixnum_value(filter->groupIndex));
 	return hash;
 }
@@ -1237,13 +1238,13 @@ shape_ray_cast(mrb_state *mrb, mrb_value self)
 	};
 	const b2CastOutput output = shape->ray_cast(input);
 	const mrb_value result = state->mrb()->hash_new_capa(4);
-	state->mrb()->hash_set(result, EULER_SYM(normal),
+	state->mrb()->hash_set(result, EULER_SYM_VAL(normal),
 	    euler::physics::b2_vec_to_value(mrb, output.normal));
-	state->mrb()->hash_set(result, EULER_SYM(point),
+	state->mrb()->hash_set(result, EULER_SYM_VAL(point),
 	    euler::physics::b2_vec_to_value(mrb, output.point));
-	state->mrb()->hash_set(result, EULER_SYM(fraction),
+	state->mrb()->hash_set(result, EULER_SYM_VAL(fraction),
 	    state->mrb()->float_value(output.fraction));
-	state->mrb()->hash_set(result, EULER_SYM(hit),
+	state->mrb()->hash_set(result, EULER_SYM_VAL(hit),
 	    mrb_bool_value(output.hit));
 	return result;
 }
@@ -1258,9 +1259,9 @@ shape_ray_cast(mrb_state *mrb, mrb_value self)
 // 	    euler::physics::b2_vec_to_value(mrb, cs->ghost1));
 // 	state->mrb()->ary_push(ghost,
 // 	    euler::physics::b2_vec_to_value(mrb, cs->ghost2));
-// 	state->mrb()->hash_set(out, EULER_SYM(ghosts), ghost);
+// 	state->mrb()->hash_set(out, EULER_SYM_VAL(ghosts), ghost);
 // 	const mrb_value segment = Shape::wrap_shape_data(mrb, cs->segment);
-// 	state->mrb()->hash_set(out, EULER_SYM(segment), segment);
+// 	state->mrb()->hash_set(out, EULER_SYM_VAL(segment), segment);
 // 	return out;
 // }
 
@@ -1331,8 +1332,8 @@ shape_aabb(mrb_state *mrb, mrb_value self)
 	const mrb_value lower
 	    = euler::physics::b2_vec_to_value(mrb, aabb.lowerBound);
 	const mrb_value out = state->mrb()->hash_new_capa(2);
-	state->mrb()->hash_set(out, EULER_SYM(upper_bound), upper);
-	state->mrb()->hash_set(out, EULER_SYM(lower_bound), lower);
+	state->mrb()->hash_set(out, EULER_SYM_VAL(upper_bound), upper);
+	state->mrb()->hash_set(out, EULER_SYM_VAL(lower_bound), lower);
 	return out;
 }
 
@@ -1343,11 +1344,11 @@ shape_compute_mass_data(mrb_state *mrb, mrb_value self)
 	const auto shape = state->unwrap<Shape>(self);
 	const b2MassData mass_data = shape->compute_mass_data();
 	const mrb_value out = state->mrb()->hash_new_capa(3);
-	state->mrb()->hash_set(out, EULER_SYM(mass),
+	state->mrb()->hash_set(out, EULER_SYM_VAL(mass),
 	    state->mrb()->float_value(mass_data.mass));
-	state->mrb()->hash_set(out, EULER_SYM(center),
+	state->mrb()->hash_set(out, EULER_SYM_VAL(center),
 	    euler::physics::b2_vec_to_value(mrb, mass_data.center));
-	state->mrb()->hash_set(out, EULER_SYM(rotational_inertia),
+	state->mrb()->hash_set(out, EULER_SYM_VAL(rotational_inertia),
 	    state->mrb()->float_value(mass_data.rotationalInertia));
 	return out;
 }
@@ -1529,9 +1530,9 @@ Shape::SensorEvent::wrap(mrb_state *mrb)
 	const auto state = euler::util::State::get(mrb);
 	const mrb_value out = state->mrb()->hash_new_capa(2);
 	const auto sensor_val = state->wrap<Shape>(sensor);
-	state->mrb()->hash_set(out, EULER_SYM(sensor), sensor_val);
+	state->mrb()->hash_set(out, EULER_SYM_VAL(sensor), sensor_val);
 	const auto visitor_val = state->wrap<Shape>(visitor);
-	state->mrb()->hash_set(out, EULER_SYM(visitor), visitor_val);
+	state->mrb()->hash_set(out, EULER_SYM_VAL(visitor), visitor_val);
 	return out;
 }
 
@@ -1675,8 +1676,8 @@ Shape::SensorEvents::wrap(mrb_state *mrb)
 	for (auto &event : end)
 		state->mrb()->ary_push(end_ary, event.wrap(mrb));
 	const mrb_value result = state->mrb()->hash_new_capa(2);
-	state->mrb()->hash_set(result, EULER_SYM(begin), begin_ary);
-	state->mrb()->hash_set(result, EULER_SYM(end), end_ary);
+	state->mrb()->hash_set(result, EULER_SYM_VAL(begin), begin_ary);
+	state->mrb()->hash_set(result, EULER_SYM_VAL(end), end_ary);
 	return result;
 }
 
@@ -1685,11 +1686,11 @@ Shape::type_to_symbol(mrb_state *mrb, Type type)
 {
 	const auto state = util::State::get(mrb);
 	switch (type) {
-	case Type::Circle: return EULER_SYM(circle);
-	case Type::Capsule: return EULER_SYM(capsule);
-	case Type::Segment: return EULER_SYM(segment);
-	case Type::Polygon: return EULER_SYM(polygon);
-	case Type::ChainSegment: return EULER_SYM(chain_segment);
+	case Type::Circle: return EULER_SYM_VAL(circle);
+	case Type::Capsule: return EULER_SYM_VAL(capsule);
+	case Type::Segment: return EULER_SYM_VAL(segment);
+	case Type::Polygon: return EULER_SYM_VAL(polygon);
+	case Type::ChainSegment: return EULER_SYM_VAL(chain_segment);
 	default:
 		state->mrb()->raise(E_ARGUMENT_ERROR, "unknown shape type");
 		std::unreachable();

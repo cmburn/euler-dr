@@ -44,6 +44,13 @@ if (EULER_NATIVE_BUILD)
             ${CMAKE_CURRENT_SOURCE_DIR}/../../
     )
 
+    target_link_libraries(euler_app PUBLIC
+            euler_event
+            euler_graphics
+            euler_gui
+            euler_vulkan
+    )
+
     # if vulkan_sdk env var exists, use it instead of system headers
     if(DEFINED ENV{VULKAN_SDK})
         set(Vulkan_INCLUDE_DIR "$ENV{VULKAN_SDK}/include")

@@ -160,6 +160,34 @@ datatype(const char *name)
 	};
 }
 
+template <typename T>
+static constexpr mrb_data_type
+pod_datatype(const char *name)
+{
+	return mrb_data_type {
+		.struct_name = name,
+		.dfree =
+		    [](mrb_state *, void *ptr) {
+			    auto self = static_cast<T *>(ptr);
+			    self->~T();
+		    },
+	};
+}
+
+template <typename T>
+static T *
+unwrap_data(mrb_state *mrb, const mrb_value &value, const mrb_data_type *type)
+{
+	if (mrb_nil_p(value)) {
+		mrb_raisef(mrb, E_TYPE_ERROR, "Expected a %s object",
+		    type->struct_name);
+	}
+	if (auto ptr = mrb_data_get_ptr(mrb, value, type); ptr != nullptr)
+		return static_cast<T *>(ptr);
+	mrb_raisef(mrb, E_TYPE_ERROR, "Expected a %s object",
+	    type->struct_name);
+}
+
 #define BIND_MRUBY(NAME, TYPENAME, MODULE)                                     \
 public:                                                                        \
 	static constexpr auto TYPE = ::euler::util::datatype<TYPENAME>(NAME);  \
@@ -174,6 +202,63 @@ public:                                                                        \
                                                                                \
 private:                                                                       \
 	static_assert(true)
+
+#define BIND_MRUBY_DATA(NAME, TYPENAME, MODULE)                                \
+public:                                                                        \
+	static const mrb_data_type TYPE;\
+	static RClass *init(                                                   \
+	    const ::euler::util::Reference<::euler::util::State> &state,       \
+	    RClass *mod, RClass *super = nullptr);                             \
+	static RClass *fetch_class(                                            \
+	    const ::euler::util::Reference<::euler::util::State> &state)       \
+	{                                                                      \
+		return state->modules().MODULE;                                \
+	}                                                                      \
+                                                                               \
+private:                                                                       \
+	static_assert(true)
+
+/*
+#define ATTR_IV_READER(SYM) \
+	[](mrb_state *mrb, const mrb_value self) {                             \
+		auto state = (::euler::util::State::get(mrb));                 \
+		return state->mrb()->iv_get(self, EULER_IVSYM(SYM));           \
+	}
+
+#define ATTR_READER(SELF_TYPE, SELF_DATA, OTHER_DATA, SUPER, EXPR) \
+	[](mrb_state *mrb, const mrb_value self_value) {                       \
+		const auto self = ::euler::util::unwrap_data<SELF_TYPE>(mrb,   \
+		    self_value, &SELF_DATA);                                   \
+		const auto state = ::euler::util::State::get(mrb);             \
+		const auto mod = state->module();                              \
+		auto ans = (EXPR);                                             \
+		const auto obj                                                 \
+		    = Data_Wrap_Struct(mrb, (SUPER), &OTHER_DATA, ans.wrap()); \
+		const auto value = mrb_obj_value(obj);                         \
+		state->mrb()->gc_protect(mrb, value);                          \
+		return value;                                                  \
+	}
+
+#define ATTR_READER_DATA(SELF_TYPE, SELF_DATA, OTHER_TYPE, OTHER_DATA, EXPR)
+\
+	[](mrb_state *mrb, const mrb_value self_value) {                       \
+		const auto self = ::euler::util::unwrap_data<SELF_TYPE>(mrb,   \
+		    self_value, &SELF_DATA);                                   \
+		const auto ans = (EXPR);                                       \
+		if (ans == nullptr) return mrb_nil_value();                    \
+		const auto obj = Data_Wrap_Struct(mrb, mrb->object_class,      \
+		    &OTHER_DATA, static_cast<OTHER_TYPE *>(ans));              \
+		return mrb_obj_value(obj);                                     \
+	}
+
+#define ATTR_READER_VALUE(SELF_TYPE, SELF_DATA, WRAP, EXPR) \
+	[](mrb_state *mrb, const mrb_value self_value) {                       \
+		const auto self = ::euler::util::unwrap_data<SELF_TYPE>(mrb,   \
+		    self_value, &SELF_DATA);                                   \
+		auto ans = (EXPR);                                             \
+		return WRAP(ans);                                              \
+	}
+	*/
 
 } /* namespace euler::util */
 
