@@ -22,8 +22,8 @@ mrb_value world_initialize(mrb_state *mrb, mrb_value);
 
 namespace euler::physics {
 class World final : public util::Object {
-	friend mrb_value (::world_allocate)(mrb_state *mrb, mrb_value);
-	friend mrb_value (::world_initialize)(mrb_state *mrb, mrb_value);
+	friend mrb_value(::world_allocate)(mrb_state *mrb, mrb_value);
+	friend mrb_value(::world_initialize)(mrb_state *mrb, mrb_value);
 	BIND_MRUBY("Euler::Physics::World", World, physics.world);
 	static bool overlap_result_fn(b2ShapeId shape_id, void *user_data);
 	static float cast_result_fn(b2ShapeId shape_id, b2Vec2 point,
@@ -42,7 +42,10 @@ class World final : public util::Object {
 	{
 	}
 
-	World() : _id(B2_NULL_ID) {}
+	World()
+	    : _id(B2_NULL_ID)
+	{
+	}
 
 	void initialize(const b2WorldDef &);
 

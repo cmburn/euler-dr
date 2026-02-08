@@ -11,6 +11,4 @@ void init_functions(const util::Reference<util::State> &state);
 
 } /* namespace euler::math */
 
-
 #endif /* EULER_MATH_FUNCTIONS_H */
-

@@ -12,7 +12,6 @@ namespace euler::app::native {
 class State final : public util::Object {
 
 public:
-
 };
 } /* namespace euler::app::native */
 

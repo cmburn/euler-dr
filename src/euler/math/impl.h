@@ -279,8 +279,7 @@ apply_concrete(const util::Reference<util::State> &state, mrb_value arg, F fn)
 		} break;
 		case ValueType::Float64: {
 			const auto base = state->unwrap<RowVector>(arg);
-			const auto impl
-			    = base.cast_to<RowVectorImpl<double>>();
+			const auto impl = base.cast_to<RowVectorImpl<double>>();
 			fn(impl);
 		} break;
 		case ValueType::Complex32: {
@@ -474,9 +473,9 @@ register_nonscalar_methods(const util::Reference<util::RubyState> &mrb,
 	DEF(replace, MRB_ARGS_REQ(2));
 	DEF(reset, MRB_ARGS_NONE());
 	DEF(resize, MRB_ARGS_REQ(1) | MRB_ARGS_OPT(1));
-	DEFQ(set_imaginary, imaginary=, MRB_ARGS_REQ(1));
-	DEFQ(set_real, real=, MRB_ARGS_REQ(1));
-	DEFQ(set_size, size=, MRB_ARGS_REQ(1));
+	DEFQ(set_imaginary, imaginary =, MRB_ARGS_REQ(1));
+	DEFQ(set_real, real =, MRB_ARGS_REQ(1));
+	DEFQ(set_size, size =, MRB_ARGS_REQ(1));
 	DEF(size, MRB_ARGS_NONE());
 	DEFQ(to_string, to_s, MRB_ARGS_NONE());
 	DEF(transform, MRB_ARGS_BLOCK());

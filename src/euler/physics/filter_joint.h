@@ -3,9 +3,9 @@
 #ifndef EULER_PHYSICS_FILTER_JOINT_H
 #define EULER_PHYSICS_FILTER_JOINT_H
 
+#include "euler/physics/joint.h"
 #include "euler/util/ext.h"
 #include "euler/util/object.h"
-#include "euler/physics/joint.h"
 
 namespace euler::physics {
 /*
@@ -19,8 +19,10 @@ class FilterJoint final : public Joint {
 	    : Joint(id)
 	{
 	}
+
 public:
-	Type type() const override
+	Type
+	type() const override
 	{
 		return Type::Filter;
 	}

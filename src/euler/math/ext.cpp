@@ -81,8 +81,9 @@ namespace euler::math {
 // DECLARE_NONSCALAR_TYPES(uint32_t, u32);
 // DECLARE_NONSCALAR_TYPES(uint64_t, u64);
 
-RClass *init(const util::Reference<util::State> &state,
-    RClass *euler_mod, RClass *super = nullptr)
+RClass *
+init(const util::Reference<util::State> &state, RClass *euler_mod,
+    RClass *super = nullptr)
 {
 	auto mod = state->mrb()->define_module_under(euler_mod, "Math");
 	auto &mods = state->modules();

@@ -12,6 +12,7 @@ namespace euler::util {
 class Logger;
 class Storage;
 class Image;
+
 class State : public Object {
 public:
 	~State() override = default;
@@ -26,13 +27,16 @@ public:
 
 	struct Module {
 		RClass *mod;
+
 		struct {
 			RClass *mod;
 			RClass *state;
 		} app;
+
 		struct {
 			RClass *mod;
 		} util;
+
 		struct {
 			RClass *mod;
 			RClass *nonscalar;
@@ -43,6 +47,7 @@ public:
 			RClass *size;
 			RClass *vector;
 		} math;
+
 		struct {
 			RClass *mod;
 			RClass *body;
@@ -88,6 +93,7 @@ public:
 	[[nodiscard]] virtual void *unwrap(mrb_value value,
 	    const mrb_data_type *type) const
 	    = 0;
+
 	template <typename T>
 	[[nodiscard]] Reference<T>
 	unwrap(mrb_value value) const
@@ -96,6 +102,7 @@ public:
 		if (ptr == nullptr) return Reference<T>(nullptr);
 		return Reference<T>::unwrap(ptr);
 	}
+
 	template <typename T>
 	[[nodiscard]] mrb_value
 	wrap(Reference<T> &obj) const
@@ -104,6 +111,11 @@ public:
 		return obj.wrap(mrb()->mrb(), object_class(), &T::TYPE);
 	}
 };
+
+#define EULER_SYM(SYM)                                                         \
+	(mrb_symbol_value(                                                     \
+	    (::euler::util::State::get(mrb)->mrb()->intern_static(#SYM,        \
+		sizeof(#SYM) - 1))))
 
 } /* namespace euler::util */
 

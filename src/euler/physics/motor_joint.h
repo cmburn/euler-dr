@@ -18,7 +18,6 @@ class MotorJoint final : public Joint {
 	}
 
 public:
-
 	Type
 	type() const override
 	{

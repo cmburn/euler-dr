@@ -14,7 +14,6 @@
 #include <mruby/string.h>
 #include <mruby/variable.h>
 
-
 namespace euler::util {
 
 /* Note that the implementation of this interface must convert ruby exceptions
@@ -239,7 +238,9 @@ public:
 	virtual mrb_value hash_new() = 0;
 	virtual mrb_value hash_new_capa(mrb_int capa) = 0;
 	virtual void hash_set(mrb_value hash, mrb_value key, mrb_value val) = 0;
-	void hash_set(mrb_value hash, const char *key, mrb_value val) {
+	void
+	hash_set(mrb_value hash, const char *key, mrb_value val)
+	{
 		auto sym = intern_cstr(key);
 		hash_set(hash, mrb_symbol_value(sym), val);
 	}
@@ -462,15 +463,15 @@ public:
 	virtual mrb_value float_value(mrb_float f) = 0;
 	virtual mrb_value symbol_value(mrb_sym i) = 0;
 
-	template <typename ...Args>
-	mrb_value call(mrb_value block, Args&& ...args)
+	template <typename... Args>
+	mrb_value
+	call(mrb_value block, Args &&...args)
 	{
 		const mrb_int argc = sizeof...(Args);
 		mrb_value argv[] = { std::forward<Args>(args)... };
 		return funcall_argv(block, intern_cstr("call"), argc, argv);
 	}
 };
-
 
 } /* namespace euler::util */
 

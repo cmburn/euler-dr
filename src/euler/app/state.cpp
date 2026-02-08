@@ -65,7 +65,6 @@ euler::app::State::total_ticks() const
 void
 euler::app::State::tick() const
 {
-
 }
 
 RClass *

@@ -116,8 +116,8 @@ weld_joint_init(mrb_state *mrb, RClass *mod, RClass *super)
 	    = state->mrb()->define_class_under(mod, "WeldJoint", super);
 	state->mrb()->define_method(joint,
 	    "linear_hertz=", weld_joint_set_linear_hertz, MRB_ARGS_REQ(1));
-	state->mrb()->define_method(joint, "linear_hertz", weld_joint_linear_hertz,
-	    MRB_ARGS_REQ(0));
+	state->mrb()->define_method(joint, "linear_hertz",
+	    weld_joint_linear_hertz, MRB_ARGS_REQ(0));
 	state->mrb()->define_method(joint,
 	    "linear_damping_ratio=", weld_joint_set_linear_damping_ratio,
 	    MRB_ARGS_REQ(1));
@@ -125,8 +125,8 @@ weld_joint_init(mrb_state *mrb, RClass *mod, RClass *super)
 	    weld_joint_linear_damping_ratio, MRB_ARGS_REQ(0));
 	state->mrb()->define_method(joint,
 	    "angular_hertz=", weld_joint_set_angular_hertz, MRB_ARGS_REQ(1));
-	state->mrb()->define_method(joint, "angular_hertz", weld_joint_angular_hertz,
-	    MRB_ARGS_REQ(0));
+	state->mrb()->define_method(joint, "angular_hertz",
+	    weld_joint_angular_hertz, MRB_ARGS_REQ(0));
 	state->mrb()->define_method(joint,
 	    "angular_damping_ratio=", weld_joint_set_angular_damping_ratio,
 	    MRB_ARGS_REQ(1));
@@ -136,8 +136,8 @@ weld_joint_init(mrb_state *mrb, RClass *mod, RClass *super)
 }
 
 RClass *
-WeldJoint::init(const util::Reference<util::State> &state,
-    RClass *mod, RClass *super)
+WeldJoint::init(const util::Reference<util::State> &state, RClass *mod,
+    RClass *super)
 {
 	return weld_joint_init(state->mrb()->mrb(), mod, super);
 }

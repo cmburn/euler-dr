@@ -9,11 +9,6 @@
 
 namespace euler::physics {
 
-#define B2_SYM(SYM)                                                            \
-	(mrb_symbol_value(                                                     \
-	    (::euler::util::State::get(mrb)->mrb()->intern_static(#SYM,        \
-		sizeof(#SYM) - 1))))
-
 mrb_value b2_vec_to_value(mrb_state *mrb, b2Vec2 vec);
 b2Vec2 value_to_b2_vec(mrb_state *mrb, mrb_value val);
 b2Rot value_to_b2_rot(mrb_state *, mrb_value);

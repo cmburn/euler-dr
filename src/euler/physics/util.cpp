@@ -45,8 +45,8 @@ euler::physics::value_to_b2_vec(mrb_state *mrb, mrb_value val)
 		};
 	}
 	if (mrb_hash_p(val)) {
-		const auto x_key = B2_SYM(x);
-		const auto y_key = B2_SYM(y);
+		const auto x_key = EULER_SYM(x);
+		const auto y_key = EULER_SYM(y);
 		const auto x_val = state->mrb()->hash_get(val, x_key);
 		const auto y_val = state->mrb()->hash_get(val, y_key);
 		if (mrb_nil_p(x_val) || mrb_nil_p(y_val)) {
@@ -104,8 +104,8 @@ euler::physics::value_to_b2_rot(mrb_state *mrb, mrb_value val)
 		};
 	}
 	if (mrb_hash_p(val)) {
-		const auto c_key = B2_SYM(cos);
-		const auto s_key = B2_SYM(sin);
+		const auto c_key = EULER_SYM(cos);
+		const auto s_key = EULER_SYM(sin);
 		const auto c_val = state->mrb()->hash_get(val, c_key);
 		const auto s_val = state->mrb()->hash_get(val, s_key);
 		if (mrb_nil_p(s_val) || mrb_nil_p(c_val)) {
@@ -161,8 +161,8 @@ euler::physics::b2_transform_to_value(mrb_state *mrb, b2Transform tform)
 	const auto hash = state->mrb()->hash_new_capa(2);
 	const auto position = b2_vec_to_value(mrb, tform.p);
 	const auto rotation = b2_rot_to_value(mrb, tform.q);
-	state->mrb()->hash_set(hash, B2_SYM(position), position);
-	state->mrb()->hash_set(hash, B2_SYM(rotation), rotation);
+	state->mrb()->hash_set(hash, EULER_SYM(position), position);
+	state->mrb()->hash_set(hash, EULER_SYM(rotation), rotation);
 	return hash;
 }
 
@@ -175,8 +175,8 @@ euler::physics::value_to_b2_transform(mrb_state *mrb, mrb_value val)
 		    "Transform must be a hash with :position and :rotation "
 		    "keys");
 	}
-	const auto pos_value = state->mrb()->hash_get(val, B2_SYM(position));
-	const auto rot_value = state->mrb()->hash_get(val, B2_SYM(rotation));
+	const auto pos_value = state->mrb()->hash_get(val, EULER_SYM(position));
+	const auto rot_value = state->mrb()->hash_get(val, EULER_SYM(rotation));
 	return b2Transform {
 		.p = value_to_b2_vec(mrb, pos_value),
 		.q = value_to_b2_rot(mrb, rot_value),
@@ -218,15 +218,15 @@ euler::physics::surface_material_to_value(mrb_state *mrb,
 {
 	const auto state = util::State::get(mrb);
 	const auto hash = state->mrb()->hash_new_capa(5);
-	state->mrb()->hash_set(hash, B2_SYM(friction),
+	state->mrb()->hash_set(hash, EULER_SYM(friction),
 	    state->mrb()->float_value(mat->friction));
-	state->mrb()->hash_set(hash, B2_SYM(restitution),
+	state->mrb()->hash_set(hash, EULER_SYM(restitution),
 	    state->mrb()->float_value(mat->restitution));
-	state->mrb()->hash_set(hash, B2_SYM(rolling_resistance),
+	state->mrb()->hash_set(hash, EULER_SYM(rolling_resistance),
 	    state->mrb()->float_value(mat->rollingResistance));
-	state->mrb()->hash_set(hash, B2_SYM(tangent_speed),
+	state->mrb()->hash_set(hash, EULER_SYM(tangent_speed),
 	    state->mrb()->float_value(mat->tangentSpeed));
-	state->mrb()->hash_set(hash, B2_SYM(user_material_id),
+	state->mrb()->hash_set(hash, EULER_SYM(user_material_id),
 	    state->mrb()->int_value(static_cast<mrb_int>(mat->userMaterialId)));
 	return hash;
 }
@@ -236,25 +236,25 @@ euler::physics::value_to_surface_material(mrb_state *mrb, mrb_value hash)
 {
 	b2SurfaceMaterial sm = b2DefaultSurfaceMaterial();
 	const auto state = util::State::get(mrb);
-	if (state->mrb()->hash_key_p(hash, B2_SYM(surface_friction))) {
+	if (state->mrb()->hash_key_p(hash, EULER_SYM(surface_friction))) {
 		sm.friction = hash_read_float(mrb, hash,
-		    B2_SYM(surface_friction), sm.friction);
+		    EULER_SYM(surface_friction), sm.friction);
 	}
-	if (state->mrb()->hash_key_p(hash, B2_SYM(restitution))) {
-		sm.restitution = hash_read_float(mrb, hash, B2_SYM(restitution),
-		    sm.restitution);
+	if (state->mrb()->hash_key_p(hash, EULER_SYM(restitution))) {
+		sm.restitution = hash_read_float(mrb, hash,
+		    EULER_SYM(restitution), sm.restitution);
 	}
-	if (state->mrb()->hash_key_p(hash, B2_SYM(rolling_resistance))) {
+	if (state->mrb()->hash_key_p(hash, EULER_SYM(rolling_resistance))) {
 		sm.rollingResistance = hash_read_float(mrb, hash,
-		    B2_SYM(rolling_resistance), sm.rollingResistance);
+		    EULER_SYM(rolling_resistance), sm.rollingResistance);
 	}
-	if (state->mrb()->hash_key_p(hash, B2_SYM(tangent_speed))) {
+	if (state->mrb()->hash_key_p(hash, EULER_SYM(tangent_speed))) {
 		sm.tangentSpeed = hash_read_float(mrb, hash,
-		    B2_SYM(tangent_speed), sm.tangentSpeed);
+		    EULER_SYM(tangent_speed), sm.tangentSpeed);
 	}
-	if (state->mrb()->hash_key_p(hash, B2_SYM(user_material_id))) {
+	if (state->mrb()->hash_key_p(hash, EULER_SYM(user_material_id))) {
 		sm.userMaterialId = static_cast<uint64_t>(
-		    hash_read_int(mrb, hash, B2_SYM(user_material_id),
+		    hash_read_int(mrb, hash, EULER_SYM(user_material_id),
 			static_cast<mrb_int>(sm.userMaterialId)));
 	}
 	return sm;

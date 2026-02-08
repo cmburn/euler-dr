@@ -136,8 +136,10 @@ private:
 
 	mrb_int coerce_row(mrb_int r) const;
 	mrb_int coerce_col(mrb_int c) const;
-	mrb_int coerce_row(const util::Reference<util::State> &state, mrb_value r) const;
-	mrb_int coerce_col(const util::Reference<util::State> &state, mrb_value c) const;
+	mrb_int coerce_row(const util::Reference<util::State> &state,
+	    mrb_value r) const;
+	mrb_int coerce_col(const util::Reference<util::State> &state,
+	    mrb_value c) const;
 
 	template <typename U> friend class MatrixImpl;
 

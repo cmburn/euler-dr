@@ -25,7 +25,10 @@ class Shape final : public util::Object {
 	friend class Body;
 	BIND_MRUBY("Euler::Physics::Shape", Shape, physics.shape);
 
-	Shape(b2ShapeId shape) : _id(shape) {}
+	Shape(b2ShapeId shape)
+	    : _id(shape)
+	{
+	}
 
 public:
 	typedef std::variant<b2Circle, b2Capsule, b2Segment, b2Polygon,
@@ -49,14 +52,14 @@ public:
 	struct SensorEvent {
 		util::Reference<Shape> sensor;
 		util::Reference<Shape> visitor;
-		mrb_value wrap(mrb_state *mrb) ;
+		mrb_value wrap(mrb_state *mrb);
 	};
 
 	struct SensorEvents {
 		std::vector<SensorEvent> start;
 		std::vector<SensorEvent> end;
 		static SensorEvents from_b2(const b2SensorEvents &events);
-		mrb_value wrap(mrb_state *mrb) ;
+		mrb_value wrap(mrb_state *mrb);
 	};
 
 	static mrb_value type_to_symbol(mrb_state *mrb, Type type);

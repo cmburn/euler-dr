@@ -161,7 +161,7 @@ private:
 };
 
 /*
- * Unwraps size arguments from mrb state. Will unwrap as either multiple 
+ * Unwraps size arguments from mrb state. Will unwrap as either multiple
  * dimensions or a single Size object, and will return an array of N elements.
  */
 template <mrb_int N>

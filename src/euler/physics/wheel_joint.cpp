@@ -71,8 +71,7 @@ wheel_joint_spring_damping_ratio(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
 	const auto joint = state->unwrap<WheelJoint>(self);
-	const float damping_ratio
-	    = joint->spring_damping_ratio();
+	const float damping_ratio = joint->spring_damping_ratio();
 	return state->mrb()->float_value(damping_ratio);
 }
 
@@ -201,8 +200,8 @@ wheel_joint_init(mrb_state *mrb, RClass *mod, RClass *super)
 	    wheel_joint_is_spring_enabled, MRB_ARGS_REQ(0));
 	state->mrb()->define_method(joint,
 	    "spring_hertz=", wheel_joint_set_spring_hertz, MRB_ARGS_REQ(1));
-	state->mrb()->define_method(joint, "spring_hertz", wheel_joint_spring_hertz,
-	    MRB_ARGS_REQ(0));
+	state->mrb()->define_method(joint, "spring_hertz",
+	    wheel_joint_spring_hertz, MRB_ARGS_REQ(0));
 	state->mrb()->define_method(joint,
 	    "spring_damping_ratio=", wheel_joint_set_spring_damping_ratio,
 	    MRB_ARGS_REQ(1));
@@ -222,21 +221,21 @@ wheel_joint_init(mrb_state *mrb, RClass *mod, RClass *super)
 	    wheel_joint_is_motor_enabled, MRB_ARGS_REQ(0));
 	state->mrb()->define_method(joint,
 	    "motor_speed=", wheel_joint_set_motor_speed, MRB_ARGS_REQ(1));
-	state->mrb()->define_method(joint, "motor_speed", wheel_joint_motor_speed,
-	    MRB_ARGS_REQ(0));
+	state->mrb()->define_method(joint, "motor_speed",
+	    wheel_joint_motor_speed, MRB_ARGS_REQ(0));
 	state->mrb()->define_method(joint,
 	    "max_motor_torque=", wheel_joint_set_max_motor_torque,
 	    MRB_ARGS_REQ(1));
 	state->mrb()->define_method(joint, "max_motor_torque",
 	    wheel_joint_max_motor_torque, MRB_ARGS_REQ(0));
-	state->mrb()->define_method(joint, "motor_torque", wheel_joint_motor_torque,
-	    MRB_ARGS_REQ(0));
+	state->mrb()->define_method(joint, "motor_torque",
+	    wheel_joint_motor_torque, MRB_ARGS_REQ(0));
 	return joint;
 }
 
 RClass *
-WheelJoint::init(const util::Reference<util::State> &state,
-    RClass *mod, RClass *super)
+WheelJoint::init(const util::Reference<util::State> &state, RClass *mod,
+    RClass *super)
 {
 	return wheel_joint_init(state->mrb()->mrb(), mod, super);
 }

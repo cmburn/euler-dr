@@ -892,7 +892,8 @@ MatrixImpl<T>::to_array(const util::Reference<util::State> &state)
 	mrb_value out = state->mrb()->ary_new_capa(_matrix.n_cols);
 	for (auto c = 0; c < static_cast<mrb_int>(_matrix.n_cols); ++c) {
 		mrb_value col_arr = state->mrb()->ary_new_capa(_matrix.n_rows);
-		for (auto r = 0; r < static_cast<mrb_int>(_matrix.n_rows); ++r) {
+		for (auto r = 0; r < static_cast<mrb_int>(_matrix.n_rows);
+		    ++r) {
 			const auto value = _matrix(static_cast<size_type>(r),
 			    static_cast<size_type>(c));
 			mrb_value val = wrap_num<T>(state->mrb(), value);
@@ -936,7 +937,7 @@ MatrixImpl<T>::zeros(const util::Reference<util::State> &state)
 		_matrix.zeros();
 		return mrb_nil_value();
 	}
-	case 2 : {
+	case 2: {
 		auto [r, c] = unwrap_size<2>(state);
 		_matrix.zeros(r, c);
 		return mrb_nil_value();
@@ -1029,7 +1030,7 @@ Matrix::init(const util::Reference<util::State> &state, RClass *mod,
 	DEF(to_column, MRB_ARGS_NONE());
 	DEF(to_row, MRB_ARGS_NONE());
 	DEF(transpose, MRB_ARGS_NONE());
- 	DEF(zeros, MRB_ARGS_OPT(2));
+	DEF(zeros, MRB_ARGS_OPT(2));
 #undef DEFQ
 #undef DEF
 	return cls;

@@ -10,6 +10,7 @@
 namespace euler::math {
 class Cube : public Nonscalar {
 	BIND_MRUBY("Euler::Math::Cube", Cube, math.cube);
+
 public:
 	Type
 	type() const override
@@ -67,8 +68,16 @@ public:
 	typedef detail::pod_type_t<T> pod_type;
 	typedef arma::Cube<pod_type> pod_cube_type;
 
-	cube_type &value() { return _cube; }
-	const cube_type &value() const { return _cube; }
+	cube_type &
+	value()
+	{
+		return _cube;
+	}
+	const cube_type &
+	value() const
+	{
+		return _cube;
+	}
 
 	ValueType
 	value_type() const override

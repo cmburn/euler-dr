@@ -21,7 +21,6 @@ class Chain final : public util::Object {
 	Chain(b2ChainId id)
 	    : _id(id)
 	{
-
 	}
 
 public:
@@ -47,19 +46,22 @@ public:
 
 	struct Key {
 		b2ChainId id;
-		uint64_t to_uint64() const
+		uint64_t
+		to_uint64() const
 		{
 			return b2StoreChainId(id);
 		}
-		bool operator==(const Key &other) const
+		bool
+		operator==(const Key &other) const
 		{
 			return to_uint64() == other.to_uint64();
 		}
 	};
 
-	Key key() const
+	Key
+	key() const
 	{
-		return Key{_id};
+		return Key { _id };
 	}
 
 private:
@@ -75,6 +77,5 @@ template <> struct std::hash<euler::physics::Chain::Key> {
 		return std::hash<uint64_t>()(key.to_uint64());
 	}
 };
-
 
 #endif /* EULER_PHYSICS_CHAIN_H */

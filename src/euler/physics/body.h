@@ -23,10 +23,10 @@ class Body : public util::Object {
 	    : _id(id)
 	{
 	}
+
 public:
 	static util::Reference<Body> wrap(b2BodyId id);
 	static b2BodyType parse_type(mrb_state *mrb, mrb_value);
-
 
 	b2BodyId
 	id() const

@@ -18,8 +18,8 @@ class World;
 
 class Joint : public util::Object {
 	BIND_MRUBY("Euler::Physics::Joint", Joint, physics.joint);
-public:
 
+public:
 	enum class Type {
 		Distance,
 		Filter,
@@ -74,8 +74,6 @@ public:
 	float force_threshold() const;
 	void set_torque_threshold(float threshold);
 	float torque_threshold() const;
-
-
 
 	b2JointId
 	id() const

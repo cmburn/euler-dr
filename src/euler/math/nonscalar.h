@@ -14,6 +14,7 @@
 namespace euler::math {
 class Nonscalar : public util::Object {
 	BIND_MRUBY("Euler::Math::Nonscalar", Nonscalar, math.nonscalar);
+
 public:
 	enum class Type {
 		Cube,
@@ -36,8 +37,7 @@ public:
 		Complex128,
 	};
 
-	template <typename T>
-	struct Range {
+	template <typename T> struct Range {
 		T start;
 		T step;
 		T end;
@@ -147,8 +147,6 @@ template <> struct nonscalar_value_type<std::complex<double>> {
 
 template <typename T>
 static constexpr auto nonscalar_value_type_v = nonscalar_value_type<T>::value;
-
-
 
 } /* namespace euler::math */
 

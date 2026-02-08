@@ -6,9 +6,9 @@
 
 using namespace euler::math;
 
-static mrb_value cube_at(mrb_state *mrb, mrb_value self)
+static mrb_value
+cube_at(mrb_state *mrb, mrb_value self)
 {
-
 
 	auto state = euler::util::State::get(mrb);
 	auto cube = state->unwrap<Cube>(self);
@@ -165,7 +165,6 @@ template <typename T>
 mrb_value
 CubeImpl<T>::map(const util::Reference<util::State> &state)
 {
-
 }
 
 template <typename T>
@@ -444,8 +443,8 @@ Cube::init(const util::Reference<util::State> &state, RClass *mod,
 {
 	auto mrb = state->mrb();
 	auto cls = mrb->define_class_under(mod, "Cube", super);
-	mrb->define_method(cls, "[]", WRAP_MATH_METHOD(Cube, at), MRB_ARGS_ANY());
-	mrb->define_method(cls, "[]=", WRAP_MATH_METHOD(Cube, set_at), MRB_ARGS_ANY());
-
-
+	mrb->define_method(cls, "[]", WRAP_MATH_METHOD(Cube, at),
+	    MRB_ARGS_ANY());
+	mrb->define_method(cls, "[]=", WRAP_MATH_METHOD(Cube, set_at),
+	    MRB_ARGS_ANY());
 }

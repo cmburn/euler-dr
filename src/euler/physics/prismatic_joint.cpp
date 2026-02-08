@@ -369,8 +369,8 @@ prismatic_joint_init(mrb_state *mrb, RClass *mod, RClass *super)
 	    "limit_enabled=", prismatic_joint_enable_limit, MRB_ARGS_REQ(1));
 	state->mrb()->define_method(joint, "limit_enabled",
 	    prismatic_joint_is_limit_enabled, MRB_ARGS_REQ(0));
-	state->mrb()->define_method(joint, "limits=", prismatic_joint_set_limits,
-	    MRB_ARGS_REQ(1));
+	state->mrb()->define_method(joint,
+	    "limits=", prismatic_joint_set_limits, MRB_ARGS_REQ(1));
 	state->mrb()->define_method(joint, "limits", prismatic_joint_limits,
 	    MRB_ARGS_REQ(0));
 	state->mrb()->define_method(joint,

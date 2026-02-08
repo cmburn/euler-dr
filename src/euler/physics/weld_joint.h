@@ -9,13 +9,13 @@
 
 namespace euler::physics {
 class WeldJoint final : public Joint {
-	BIND_MRUBY("Euler::Physics::WeldJoint", WeldJoint,
-	    physics.weld_joint);
+	BIND_MRUBY("Euler::Physics::WeldJoint", WeldJoint, physics.weld_joint);
 	friend class Joint;
 	WeldJoint(b2JointId id)
 	    : Joint(id)
 	{
 	}
+
 public:
 	Type
 	type() const override

@@ -22,6 +22,7 @@ class Contact final : public util::Object {
 	    : _id(id)
 	{
 	}
+
 public:
 	struct Data {
 		~Data();
@@ -32,7 +33,6 @@ public:
 		mrb_value wrap(mrb_state *mrb);
 		static Data from_b2(const b2ContactData &data);
 	};
-
 
 	struct Event {
 		~Event();
@@ -64,13 +64,15 @@ public:
 
 	struct Key {
 		b2ContactId id;
-		std::array<uint32_t, 3> to_ints() const
+		std::array<uint32_t, 3>
+		to_ints() const
 		{
 			std::array<uint32_t, 3> triplet;
 			b2StoreContactId(id, triplet.data());
 			return triplet;
 		}
-		bool operator==(const Key &other) const
+		bool
+		operator==(const Key &other) const
 		{
 			return to_ints() == other.to_ints();
 		}

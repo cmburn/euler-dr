@@ -3,8 +3,8 @@
 #ifndef EULER_PHYSICS_REVOLUTE_JOINT_H
 #define EULER_PHYSICS_REVOLUTE_JOINT_H
 
-#include "euler/util/object.h"
 #include "euler/physics/joint.h"
+#include "euler/util/object.h"
 
 namespace euler::physics {
 class RevoluteJoint final : public Joint {
@@ -15,6 +15,7 @@ class RevoluteJoint final : public Joint {
 	    : Joint(id)
 	{
 	}
+
 public:
 	Type
 	type() const override

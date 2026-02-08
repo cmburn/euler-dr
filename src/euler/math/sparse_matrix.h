@@ -9,7 +9,11 @@
 namespace euler::math {
 class SparseMatrix : public Nonscalar {
 public:
-	Type type() const override { return Type::SparseMatrix; }
+	Type
+	type() const override
+	{
+		return Type::SparseMatrix;
+	}
 	virtual mrb_value eye(const util::Reference<util::State> &state) = 0;
 	virtual mrb_value is_diagonal(const util::Reference<util::State> &state)
 	    = 0;

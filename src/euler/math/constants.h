@@ -9,6 +9,4 @@ namespace euler::math {
 
 } /* namespace euler::math */
 
-
 #endif /* EULER_MATH_CONSTANTS_H */
-

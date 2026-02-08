@@ -6,7 +6,6 @@
 
 using namespace euler::math;
 
-
 template <typename T>
 mrb_value
 VectorImpl<T>::at(const util::Reference<util::State> &state)

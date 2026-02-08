@@ -15,6 +15,7 @@ class PrismaticJoint final : public Joint {
 	    : Joint(id)
 	{
 	}
+
 public:
 	Type
 	type() const override

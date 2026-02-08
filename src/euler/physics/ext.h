@@ -5,8 +5,6 @@
 
 #include <variant>
 
-
-
 #include "euler/util/object.h"
 
 namespace euler::physics {

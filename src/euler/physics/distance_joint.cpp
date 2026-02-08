@@ -423,8 +423,8 @@ box2d_distance_joint_init(mrb_state *mrb, RClass *mod, RClass *super)
 }
 
 RClass *
-DistanceJoint::init(const util::Reference<util::State> &state,
-    RClass *mod, RClass *super)
+DistanceJoint::init(const util::Reference<util::State> &state, RClass *mod,
+    RClass *super)
 {
 	return box2d_distance_joint_init(state->mrb()->mrb(), mod, super);
 }
@@ -539,7 +539,6 @@ DistanceJoint::is_motor_enabled() const
 {
 	return b2DistanceJoint_IsMotorEnabled(_id);
 }
-
 
 void
 DistanceJoint::set_motor_speed(const float speed)

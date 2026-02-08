@@ -360,4 +360,3 @@ mrb_value
 RowVectorImpl<T>::ge(const util::Reference<util::State> &state)
 {
 }
-
