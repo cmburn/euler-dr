@@ -217,10 +217,10 @@ cast_vector(const util::Reference<Vector> &vec)
 		return vec.cast_to<VectorImpl<float>>()->coerce_type<T>();
 	case Nonscalar::ValueType::Float64:
 		return vec.cast_to<VectorImpl<double>>()->coerce_type<T>();
-	case Nonscalar::ValueType::Complex32:
+	case Nonscalar::ValueType::Complex64:
 		return vec.cast_to<VectorImpl<std::complex<float>>>()
 		    ->coerce_type<T>();
-	case Nonscalar::ValueType::Complex64:
+	case Nonscalar::ValueType::Complex128:
 		return vec.cast_to<VectorImpl<std::complex<double>>>()
 		    ->coerce_type<T>();
 	default: std::unreachable();

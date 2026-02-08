@@ -6,7 +6,8 @@
 // #include <glm/glm.hpp>
 #include <vector>
 
-#include "euler/math/vector.h"
+#include <armadillo>
+
 #include "euler/util/object.h"
 
 typedef struct VK2DPolygon_t *VK2DPolygon;
@@ -15,12 +16,12 @@ namespace euler::graphics {
 class Polygon : public util::Object {
 public:
 	struct VertexColor {
-		util::Reference<math::VectorImpl<float, 3>> position;
-		util::Reference<math::VectorImpl<float, 4>> color;
+		arma::Col<float>::fixed<3> position;
+		arma::Col<float>::fixed<4> color;
+		// util::Reference<math::VectorImpl<float, 4>> color;
 	};
 	Polygon(const std::vector<VertexColor> &vertices);
-	Polygon(const std::vector<util::Reference<math::VectorImpl<float, 2>>>
-		    &vertices,
+	Polygon(const std::vector<arma::Col<float>::fixed<2>> &vertices,
 	    bool filled = false);
 	~Polygon();
 
