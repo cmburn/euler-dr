@@ -8,10 +8,11 @@
 
 #include "euler/util/object.h"
 #include "euler/vulkan/internal.h"
+#include "euler/util/image.h"
 
 namespace euler::vulkan {
 
-class Texture : public util::Object {
+class Texture : public util::Image {
 public:
 	~Texture() override;
 
@@ -21,40 +22,15 @@ public:
 		return _texture;
 	}
 
-	/* Specifies a location on a texture sheet. Generally used for
-	 * spritesheets. */
-	struct Location {
-		struct {
-			float x = 0.0f;
-			float y = 0.0f;
-		} origin;
-		float x = 0.0f;
-		float y = 0.0f;
-		float width = 0.0f;
-		float height = 0.0f;
-	};
 
-	struct Frame {
-		Location sheet;
-		struct {
-			float x;
-			float y;
-		} position;
-		struct {
-			float x;
-			float y;
-		} scale;
-		float theta;
-	};
 
-	void display(const Frame &spec) const;
-
-	bool is_target() const;
-	float width() const;
-	float height() const;
+	void display(const Frame &spec) const override;
+	bool is_target() const override;
+	float width() const override;
+	float height() const override;
 	uint32_t id() const;
 	bool
-	loaded() const
+	is_loaded() const override
 	{
 		return _texture != nullptr;
 	}

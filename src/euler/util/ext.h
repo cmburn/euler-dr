@@ -38,9 +38,6 @@ template <typename R, typename... Args> struct function_traits<R (*)(Args...)> {
 
 }
 
-mrb_value wrap_exception(const Reference<State> &state,
-    const std::exception &e);
-
 template <auto Method>
 static constexpr mrb_func_t
 wrap_method()
@@ -68,7 +65,8 @@ wrap_method()
 				throw ArgumentError(state, "Passed null self");
 			return (self_obj.get()->*Method)(state);
 		} catch (std::exception &e) {
-			exc = wrap_exception(State::get(mrb), e);
+			auto state = State::get(mrb);
+			// exc = wrap_exception(State::get(mrb), e);
 		}
 		/* can't have any uncalled destructors, which gets a bit
 		 * tricky if mruby isn't built with support for c++ exceptions.

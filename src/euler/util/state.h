@@ -5,10 +5,12 @@
 
 #include <thread>
 
+#include "euler/util/error.h"
 #include "euler/util/object.h"
 #include "euler/util/ruby_state.h"
 
 namespace euler::util {
+class Error;
 class Logger;
 class Storage;
 class Image;
@@ -76,6 +78,40 @@ public:
 
 		struct {
 			RClass *mod = nullptr;
+			RClass *button = nullptr;
+			RClass *checkbox = nullptr;
+			RClass *color_picker = nullptr;
+			RClass *dropdown = nullptr;
+			RClass *element = nullptr;
+			RClass *knob = nullptr;
+			RClass *progress_bar = nullptr;
+			RClass *radio_button = nullptr;
+			RClass *row = nullptr;
+			RClass *selectable = nullptr;
+			RClass *slider = nullptr;
+			RClass *style = nullptr;
+			RClass *text = nullptr;
+			RClass *widget = nullptr;
+			RClass *window = nullptr;
+		} gui;
+
+		struct {
+			RClass *mod = nullptr;
+			RClass *animated_sprite = nullptr;
+			RClass *basic_sprite = nullptr;
+			RClass *camera = nullptr;
+			RClass *color = nullptr;
+			RClass *composite_sprite = nullptr;
+			RClass *font = nullptr;
+			RClass *image = nullptr;
+			RClass *polygon = nullptr;
+			RClass *sprite = nullptr;
+			RClass *text = nullptr;
+			RClass *window = nullptr;
+		} graphics;
+
+		struct {
+			RClass *mod = nullptr;
 			RClass *color = nullptr;
 			RClass *version = nullptr;
 			RClass *logger = nullptr;
@@ -87,7 +123,9 @@ public:
 			RClass *cube = nullptr;
 			RClass *matrix = nullptr;
 			RClass *row_vector = nullptr;
+			RClass *running_stat = nullptr;
 			RClass *sparse_matrix = nullptr;
+			RClass *sparse_solve_factorizer = nullptr;
 			RClass *size = nullptr;
 			RClass *vector = nullptr;
 		} math;

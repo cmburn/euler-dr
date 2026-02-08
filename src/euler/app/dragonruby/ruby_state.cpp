@@ -2551,3 +2551,8 @@ RubyState::mrb() const
 {
 	return _mrb;
 }
+
+void
+RubyState::raise_on_error()
+{
+}

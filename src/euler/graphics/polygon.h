@@ -18,7 +18,6 @@ public:
 	struct VertexColor {
 		arma::Col<float>::fixed<3> position;
 		arma::Col<float>::fixed<4> color;
-		// util::Reference<math::VectorImpl<float, 4>> color;
 	};
 	Polygon(const std::vector<VertexColor> &vertices);
 	Polygon(const std::vector<arma::Col<float>::fixed<2>> &vertices,

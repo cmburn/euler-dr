@@ -399,6 +399,7 @@ public:
 	mrb_value symbol_value(mrb_sym i) override;
 	[[nodiscard]] util::Reference<State> state() const;
 	mrb_state *mrb() const override;
+	void raise_on_error() override;
 
 private:
 	util::WeakReference<State> _state;

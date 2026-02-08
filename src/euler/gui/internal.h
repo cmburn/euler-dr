@@ -42,8 +42,8 @@ Alignment from_nuklear_widget(const util::Reference<util::State> &state,
 Alignment from_nuklear_header(const util::Reference<util::State> &state,
     nk_flags align);
 
-Symbol to_symbol(mrb_sym sym);
-mrb_value from_symbol(Symbol symbol);
+Symbol to_symbol(mrb_state *mrb, mrb_sym sym);
+mrb_value from_symbol(mrb_state *mrb, Symbol symbol);
 
 } /* namespace euler::gui */
 

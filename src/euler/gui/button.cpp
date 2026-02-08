@@ -11,7 +11,7 @@
 
 using euler::gui::Button;
 
-const mrb_data_type Button::TYPE = MAKE_REFERENCE_TYPE(euler::gui::Button);
+
 
 const Button::Settings Button::DEFAULT_SETTINGS = Settings();
 
@@ -20,7 +20,7 @@ button_symbol(mrb_state *mrb, const mrb_value self_value)
 {
 	const auto self
 	    = euler::util::unwrap<Button>(mrb, self_value, &Button::TYPE);
-	return from_symbol(self->symbol());
+	return euler::gui::from_symbol(self->symbol());
 }
 
 void

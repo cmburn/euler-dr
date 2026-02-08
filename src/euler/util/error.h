@@ -7,14 +7,14 @@
 #include <string>
 
 #include "euler/util/object.h"
-#include "euler/util/state.h"
+
 
 namespace euler::util {
 
 class State;
 
 /* ReSharper disable CppClassCanBeFinal */
-class Error : public Object, public std::exception {
+class Error : public std::exception {
 public:
 	~Error() override;
 	Error(const Reference<State> &state, const std::string &message);
@@ -51,8 +51,8 @@ public:
 	{
 		return Kind::Exception;
 	}
-	[[nodiscard]] virtual RClass *exception_class() = 0;
-	[[nodiscard]] virtual mrb_value to_mrb() const = 0;
+	[[nodiscard]] virtual RClass *exception_class();
+	[[nodiscard]] virtual mrb_value to_mrb() const;
 	[[nodiscard]] const char *
 	what() const noexcept override
 	{
@@ -76,6 +76,9 @@ public:
 	{
 		return Kind::Standard;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class RuntimeError : public StandardError {
@@ -90,6 +93,9 @@ public:
 	{
 		return Kind::Runtime;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class TypeError : public Error {
@@ -104,6 +110,9 @@ public:
 	{
 		return Kind::Type;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class ZeroDivisionError : public StandardError {
@@ -119,6 +128,9 @@ public:
 	{
 		return Kind::ZeroDivision;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class ArgumentError final : public StandardError {
@@ -153,6 +165,9 @@ public:
 	{
 		return Kind::Index;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class RangeError : public StandardError {
@@ -167,6 +182,9 @@ public:
 	{
 		return Kind::Range;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class NameError : public StandardError {
@@ -181,6 +199,9 @@ public:
 	{
 		return Kind::Name;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class NoMethodError : public NameError {
@@ -195,6 +216,9 @@ public:
 	{
 		return Kind::NoMethod;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class ScriptError : public Error {
@@ -209,6 +233,9 @@ public:
 	{
 		return Kind::Script;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class SyntaxError : public ScriptError {
@@ -223,6 +250,9 @@ public:
 	{
 		return Kind::Syntax;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class LocalJumpError : public StandardError {
@@ -238,6 +268,9 @@ public:
 	{
 		return Kind::LocalJump;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class RegexpError : public StandardError {
@@ -252,6 +285,9 @@ public:
 	{
 		return Kind::Regexp;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class FrozenError : public RuntimeError {
@@ -266,6 +302,9 @@ public:
 	{
 		return Kind::Frozen;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class NotImplementedError : public ScriptError {
@@ -281,6 +320,9 @@ public:
 	{
 		return Kind::NotImplemented;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class KeyError : public IndexError {
@@ -295,6 +337,9 @@ public:
 	{
 		return Kind::Key;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class FloatDomainError : public RangeError {
@@ -310,8 +355,14 @@ public:
 	{
 		return Kind::FloatDomain;
 	}
+	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] mrb_value to_mrb() const override;
+	[[nodiscard]] const char *what() const noexcept override;
 };
 /* ReSharper restore CppClassCanBeFinal */
+
+// Reference<Error> wrap_exception(const Reference<State> &state, const std::exception &e);
+// Reference<Error> wrap_ruby_exception(const Reference<State> &state, RObject *exc);
 
 template <typename T, typename... Args>
 inline Reference<Error>

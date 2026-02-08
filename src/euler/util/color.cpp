@@ -147,7 +147,7 @@ Color::init(const Reference<State> &state, RClass *mod, RClass *)
 {
 	const auto color = state->mrb()->define_class_under(mod, "Color",
 	    state->object_class());
-	MRB_SET_INSTANCE_TT(color, MRB_TT_CDATA);
+	MRB_SET_INSTANCE_TT(color, MRB_TT_DATA);
 	state->mrb()->define_class_method(color, "allocate", color_allocate,
 	    MRB_ARGS_NONE());
 	state->mrb()->define_method(color, "initialize", color_initialize,

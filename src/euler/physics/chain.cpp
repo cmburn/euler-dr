@@ -68,9 +68,10 @@ chain_set_surface_materials(mrb_state *mrb, const mrb_value self)
 	const mrb_int len = RARRAY_LEN(array);
 	const int chain_len = chain->surface_material_count();
 	if (len != 1 && len != chain_len) {
-		throw euler::util::make_error<euler::util::ArgumentError>(state,
-		    "Expected assignment of array of length 1 or {} for chain "
-		    "of length {}",
+		state->mrb()->raisef(
+		    E_ARGUMENT_ERROR,
+		    "Expected assignment of array of length 1 or %d for chain "
+		    "of length %d",
 		    chain_len, chain_len);
 	}
 	const bool single = (len == 1);

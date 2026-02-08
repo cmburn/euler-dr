@@ -3,14 +3,14 @@
 #ifndef EULER_GRAPHICS_IMAGE_H
 #define EULER_GRAPHICS_IMAGE_H
 
+#include "euler/util/ext.h"
 #include "euler/util/state.h"
 #include "euler/vulkan/texture.h"
 
 namespace euler::graphics {
 class Image final : public vulkan::Texture {
+	BIND_MRUBY("Euler::Graphics::Image", Image, graphics.image);
 public:
-	static const mrb_data_type TYPE;
-	static void init(mrb_state *, util::State::Modules &);
 	static util::Reference<Image> from_file(const char *);
 	static util::Reference<Image> from_buffer(std::span<const std::byte>);
 	static util::Reference<Image> create_target(float, float);

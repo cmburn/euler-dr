@@ -1,6 +1,6 @@
 require 'pathname'
 
-PRESYM_PATH = Pathname.new(__FILE__).dirname.join('presym.txt')
+PRESYM_PATH = Pathname.new(__FILE__).dirname.join('mruby-presym.txt')
 
 MRuby::Build.new do |conf|
   conf.toolchain
@@ -8,6 +8,7 @@ MRuby::Build.new do |conf|
   conf.enable_cxx_abi
   def self.define_rules
     super
+
     class << self.presym
       def scan(*args)
         presyms = super(*args)

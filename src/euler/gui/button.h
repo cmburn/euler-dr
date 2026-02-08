@@ -11,10 +11,8 @@
 namespace euler::gui {
 
 class Button final : public Element {
+	BIND_MRUBY("Euler::GUI::Button", Button, gui.button);
 public:
-	static const mrb_data_type TYPE;
-	static void init(mrb_state *mrb, util::State::Modules &mod);
-
 	/* If 'None', go with whatever is the current global option */
 	enum class Behavior : uint8_t {
 		None,

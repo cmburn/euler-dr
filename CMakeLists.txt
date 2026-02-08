@@ -29,6 +29,10 @@ if (NOT EULER_DRAGONRUBY_BUILD AND NOT EULER_NATIVE_BUILD)
     endif ()
 endif ()
 
+if (EULER_NATIVE_BUILD)
+    include(cmake/fetch_mruby.cmake)
+endif ()
+
 add_subdirectory(src)
 
 set(BUILD_SHARED_LIBS OFF)
@@ -48,7 +52,7 @@ elseif (EULER_NATIVE_BUILD)
     add_compile_definitions(EULER_NATIVE)
 endif ()
 
-if (EULER_MATH_BUILD)
+if (EULER_MATH_BUILD OR EULER_NATIVE_BUILD)
     set(ARMADILLO_GIT_TAG 15.2.2)
     FetchContent_Declare(armadillo
             GIT_REPOSITORY https://gitlab.com/conradsnicta/armadillo-code.git
@@ -99,15 +103,19 @@ elseif (EULER_NATIVE_BUILD)
     # are certain API changes that Euler depends on that are not in 3.4.0.
     # We'll pin it at the 3.5 minor release and then track stable releases from
     # there.
-    set(MRUBY_VERSION 3.5.0)
-    set(MRUBY_EXTERN_NAME mruby)
-    set(MRUBY_GIT_TAG 2da01c607f6341a18dcd726b46f3e7a4a2c49211)
-    FetchContent_Declare(mruby
+#    set(MRUBY_VERSION 3.5.0)
+#    set(MRUBY_EXTERN_NAME mruby)
+#    set(MRUBY_GIT_TAG 2da01c607f6341a18dcd726b46f3e7a4a2c49211)
+#    FetchContent_Declare(mruby
+#            GIT_REPOSITORY https://github.com/mruby/mruby
+#            GIT_COMMIT ${MRUBY_GIT_TAG}
+#            GIT_SHALLOW TRUE
+#    )
+#    FetchContent_MakeAvailable(mruby)
+    fetch_mruby(mruby
             GIT_REPOSITORY https://github.com/mruby/mruby
-            GIT_COMMIT ${MRUBY_GIT_TAG}
-            GIT_SHALLOW TRUE
+            GIT_TAG 299eebaa23bc045e95f13a04e92a5458b895bf08
     )
-    FetchContent_MakeAvailable(mruby)
 
     set(PHYSFS_GIT_COMMIT d70c3fcf06814f8608c8327d3e8136063ee0133d)
     FetchContent_Declare(physfs

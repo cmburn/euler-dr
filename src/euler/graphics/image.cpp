@@ -9,48 +9,64 @@
 
 using euler::graphics::Image;
 
-const mrb_data_type Image::TYPE = MAKE_REFERENCE_TYPE(euler::graphics::Image);
+// const mrb_data_type Image::TYPE =
+// MAKE_REFERENCE_TYPE(euler::graphics::Image);
 
 static mrb_value
 image_from_file(mrb_state *mrb, const mrb_value)
 {
-	char *path = nullptr;
-	mrb_get_args(mrb, "z", &path);
 	const auto state = euler::util::State::get(mrb);
-	const auto img = Image::from_file(path);
-	if (!img->loaded()) {
-		mrb_raisef(mrb, E_ARGUMENT_ERROR,
+	char *path = nullptr;
+	state->mrb()->get_args("z", &path);
+	auto img = Image::from_file(path);
+	if (!img->is_loaded()) {
+		state->mrb()->raisef(E_ARGUMENT_ERROR,
 		    "Unable to load image from file: %s", path);
 	}
-	return euler::util::wrap(mrb, img, state->module().graphics.image,
-	    &Image::TYPE);
+	// return euler::util::wrap(mrb, img, state->module().graphics.image,
+	//     &Image::TYPE);
+	return state->wrap(img);
 }
 
 static mrb_value
 image_from_buffer(mrb_state *mrb, const mrb_value)
 {
+	const auto state = euler::util::State::get(mrb);
 	const char *ptr = nullptr;
 	mrb_int len = 0;
-	mrb_get_args(mrb, "s", &ptr, &len);
+	state->mrb()->get_args("s", &ptr, &len);
 	const auto buffer = std::span(reinterpret_cast<const std::byte *>(ptr),
 	    static_cast<size_t>(len));
-	const auto state = euler::util::State::get(mrb);
-	const auto img = Image::from_buffer(buffer);
-	return euler::util::wrap(mrb, img, state->module().graphics.image,
-	    &Image::TYPE);
+	auto img = Image::from_buffer(buffer);
+	// return euler::util::wrap(mrb, img, state->module().graphics.image,
+	//     &Image::TYPE);
+	return state->wrap(img);
 }
 
 static mrb_value
 image_create_target(mrb_state *mrb, const mrb_value)
 {
+	const auto state = euler::util::State::get(mrb);
 	mrb_float width = 0.0f;
 	mrb_float height = 0.0f;
-	mrb_get_args(mrb, "ff", &width, &height);
-	const auto state = euler::util::State::get(mrb);
-	const auto img = Image::create_target(static_cast<float>(width),
+	state->mrb()->get_args("ff", &width, &height);
+	auto img = Image::create_target(static_cast<float>(width),
 	    static_cast<float>(height));
-	return euler::util::wrap(mrb, img, state->module().graphics.image,
-	    &Image::TYPE);
+	// return euler::util::wrap(mrb, img, state->module().graphics.image,
+	//     &Image::TYPE);
+	return state->wrap(img);
+}
+
+static float
+read_hash_float(mrb_state *mrb, const mrb_value hash, const mrb_sym key,
+    const float default_value = 0.0f)
+{
+	using namespace euler::util;
+	const auto state = State::get(mrb);
+	const auto sym = mrb_symbol_value(key);
+	const auto value = state->mrb()->hash_get(hash, sym);
+	if (mrb_nil_p(value)) return default_value;
+	return static_cast<float>(state->mrb()->to_flo(value));
 }
 
 static euler::vulkan::Texture::Location
@@ -58,15 +74,16 @@ read_location_args(mrb_state *mrb, const mrb_value hash)
 {
 	using namespace euler::util;
 	using Location = euler::vulkan::Texture::Location;
-	static const auto ORIGIN_SYM = mrb_symbol_value(MRB_SYM(origin));
-	const auto origin = mrb_hash_get(mrb, hash, ORIGIN_SYM);
+	const auto origin_sym = mrb_symbol_value(EULER_SYM(origin));
+	const auto state = State::get(mrb);
+	const auto origin = state->mrb()->hash_get(hash, origin_sym);
 	float origin_x, origin_y;
 	if (mrb_nil_p(origin)) {
 		origin_x = 0.5f;
 		origin_y = 0.5f;
 	} else {
-		origin_x = read_hash_float(mrb, origin, MRB_SYM(x), 0.5f);
-		origin_y = read_hash_float(mrb, origin, MRB_SYM(y), 0.5f);
+		origin_x = read_hash_float(mrb, origin, EULER_SYM(x), 0.5f);
+		origin_y = read_hash_float(mrb, origin, EULER_SYM(y), 0.5f);
 	}
 
 	const auto out = Location {
@@ -74,10 +91,10 @@ read_location_args(mrb_state *mrb, const mrb_value hash)
 			.x = origin_x,
 			.y = origin_y,
 		},
-		.x = read_hash_float(mrb, hash, MRB_SYM(x)),
-		.y = read_hash_float(mrb, hash, MRB_SYM(y)),
-		.width = read_hash_float(mrb, hash, MRB_SYM(width)),
-		.height = read_hash_float(mrb, hash, MRB_SYM(height)),
+		.x = read_hash_float(mrb, hash, EULER_SYM(x)),
+		.y = read_hash_float(mrb, hash, EULER_SYM(y)),
+		.width = read_hash_float(mrb, hash, EULER_SYM(width)),
+		.height = read_hash_float(mrb, hash, EULER_SYM(height)),
 	};
 	return out;
 }
@@ -87,39 +104,41 @@ read_frame_args(mrb_state *mrb, const mrb_value hash)
 {
 	using namespace euler::util;
 	using Frame = euler::vulkan::Texture::Frame;
-	static const auto POSITION_SYM = mrb_symbol_value(MRB_SYM(position));
-	static const auto SHEET_SYM = mrb_symbol_value(MRB_SYM(sheet));
-	static const auto SCALE_SYM = mrb_symbol_value(MRB_SYM(scale));
-	const auto sheet = mrb_hash_get(mrb, hash, SHEET_SYM);
+	const auto state = euler::util::State::get(mrb);
+	const auto position_sym = mrb_symbol_value(EULER_SYM(position));
+	const auto sheet_sym = mrb_symbol_value(EULER_SYM(sheet));
+	const auto scale_sym = mrb_symbol_value(EULER_SYM(scale));
+	const auto sheet = state->mrb()->hash_get(hash, sheet_sym);
 	if (mrb_nil_p(sheet))
-		mrb_raise(mrb, E_ARGUMENT_ERROR, "Missing sheet location");
-	const auto position = mrb_hash_get(mrb, hash, POSITION_SYM);
+		state->mrb()->raise(E_ARGUMENT_ERROR, "Missing sheet location");
+	const auto position = state->mrb()->hash_get(hash, position_sym);
 	if (mrb_nil_p(position))
-		mrb_raise(mrb, E_ARGUMENT_ERROR, "Missing position");
-	const auto scale = mrb_hash_get(mrb, hash, SCALE_SYM);
-	if (mrb_nil_p(scale)) mrb_raise(mrb, E_ARGUMENT_ERROR, "Missing scale");
+		state->mrb()->raise(E_ARGUMENT_ERROR, "Missing position");
+	const auto scale = state->mrb()->hash_get(hash, scale_sym);
+	if (mrb_nil_p(scale))
+		state->mrb()->raise(E_ARGUMENT_ERROR, "Missing scale");
 
 	return Frame {
 		.sheet = read_location_args(mrb, sheet),
 		.position = {
-			.x = read_hash_float(mrb, position, MRB_SYM(x)),
-			.y = read_hash_float(mrb, position, MRB_SYM(y)),
+			.x = read_hash_float(mrb, position, EULER_SYM(x)),
+			.y = read_hash_float(mrb, position, EULER_SYM(y)),
 		},
 		.scale = {
-			.x = read_hash_float(mrb, scale, MRB_SYM(x)),
-			.y = read_hash_float(mrb, scale, MRB_SYM(y)),
+			.x = read_hash_float(mrb, scale, EULER_SYM(x)),
+			.y = read_hash_float(mrb, scale, EULER_SYM(y)),
 		},
-		.theta = read_hash_float(mrb, hash, MRB_SYM(theta), 0.0f),
+		.theta = read_hash_float(mrb, hash, EULER_SYM(theta), 0.0f),
 	};
 }
 
 static mrb_value
 image_display(mrb_state *mrb, const mrb_value self_value)
 {
-	const auto self
-	    = euler::util::unwrap<Image>(mrb, self_value, &Image::TYPE);
+	const auto state = euler::util::State::get(mrb);
+	const auto self = state->unwrap<Image>(self_value);
 	mrb_value hash;
-	mrb_get_args(mrb, "H", &hash);
+	state->mrb()->get_args("H", &hash);
 	const auto frame = read_frame_args(mrb, hash);
 	self->display(frame);
 	return mrb_nil_value();
@@ -128,46 +147,47 @@ image_display(mrb_state *mrb, const mrb_value self_value)
 static mrb_value
 image_is_target(mrb_state *mrb, const mrb_value self_value)
 {
-	const auto self
-	    = euler::util::unwrap<Image>(mrb, self_value, &Image::TYPE);
+	const auto state = euler::util::State::get(mrb);
+	const auto self = state->unwrap<Image>(self_value);
 	return mrb_bool_value(self->is_target());
 }
 
 static mrb_value
 image_width(mrb_state *mrb, const mrb_value self_value)
 {
-	const auto self
-	    = euler::util::unwrap<Image>(mrb, self_value, &Image::TYPE);
-	return mrb_float_value(mrb, self->width());
+	const auto state = euler::util::State::get(mrb);
+	const auto self = state->unwrap<Image>(self_value);
+	return state->mrb()->float_value(self->width());
 }
 
 static mrb_value
 image_height(mrb_state *mrb, const mrb_value self_value)
 {
-	const auto self
-	    = euler::util::unwrap<Image>(mrb, self_value, &Image::TYPE);
-	return mrb_float_value(mrb, self->height());
+	const auto state = euler::util::State::get(mrb);
+	const auto self = state->unwrap<Image>(self_value);
+	return state->mrb()->float_value(self->height());
 }
 
-void
-Image::init(mrb_state *mrb, util::State::Modules &mod)
+RClass *
+Image::init(const euler::util::Reference<euler::util::State> &state,
+    RClass *mod, RClass *super)
 {
-	mod.graphics.image = mrb_define_class_under(mrb, mod.graphics.module,
-	    "Image", mrb->object_class);
-	const auto image = mod.graphics.image;
-	MRB_SET_INSTANCE_TT(image, MRB_TT_CDATA);
-	mrb_define_class_method(mrb, image, "from_file", image_from_file,
+	auto cls = state->mrb()->define_class_under(mod, "Image", super);
+	MRB_SET_INSTANCE_TT(cls, MRB_TT_DATA);
+	state->mrb()->define_class_method(cls, "from_file", image_from_file,
 	    MRB_ARGS_REQ(1));
-	mrb_define_class_method(mrb, image, "from_buffer", image_from_buffer,
+	state->mrb()->define_class_method(cls, "from_buffer", image_from_buffer,
 	    MRB_ARGS_REQ(1));
-	mrb_define_class_method(mrb, image, "create_target",
+	state->mrb()->define_class_method(cls, "create_target",
 	    image_create_target, MRB_ARGS_REQ(2));
-	mrb_define_method(mrb, image, "display", image_display,
+	state->mrb()->define_method(cls, "display", image_display,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, image, "target?", image_is_target,
+	state->mrb()->define_method(cls, "target?", image_is_target,
 	    MRB_ARGS_NONE());
-	mrb_define_method(mrb, image, "width", image_width, MRB_ARGS_NONE());
-	mrb_define_method(mrb, image, "height", image_height, MRB_ARGS_NONE());
+	state->mrb()->define_method(cls, "width", image_width, MRB_ARGS_NONE());
+	state->mrb()->define_method(cls, "height", image_height,
+	    MRB_ARGS_NONE());
+	return cls;
 }
 
 euler::util::Reference<Image>
