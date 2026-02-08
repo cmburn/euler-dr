@@ -67,15 +67,16 @@ std::tuple<size_type, size_type, size_type> size_dims(
 mrb_value make_size(const util::Reference<util::State> &state, size_type rows,
     size_type cols = 0, size_type slices = 0);
 
-template <typename T> class VectorImpl final : public Vector {
+template <typename T, size_type Rows = dynamic_size>
+class VectorImpl final : public Vector {
 public:
 	typedef T elem_type;
 	typedef arma::Col<T> vector_type;
 	typedef detail::pod_type_t<T> pod_type;
 	typedef arma::Col<pod_type> pod_vector_type;
 	friend class Size;
-	template <typename U> friend class VectorImpl;
-	template <typename U> friend class MatrixImpl;
+	template <typename , size_type> friend class VectorImpl;
+	template <typename , size_type, size_type > friend class MatrixImpl;
 
 	VectorImpl(const vector_type &vec);
 

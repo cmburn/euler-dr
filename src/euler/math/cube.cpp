@@ -9,7 +9,6 @@ using namespace euler::math;
 static mrb_value
 cube_at(mrb_state *mrb, mrb_value self)
 {
-
 	auto state = euler::util::State::get(mrb);
 	auto cube = state->unwrap<Cube>(self);
 	return cube->at(state);
@@ -29,9 +28,9 @@ cube_at(mrb_state *mrb, mrb_value self)
  *   @param s [Integer] The slice index.
  *   @return [Numeric] The value stored at index `i`.
  */
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::at(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::at(const util::Reference<util::State> &state)
 {
 	const auto mrb = state->mrb();
 	switch (const auto argc = mrb->get_argc()) {
@@ -48,7 +47,7 @@ CubeImpl<T>::at(const util::Reference<util::State> &state)
 		mrb->get_args("o", &index_val);
 		auto index = unwrap_num<size_type>(state, index_val);
 		auto value = _cube(index);
-		return wrap_num<T>(state, value);
+		return wrap_num<T, Rows, Cols, Slices>(state, value);
 	}
 	default:
 		throw util::make_error<util::ArgumentError>(state,
@@ -73,9 +72,9 @@ CubeImpl<T>::at(const util::Reference<util::State> &state)
  *   @param value [Numeric] The new value.
  *   @return [void]
  */
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::set_at(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::set_at(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	auto argc = mrb->get_argc();
@@ -86,7 +85,7 @@ CubeImpl<T>::set_at(const util::Reference<util::State> &state)
 		auto r = unwrap_num<size_type>(state, rval);
 		auto c = unwrap_num<size_type>(state, cval);
 		auto s = unwrap_num<size_type>(state, sval);
-		auto value = unwrap_num<T>(state, value_val);
+		auto value = unwrap_num<T, Rows, Cols, Slices>(state, value_val);
 		_cube(r, c, s) = value;
 		return mrb_nil_value();
 	}
@@ -94,7 +93,7 @@ CubeImpl<T>::set_at(const util::Reference<util::State> &state)
 		mrb_value index_val, value_val;
 		mrb->get_args("oo", &index_val, &value_val);
 		auto index = unwrap_num<size_type>(state, index_val);
-		auto value = unwrap_num<T>(state, value_val);
+		auto value = unwrap_num<T, Rows, Cols, Slices>(state, value_val);
 		_cube(index) = value;
 		return mrb_nil_value();
 	}
@@ -112,15 +111,15 @@ CubeImpl<T>::set_at(const util::Reference<util::State> &state)
  *   @param max [Numeric] The maximum value.
  *   @return [void]
  */
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::clamp(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::clamp(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value min_val, max_val;
 	mrb->get_args("oo", &min_val, &max_val);
-	auto min = unwrap_num<T>(state, min_val);
-	auto max = unwrap_num<T>(state, max_val);
+	auto min = unwrap_num<T, Rows, Cols, Slices>(state, min_val);
+	auto max = unwrap_num<T, Rows, Cols, Slices>(state, max_val);
 	_cube.clamp(min, max);
 	return mrb_nil_value();
 }
@@ -132,9 +131,9 @@ CubeImpl<T>::clamp(const util::Reference<util::State> &state)
  *   @param threshold [Numeric] The threshold value.
  *   @return [void]
  */
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::clean(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::clean(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value threshold_val;
@@ -150,9 +149,9 @@ CubeImpl<T>::clean(const util::Reference<util::State> &state)
  *   @param other [Euler::Math::Cube] The other cube.
  *   @return [void]
  */
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::copy_size(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::copy_size(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value other_val;
@@ -161,279 +160,279 @@ CubeImpl<T>::copy_size(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::map(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::map(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::has_infinity(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::has_infinity(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::has_nan(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::has_nan(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::imaginary(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::imaginary(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::in_range(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::in_range(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::index_max(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::index_max(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::index_min(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::index_min(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::is_complex(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::is_complex(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::is_empty(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::is_empty(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::is_finite(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::is_finite(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::is_zero(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::is_zero(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::max(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::max(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::min(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::min(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::real(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::real(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::replace(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::replace(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::reset(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::reset(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::resize(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::resize(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::set_imaginary(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::set_imaginary(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::set_real(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::set_real(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::set_size(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::set_size(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::size(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::size(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::to_string(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::to_string(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::transform(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::transform(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::columns(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::columns(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::rows(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::rows(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::slices(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::slices(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::column(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::column(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::row(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::row(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::slice(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::slice(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::column_to_matrix(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::column_to_matrix(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::each_slice(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::each_slice(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::fill(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::fill(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::imbue(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::imbue(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::insert_columns(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::insert_columns(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::insert_rows(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::insert_rows(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::insert_slices(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::insert_slices(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::ones(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::ones(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::randn(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::randn(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::randu(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::randu(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::reshape(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::reshape(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::row_to_matrix(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::row_to_matrix(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::shed_columns(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::shed_columns(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::shed_rows(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::shed_rows(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::shed_slices(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::shed_slices(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::swap(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::swap(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T>::zeros(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::zeros(const util::Reference<util::State> &state)
 {
 }
 

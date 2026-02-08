@@ -119,7 +119,9 @@ public:
 	virtual mrb_value ge(const util::Reference<util::State> &state) = 0;
 };
 
-template <typename T> class MatrixImpl final : public Matrix {
+template <typename T, size_type Rows = dynamic_size,
+    size_type Cols = dynamic_size>
+class MatrixImpl final : public Matrix {
 public:
 	typedef T elem_type;
 	typedef arma::Mat<T> matrix_type;

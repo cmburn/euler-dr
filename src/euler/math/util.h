@@ -398,6 +398,24 @@ std::array<size_type, 2> unwrap_size_matrix(
 std::array<size_type, 3> unwrap_size_cube(
     const util::Reference<util::State> &state, mrb_value arg);
 
+// can either be dynamic, or all fixed
+static constexpr bool
+are_compatible_sizes(size_type rows, size_type cols, size_type slices)
+{
+	return (rows == dynamic_size && cols == dynamic_size
+		   && slices == dynamic_size)
+	    || (rows != dynamic_size && cols != dynamic_size
+		&& slices != dynamic_size);
+}
+
+
+static constexpr bool
+are_compatible_sizes(size_type rows, size_type cols)
+{
+	return (rows == dynamic_size && cols == dynamic_size)
+	    || (rows != dynamic_size && cols != dynamic_size);
+}
+
 // template <size_type N>
 // std::array<size_type, N>
 // unwrap_size(const util::Reference<util::State> &state, const mrb_value arg)

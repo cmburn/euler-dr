@@ -22,6 +22,7 @@ namespace euler::util {
 class RubyState : public Object {
 public:
 	virtual mrb_state *mrb() const = 0;
+	virtual void raise_on_error() = 0;
 	[[noreturn]] virtual void raise(RClass *c, const char *msg) = 0;
 	[[noreturn]] virtual void raisef(RClass *c, const char *fmt, ...) = 0;
 	virtual RClass *module_get(const char *name) = 0;

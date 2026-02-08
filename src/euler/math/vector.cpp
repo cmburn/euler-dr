@@ -6,9 +6,9 @@
 
 using namespace euler::math;
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::at(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::at(const util::Reference<util::State> &state)
 {
 	mrb_int index = 0;
 	state->mrb()->get_args("i", &index);
@@ -17,9 +17,9 @@ VectorImpl<T>::at(const util::Reference<util::State> &state)
 	return wrap_num(state->mrb(), value);
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::set_at(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::set_at(const util::Reference<util::State> &state)
 {
 	mrb_int index = 0;
 	mrb_value value;
@@ -30,9 +30,9 @@ VectorImpl<T>::set_at(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::clamp(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::clamp(const util::Reference<util::State> &state)
 {
 	mrb_value min_value, max_value;
 	state->mrb()->get_args("oo", &min_value, &max_value);
@@ -42,9 +42,9 @@ VectorImpl<T>::clamp(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::clean(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::clean(const util::Reference<util::State> &state)
 {
 	mrb_value value;
 	state->mrb()->get_args("o", &value);
@@ -53,9 +53,9 @@ VectorImpl<T>::clean(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::copy_size(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::copy_size(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value arg;
@@ -68,9 +68,9 @@ VectorImpl<T>::copy_size(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::map(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::map(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value blk;
@@ -84,32 +84,32 @@ VectorImpl<T>::map(const util::Reference<util::State> &state)
 	return arr;
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::has_infinity(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::has_infinity(const util::Reference<util::State> &state)
 {
 	return mrb_bool_value(_vector.has_inf());
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::has_nan(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::has_nan(const util::Reference<util::State> &state)
 {
 	return mrb_bool_value(_vector.has_nan());
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::imaginary(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::imaginary(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	pod_vector_type imag = arma::imag(_vector);
 	return wrap_vector<pod_type>(state, imag);
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::in_range(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::in_range(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value value;
@@ -122,85 +122,85 @@ VectorImpl<T>::in_range(const util::Reference<util::State> &state)
 	return mrb_bool_value(result);
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::index_max(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::index_max(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	const auto index = _vector.index_max();
 	return mrb->int_value(static_cast<mrb_int>(index));
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::index_min(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::index_min(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	const auto index = _vector.index_min();
 	return mrb->int_value(static_cast<mrb_int>(index));
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::is_complex(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::is_complex(const util::Reference<util::State> &state)
 {
 	static constexpr bool result = math::is_complex<T>();
 	return mrb_bool_value(result);
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::is_empty(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::is_empty(const util::Reference<util::State> &state)
 {
 	const bool result = _vector.is_empty();
 	return mrb_bool_value(result);
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::is_finite(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::is_finite(const util::Reference<util::State> &state)
 {
 	const bool result = _vector.is_finite();
 	return mrb_bool_value(result);
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::is_zero(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::is_zero(const util::Reference<util::State> &state)
 {
 	const bool result = _vector.is_zero();
 	return mrb_bool_value(result);
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::max(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::max(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	const auto value = _vector.max();
 	return wrap_num(mrb, value);
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::min(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::min(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	const auto value = _vector.min();
 	return wrap_num(mrb, value);
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::real(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::real(const util::Reference<util::State> &state)
 {
 	pod_vector_type real = arma::real(_vector);
 	return wrap_vector<pod_type>(state, real);
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::replace(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::replace(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value old_value, new_value;
@@ -211,17 +211,17 @@ VectorImpl<T>::replace(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::reset(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::reset(const util::Reference<util::State> &state)
 {
 	_vector.reset();
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::resize(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::resize(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value arg;
@@ -231,9 +231,9 @@ VectorImpl<T>::resize(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::set_imaginary(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::set_imaginary(const util::Reference<util::State> &state)
 {
 	if (!math::is_complex<T>()) {
 		throw std::runtime_error(
@@ -251,9 +251,9 @@ VectorImpl<T>::set_imaginary(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::set_real(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::set_real(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value arg;
@@ -271,23 +271,23 @@ VectorImpl<T>::set_real(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::set_size(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::set_size(const util::Reference<util::State> &state)
 {
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::size(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::size(const util::Reference<util::State> &state)
 {
 	return make_size(state, n_rows());
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::to_string(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::to_string(const util::Reference<util::State> &state)
 {
 	const auto mrb = state->mrb();
 	std::stringstream ss;
@@ -295,9 +295,9 @@ VectorImpl<T>::to_string(const util::Reference<util::State> &state)
 	return mrb->str_new_cstr(ss.str().c_str());
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::transform(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::transform(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value blk;
@@ -314,9 +314,9 @@ VectorImpl<T>::transform(const util::Reference<util::State> &state)
 	return arr;
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::rows(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::rows(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value arr = mrb->ary_new_capa(_vector.n_rows);
@@ -328,9 +328,9 @@ VectorImpl<T>::rows(const util::Reference<util::State> &state)
 	return arr;
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::row(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::row(const util::Reference<util::State> &state)
 {
 	mrb_int index = 0;
 	state->mrb()->get_args("i", &index);
@@ -339,9 +339,9 @@ VectorImpl<T>::row(const util::Reference<util::State> &state)
 	return wrap_vector(state, row_vec);
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::fill(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::fill(const util::Reference<util::State> &state)
 {
 	mrb_value arg;
 	state->mrb()->get_args("o", &arg);
@@ -350,9 +350,9 @@ VectorImpl<T>::fill(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::imbue(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::imbue(const util::Reference<util::State> &state)
 {
 	mrb_value blk;
 	state->mrb()->get_args("&!", &blk);
@@ -364,16 +364,16 @@ VectorImpl<T>::imbue(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::is_sorted(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::is_sorted(const util::Reference<util::State> &state)
 {
 	return mrb_bool_value(_vector.is_sorted());
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::ones(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::ones(const util::Reference<util::State> &state)
 {
 	mrb_value arg;
 	state->mrb()->get_args("o", &arg);
@@ -386,9 +386,9 @@ VectorImpl<T>::ones(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::randn(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::randn(const util::Reference<util::State> &state)
 {
 	mrb_value arg;
 	state->mrb()->get_args("o", &arg);
@@ -401,9 +401,9 @@ VectorImpl<T>::randn(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::randu(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::randu(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value arg;
@@ -416,9 +416,9 @@ VectorImpl<T>::randu(const util::Reference<util::State> &state)
 	}
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::shed_rows(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::shed_rows(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value arg1, arg2;
@@ -446,17 +446,17 @@ VectorImpl<T>::shed_rows(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::simple_transpose(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::simple_transpose(const util::Reference<util::State> &state)
 {
 	vector_type transposed = _vector.st();
 	return wrap_vector(state, transposed);
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::swap(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::swap(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value other;
@@ -469,14 +469,14 @@ VectorImpl<T>::swap(const util::Reference<util::State> &state)
 		throw std::invalid_argument(
 		    "argument must be a Vector of the same type");
 	}
-	auto vec = other_vec.cast_to<VectorImpl<T>>();
+	auto vec = other_vec.cast_to<VectorImpl<T, Rows>>();
 	_vector.swap(vec->_vector);
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::swap_cols(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::swap_cols(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value src, dst;
@@ -488,9 +488,9 @@ VectorImpl<T>::swap_cols(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::swap_rows(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::swap_rows(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value src, dst;
@@ -502,17 +502,17 @@ VectorImpl<T>::swap_rows(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::transpose(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::transpose(const util::Reference<util::State> &state)
 {
 	auto transposed = _vector.t();
 	return wrap_vector(state, transposed);
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::zeros(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::zeros(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value arg;
@@ -526,9 +526,9 @@ VectorImpl<T>::zeros(const util::Reference<util::State> &state)
 	return mrb_nil_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::add(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::add(const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value arg;
@@ -543,95 +543,95 @@ VectorImpl<T>::add(const util::Reference<util::State> &state)
 	return out;
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::sub(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::sub(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::matmul(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::matmul(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::mul(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::mul(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::div(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::div(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::eq(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::eq(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::ne(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::ne(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::lt(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::lt(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::le(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::le(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::gt(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::gt(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::ge(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::ge(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::is_size(const util::Reference<util::State> &) const
+VectorImpl<T, Rows>::is_size(const util::Reference<util::State> &) const
 {
 	return mrb_false_value();
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 bool
-VectorImpl<T>::is_size() const
+VectorImpl<T, Rows>::is_size() const
 {
 	return false;
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 size_type
-VectorImpl<T>::n_rows() const
+VectorImpl<T, Rows>::n_rows() const
 {
 	return _vector.n_rows;
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::insert_columns(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::insert_columns(const util::Reference<util::State> &state)
 {
 }
 
-template <typename T>
+template <typename T, size_type Rows>
 mrb_value
-VectorImpl<T>::insert_rows(const util::Reference<util::State> &state)
+VectorImpl<T, Rows>::insert_rows(const util::Reference<util::State> &state)
 {
 }

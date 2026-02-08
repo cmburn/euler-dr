@@ -61,7 +61,9 @@ public:
 	virtual mrb_value zeros(const util::Reference<util::State> &state) = 0;
 };
 
-template <typename T> class CubeImpl final : Cube {
+template <typename T, size_type Rows = dynamic_size,
+    size_type Cols = dynamic_size, size_type Slices = dynamic_size>
+class CubeImpl final : Cube {
 public:
 	typedef T elem_type;
 	typedef arma::Cube<T> cube_type;
@@ -73,6 +75,7 @@ public:
 	{
 		return _cube;
 	}
+
 	const cube_type &
 	value() const
 	{
@@ -84,6 +87,7 @@ public:
 	{
 		return nonscalar_value_type_v<T>;
 	}
+
 	size_type
 	n_slices() const override
 	{
