@@ -53,6 +53,16 @@ endif ()
 
 target_link_libraries(euler_app PUBLIC
         euler_util
-        euler_math
-        # euler_physics
 )
+
+if (EULER_MATH_BUILD)
+    target_link_libraries(euler_app PUBLIC
+            euler_math
+    )
+endif ()
+
+if (EULER_PHYSICS_BUILD)
+    target_link_libraries(euler_app PUBLIC
+            euler_physics
+    )
+endif ()

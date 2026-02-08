@@ -50,25 +50,6 @@ elseif (EULER_NATIVE_BUILD)
     add_compile_definitions(EULER_NATIVE)
 endif ()
 
-if (EULER_NET_BUILD)
-    set(GNS_COMMIT 517fff0cf6866ba163f4f016b0ef28f365c06c05)
-    FetchContent_Declare(GameNetworkingSockets
-            GIT_REPOSITORY https://github.com/ValveSoftware/GameNetworkingSockets
-            GIT_COMMIT ${GNS_COMMIT}
-            GIT_SHALLOW TRUE
-    )
-endif ()
-
-if (EULER_FILE_BUILD)
-    set(GLAZE_GIT_TAG v6.4.0)
-    FetchContent_Declare(glaze
-            GIT_REPOSITORY https://github.com/stephenberry/glaze
-            GIT_TAG ${GLAZE_GIT_TAG}
-            GIT_SHALLOW TRUE
-    )
-    FetchContent_MakeAvailable(glaze)
-endif ()
-
 if (EULER_MATH_BUILD)
     set(ARMADILLO_GIT_TAG 15.2.2)
     FetchContent_Declare(armadillo
@@ -130,10 +111,11 @@ elseif (EULER_NATIVE_BUILD)
     )
     FetchContent_MakeAvailable(mruby)
 
-    set(PHYSFS_GIT_TAG release-3.2.0)
+    set(PHYSFS_GIT_COMMIT d70c3fcf06814f8608c8327d3e8136063ee0133d)
     FetchContent_Declare(physfs
             GIT_REPOSITORY https://github.com/icculus/physfs/
-            GIT_TAG ${PHYSFS_GIT_TAG}
+            GIT_COMMIT ${PHYSFS_GIT_COMMIT}
+            GIT_TAG main
             GIT_SHALLOW TRUE
     )
     FetchContent_MakeAvailable(physfs)

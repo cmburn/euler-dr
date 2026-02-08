@@ -2264,13 +2264,6 @@ RubyState::str_to_dbl(const mrb_value str, const mrb_bool badcheck)
 	return _api.mrb_str_to_dbl(_mrb, str, badcheck);
 }
 
-mrb_value
-RubyState::str_to_inum(const mrb_value str, const mrb_int base,
-    const mrb_bool badcheck)
-{
-	return _api.mrb_str_to_inum(_mrb, str, base, badcheck);
-}
-
 const char *
 RubyState::string_cstr(const mrb_value str)
 {

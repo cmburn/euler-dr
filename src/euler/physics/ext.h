@@ -5,7 +5,7 @@
 
 #include <variant>
 
-#include <box2d/collision.h>
+
 
 #include "euler/util/object.h"
 
