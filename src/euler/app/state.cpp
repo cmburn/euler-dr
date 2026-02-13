@@ -46,6 +46,7 @@ State::initialize()
 #endif
 	auto app_mod = mrb()->define_module_under(mod, "App");
 	mrb()->define_class_under(app_mod, "State", object_class());
+	return true;
 }
 
 euler::util::State::tick_t

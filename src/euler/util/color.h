@@ -7,7 +7,9 @@
 #include <cstdint>
 
 
+#ifdef EULER_NATIVE
 #include <SDL3/SDL_pixels.h>
+#endif
 
 #include "euler/util/object.h"
 #include "euler/util/state.h"
@@ -22,6 +24,7 @@ public:
 	// static void init(mrb_state *mrb, State::Modules &mod);
 	static Color read(mrb_state *mrb, mrb_value value);
 
+#ifdef EULER_NATIVE
 	explicit constexpr Color(const SDL_Color color)
 	    : _red(color.r)
 	    , _green(color.g)
@@ -29,6 +32,7 @@ public:
 	    , _alpha(color.a)
 	{
 	}
+#endif
 
 	explicit constexpr Color(const uint32_t color = 0)
 	    : _red((color >> 24) & 0xFF)
@@ -39,7 +43,7 @@ public:
 	}
 
 	constexpr Color(const uint8_t red, const uint8_t green,
-	    const uint8_t blue, const uint8_t alpha = SDL_ALPHA_OPAQUE)
+	    const uint8_t blue, const uint8_t alpha = 255)
 	    : _red(red)
 	    , _green(green)
 	    , _blue(blue)
@@ -71,11 +75,13 @@ public:
 		return _alpha;
 	}
 
+#ifdef EULER_NATIVE
 	[[nodiscard]] SDL_Color
 	to_sdl() const
 	{
 		return SDL_Color { _red, _green, _blue, _alpha };
 	}
+#endif
 
 	[[nodiscard]] uint32_t
 	to_uint32() const

@@ -418,6 +418,7 @@ public:
 	RClass *not_implemented_error() override;
 	RClass *key_error() override;
 	RClass *float_domain_error() override;
+	bool block_given_p() override;
 
 private:
 	util::WeakReference<State> _state;

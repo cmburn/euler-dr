@@ -58,6 +58,7 @@ RubyState::class_get_under(RClass *outer, const char *name)
 {
 	return _api.mrb_class_get_under(_mrb, outer, name);
 }
+
 mrb_bool
 RubyState::class_ptr_p(const mrb_value obj)
 {
@@ -956,9 +957,8 @@ RubyState::get_args_a(mrb_args_format format, void **ptr)
 			if (!reqkarg) reqkarg = strchr(fmt, ':') ? TRUE : FALSE;
 			goto check_exit;
 		case '!': break;
-		case ':':
-			reqkarg = TRUE;
-			/* fall through */
+		case ':': reqkarg = TRUE;
+		/* fall through */
 		case '&':
 		case '?':
 			if (opt) opt_skip = FALSE;
@@ -1960,33 +1960,33 @@ RubyState::parser_set_filename(mrb_parser_state *p, const char *str)
 }
 
 #if 0
-void *
-RubyState::pool_alloc(mrb_pool *pool, const size_t len)
+void*
+RubyState::pool_alloc(mrb_pool* pool, const size_t len)
 {
 	return _api.mrb_pool_alloc(pool, len);
 }
 
 mrb_bool
-RubyState::pool_can_realloc(mrb_pool *pool, void *ptr, const size_t len)
+RubyState::pool_can_realloc(mrb_pool* pool, void* ptr, const size_t len)
 {
 	return _api.mrb_pool_can_realloc(pool, ptr, len);
 }
 
 void
-RubyState::pool_close(mrb_pool *poo)
+RubyState::pool_close(mrb_pool* poo)
 {
 	return _api.mrb_pool_close(poo);
 }
 
-mrb_pool *
+mrb_pool*
 RubyState::pool_open()
 {
 	return _api.mrb_pool_open(_mrb);
 }
 
-void *
-RubyState::pool_realloc(mrb_pool *pool, void *ptr, const size_t oldlen,
-    const size_t newlen)
+void*
+RubyState::pool_realloc(mrb_pool* pool, void* ptr, const size_t oldlen,
+                        const size_t newlen)
 {
 	return _api.mrb_pool_realloc(pool, ptr, oldlen, newlen);
 }
@@ -2684,4 +2684,82 @@ RClass *
 RubyState::float_domain_error()
 {
 	return exc_get_id(intern_cstr("FloatDomainError"));
+}
+
+static int
+env_bidx(struct REnv *e)
+{
+	int bidx;
+
+	/* use saved block arg position */
+	bidx = MRB_ENV_BIDX(e);
+	/* bidx may be useless (e.g. define_method) */
+	if (bidx >= MRB_ENV_LEN(e)) return -1;
+	return bidx;
+}
+
+static mrb_value
+mrb_f_block_given_p_m(mrb_state *mrb, mrb_value)
+{
+	mrb_callinfo *ci = &mrb->c->ci[-1];
+	mrb_callinfo *cibase = mrb->c->cibase;
+	mrb_value *bp;
+	int bidx;
+	struct REnv *e = NULL;
+	const struct RProc *p;
+
+	if (ci <= cibase) {
+		/* toplevel does not have block */
+		return mrb_false_value();
+	}
+	p = ci->proc;
+	/* search method/class/module proc */
+	while (p) {
+		if (MRB_PROC_SCOPE_P(p)) break;
+		e = MRB_PROC_ENV(p);
+		p = p->upper;
+	}
+	if (p == NULL) return mrb_false_value();
+	if (e) {
+		bidx = env_bidx(e);
+		if (bidx < 0) return mrb_false_value();
+		bp = &e->stack[bidx];
+		goto block_given;
+	}
+	/* search ci corresponding to proc */
+	while (cibase < ci) {
+		if (ci->proc == p) break;
+		ci--;
+	}
+	if (ci == cibase) {
+		/* proc is closure */
+		if (!MRB_PROC_ENV_P(p)) return mrb_false_value();
+		e = MRB_PROC_ENV(p);
+		bidx = env_bidx(e);
+		if (bidx < 0) return mrb_false_value();
+		bp = &e->stack[bidx];
+	} else if ((e = mrb_vm_ci_env(ci)) != NULL) {
+		/* top-level does not have block slot (always false) */
+		if (e->stack == mrb->c->stbase) return mrb_false_value();
+		bidx = env_bidx(e);
+		/* bidx may be useless (e.g. define_method) */
+		if (bidx < 0) return mrb_false_value();
+		bp = &e->stack[bidx];
+	} else {
+		bp = ci->stack + 1;
+		if (ci->argc >= 0) {
+			bp += ci->argc;
+		} else {
+			bp++;
+		}
+	}
+block_given:
+	if (mrb_nil_p(*bp)) return mrb_false_value();
+	return mrb_true_value();
+}
+
+bool
+RubyState::block_given_p()
+{
+	return mrb_bool(mrb_f_block_given_p_m(_mrb, mrb_nil_value()));
 }
