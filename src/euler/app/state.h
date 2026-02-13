@@ -14,6 +14,7 @@
 #define EULER_APP_NAMESPACE euler::app::dragonruby
 #elif defined(EULER_NATIVE)
 #include "euler/app/native/state.h"
+#define EULER_APP_NAMESPACE euler::app::native
 #else
 #error "No app backend defined"
 #endif
@@ -27,14 +28,25 @@ public:
 	explicit State(const Arguments &args);
 	[[nodiscard]] nthread_t available_threads() const override;
 	[[nodiscard]] mrb_value gv_state() const override;
-	void initialize() override;
+	bool initialize() override;
 	[[nodiscard]] tick_t last_tick() const override;
 	[[nodiscard]] float fps() const override;
 	[[nodiscard]] tick_t total_ticks() const override;
 	void tick() const override;
 	[[nodiscard]] RClass *object_class() const override;
 	void *unwrap(mrb_value value, const mrb_data_type *type) const override;
-	// void update(float dt);
+
+	[[nodiscard]] const Modules &
+	modules() const override
+	{
+		return _modules;
+	}
+
+	[[nodiscard]] Modules &
+	modules() override
+	{
+		return _modules;
+	}
 
 private:
 #ifdef EULER_PHYSICS
@@ -49,6 +61,7 @@ private:
 	tick_t _frames = 0;
 	tick_t _last_frame_tick = 0;
 	tick_t _last_frame_total_ticks = 0;
+	Modules _modules = {};
 };
 } /* namespace euler::app */
 

@@ -14,10 +14,9 @@ class Window;
 
 /* Equivalent to nk_window */
 class Widget final : public util::Object {
+	BIND_MRUBY("Euler::Gui::Widget", Widget, gui.widget);
 public:
-	static const mrb_data_type TYPE;
 	using ID = uint64_t;
-	static void init(mrb_state *mrb, util::State::Modules &mod);
 	~Widget() override;
 
 	void release();

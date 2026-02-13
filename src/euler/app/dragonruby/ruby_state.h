@@ -400,6 +400,24 @@ public:
 	[[nodiscard]] util::Reference<State> state() const;
 	mrb_state *mrb() const override;
 	void raise_on_error() override;
+	RClass *error() override;
+	RClass *standard_error() override;
+	RClass *runtime_error() override;
+	RClass *type_error() override;
+	RClass *zero_division_error() override;
+	RClass *argument_error() override;
+	RClass *index_error() override;
+	RClass *range_error() override;
+	RClass *name_error() override;
+	RClass *no_method_error() override;
+	RClass *script_error() override;
+	RClass *syntax_error() override;
+	RClass *local_jump_error() override;
+	RClass *regexp_error() override;
+	RClass *frozen_error() override;
+	RClass *not_implemented_error() override;
+	RClass *key_error() override;
+	RClass *float_domain_error() override;
 
 private:
 	util::WeakReference<State> _state;

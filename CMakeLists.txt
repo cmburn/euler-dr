@@ -10,6 +10,8 @@ option(EULER_MATH_BUILD "Build Euler::Math module" OFF)
 option(EULER_PHYSICS_BUILD "Build Euler::Physics module" ON)
 option(EULER_DRAGONRUBY_PATH "Path to DragonRuby installation" "")
 option(EULER_GUI_BUILD "Build Euler::GUI module" ON)
+option(EULER_GRAPHICS_BUILD "Build Euler::Graphics module" ON)
+option(EULER_EVENT_BUILD "Build Euler::Event module" ON)
 option(BUILD_TESTS "Build tests" OFF)
 
 include(ExternalProject)

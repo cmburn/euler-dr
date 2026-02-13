@@ -1372,18 +1372,6 @@ RubyState::mt_foreach(RClass *cls, mrb_mt_foreach_func *fn, void *ctx)
 	WRAP_CALL(mrb_mt_foreach(_mrb, cls, fn, ctx));
 }
 
-/*485:mrb_name_error(mrb_state *mrb, mrb_sym id, const char *fmt, ...)
-486-{
-487-  va_list ap;
-488-
-489-  va_start(ap, fmt);
-490-
-491-  mrb_value exc = error_va(mrb, E_NAME_ERROR, fmt, ap);
-492-  va_end(ap);
-493-  mrb_iv_set(mrb, exc, MRB_IVSYM(name), mrb_symbol_value(id));
-494-  mrb_exc_raise(mrb, exc);
-495-}
-*/
 void
 RubyState::name_error(const mrb_sym id, const char *fmt, ...)
 {
@@ -2114,6 +2102,121 @@ void
 RubyState::write_barrier(RBasic *rb)
 {
 	WRAP_CALL(mrb_write_barrier(_mrb, rb));
+}
+void
+RubyState::raise_on_error()
+{
+}
+RClass *
+RubyState::error()
+{
+	return _mrb->eException_class;
+}
+RClass *
+RubyState::standard_error()
+{
+	return _mrb->eStandardError_class;
+}
+RClass *
+RubyState::runtime_error()
+{
+	const auto mrb = _mrb;
+	return E_RUNTIME_ERROR;
+}
+RClass *
+RubyState::type_error()
+{
+	const auto mrb = _mrb;
+	return E_TYPE_ERROR;
+}
+RClass *
+RubyState::zero_division_error()
+{
+	const auto mrb = _mrb;
+	return E_ZERODIV_ERROR;
+}
+RClass *
+RubyState::argument_error()
+{
+	const auto mrb = _mrb;
+	return E_ARGUMENT_ERROR;
+}
+RClass *
+RubyState::index_error()
+{
+	const auto mrb = _mrb;
+	return E_INDEX_ERROR;
+}
+RClass *
+RubyState::range_error()
+{
+	const auto mrb = _mrb;
+	return E_RANGE_ERROR;
+}
+RClass *
+RubyState::name_error()
+{
+	const auto mrb = _mrb;
+	return E_NAME_ERROR;
+}
+RClass *
+RubyState::no_method_error()
+{
+	const auto mrb = _mrb;
+	return E_NOMETHOD_ERROR;
+}
+RClass *
+RubyState::script_error()
+{
+	const auto mrb = _mrb;
+	return E_SCRIPT_ERROR;
+}
+RClass *
+RubyState::syntax_error()
+{
+	const auto mrb = _mrb;
+	return E_SYNTAX_ERROR;
+}
+RClass *
+RubyState::local_jump_error()
+{
+	const auto mrb = _mrb;
+	return E_LOCALJUMP_ERROR;
+}
+RClass *
+RubyState::regexp_error()
+{
+	const auto mrb = _mrb;
+	return E_REGEXP_ERROR;
+}
+RClass *
+RubyState::frozen_error()
+{
+	const auto mrb = _mrb;
+	return E_FROZEN_ERROR;
+}
+RClass *
+RubyState::not_implemented_error()
+{
+	const auto mrb = _mrb;
+	return E_NOTIMP_ERROR;
+}
+RClass *
+RubyState::key_error()
+{
+	const auto mrb = _mrb;
+	return E_KEY_ERROR;
+}
+RClass *
+RubyState::float_domain_error()
+{
+	const auto mrb = _mrb;
+	return E_FLOATDOMAIN_ERROR;
+}
+bool
+RubyState::block_given_p()
+{
+	return WRAP_CALL(mrb_block_given_p(_mrb));
 }
 
 mrb_value

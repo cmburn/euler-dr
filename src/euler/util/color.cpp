@@ -4,7 +4,8 @@
 
 using euler::util::Color;
 
-const mrb_data_type Color::TYPE = euler::util::pod_datatype<Color>("Euler::Util::Color");
+const mrb_data_type Color::TYPE
+    = euler::util::pod_datatype<Color>("Euler::Util::Color");
 
 static mrb_value
 color_allocate(mrb_state *mrb, const mrb_value self)
@@ -171,4 +172,59 @@ Color::init(const Reference<State> &state, RClass *mod, RClass *)
 	state->mrb()->define_method(color, "alpha=", color_set_alpha,
 	    MRB_ARGS_REQ(1));
 	return color;
+}
+Color
+Color::read(mrb_state *mrb, mrb_value value)
+{
+	auto state = State::get(mrb);
+	if (mrb_nil_p(value)) return COLOR_BLACK;
+	if (mrb_integer_p(value)) {
+		const auto color = static_cast<uint32_t>(mrb_integer(value));
+		return Color(color);
+	}
+	if (mrb_symbol_p(value)) {
+		const auto sym = mrb_symbol(value);
+		if (sym == EULER_SYM(white)) return COLOR_WHITE;
+		if (sym == EULER_SYM(black)) return COLOR_BLACK;
+		if (sym == EULER_SYM(red)) return COLOR_RED;
+		if (sym == EULER_SYM(green)) return COLOR_GREEN;
+		if (sym == EULER_SYM(blue)) return COLOR_BLUE;
+		state->mrb()->raisef(E_ARGUMENT_ERROR,
+		    "Unknown color symbol: %S", value);
+	}
+	const auto hash = state->mrb()->ensure_hash_type(value);
+#define READ_COLOR(OUT, NAME1, NAME2)                                          \
+	do {                                                                   \
+		if (state->mrb()->hash_key_p(value,                            \
+			mrb_symbol_value(EULER_SYM(NAME1)))) {                 \
+			OUT = mrb_integer(state->mrb()->hash_get(hash,         \
+			    mrb_symbol_value(EULER_SYM(NAME1))));              \
+		} else if (state->mrb()->hash_key_p(value,                     \
+			       mrb_symbol_value(EULER_SYM(NAME2)))) {          \
+			OUT = mrb_integer(state->mrb()->hash_get(hash,         \
+			    mrb_symbol_value(EULER_SYM(NAME2))));              \
+		}                                                              \
+		if (OUT < 0 || OUT > 255) {                                    \
+			state->mrb()->raisef(E_ARGUMENT_ERROR,                 \
+			    "Color component " #NAME1                          \
+			    " (value %ld) must be in the range 0:255",         \
+			    OUT);                                              \
+		}                                                              \
+	} while (0)
+
+	mrb_int r = 0;
+	READ_COLOR(r, red, r);
+	mrb_int g = 0;
+	READ_COLOR(g, green, g);
+	mrb_int b = 0;
+	READ_COLOR(b, blue, b);
+	mrb_int a = 255;
+	READ_COLOR(a, alpha, a);
+#undef READ_COLOR
+	return {
+		static_cast<uint8_t>(r),
+		static_cast<uint8_t>(g),
+		static_cast<uint8_t>(b),
+		static_cast<uint8_t>(a),
+	};
 }

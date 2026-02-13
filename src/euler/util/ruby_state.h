@@ -463,6 +463,26 @@ public:
 	virtual mrb_value int_value(mrb_int i) = 0;
 	virtual mrb_value float_value(mrb_float f) = 0;
 	virtual mrb_value symbol_value(mrb_sym i) = 0;
+	virtual RClass *error() = 0;
+	virtual RClass *standard_error() = 0;
+	virtual RClass *runtime_error() = 0;
+	virtual RClass *type_error() = 0;
+	virtual RClass *zero_division_error() = 0;
+	virtual RClass *argument_error() = 0;
+	virtual RClass *index_error() = 0;
+	virtual RClass *range_error() = 0;
+	virtual RClass *name_error() = 0;
+	virtual RClass *no_method_error() = 0;
+	virtual RClass *script_error() = 0;
+	virtual RClass *syntax_error() = 0;
+	virtual RClass *local_jump_error() = 0;
+	virtual RClass *regexp_error() = 0;
+	virtual RClass *frozen_error() = 0;
+	virtual RClass *not_implemented_error() = 0;
+	virtual RClass *key_error() = 0;
+	virtual RClass *float_domain_error() = 0;
+	virtual bool block_given_p() = 0;
+
 
 	template <typename... Args>
 	mrb_value

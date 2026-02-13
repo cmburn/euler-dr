@@ -6,7 +6,8 @@ int
 main(const int argc, char **argv)
 {
 	try {
-		const auto state = euler::app::make_state(argc, argv);
+		auto args = euler::app::State::parse_args(argc, argv);
+		auto state = euler::util::make_reference<euler::app::State>(args);
 		if (!state->initialize()) {
 			state->log()->error("Failed to initialize state");
 			return EXIT_FAILURE;
@@ -14,8 +15,7 @@ main(const int argc, char **argv)
 		state->log()->info("Initialization complete");
 		int exit_code = 0;
 		while (state->loop(exit_code)) {
-			/* ReSharper disable once CppRedundantControlFlowJump */
-			continue; /* NOLINT(*-redundant-control-flow) */
+			// continue
 		}
 		state->log()->info("Exiting with code {}", exit_code);
 		return exit_code;

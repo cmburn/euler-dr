@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: ISC */
 
+#include <utility>
+
 #include "euler/gui/button.h"
 
 #include "euler/gui/internal.h"
@@ -11,28 +13,26 @@
 
 using euler::gui::Button;
 
-
-
 const Button::Settings Button::DEFAULT_SETTINGS = Settings();
 
 static mrb_value
 button_symbol(mrb_state *mrb, const mrb_value self_value)
 {
-	const auto self
-	    = euler::util::unwrap<Button>(mrb, self_value, &Button::TYPE);
-	return euler::gui::from_symbol(self->symbol());
+	const auto state = euler::util::State::get(mrb);
+	const auto self = state->unwrap<Button>(self_value);
+	return euler::gui::from_symbol(mrb, self->symbol());
 }
 
-void
-Button::init(mrb_state *mrb, util::State::Modules &mod)
-{
-	mod.gui.button = mrb_define_class_under(mrb, mod.gui.module, "Button",
-	    mod.gui.element);
-	const auto button = mod.gui.button;
-	MRB_SET_INSTANCE_TT(button, MRB_TT_CDATA);
-	mrb_define_method(mrb, button, "symbol", button_symbol,
-	    MRB_ARGS_NONE());
-}
+// void
+// Button::init(mrb_state *mrb, util::State::Modules &mod)
+// {
+// 	mod.gui.button = mrb_define_class_under(mrb, mod.gui.module, "Button",
+// 	    mod.gui.element);
+// 	const auto button = mod.gui.button;
+// 	MRB_SET_INSTANCE_TT(button, MRB_TT_CDATA);
+// 	mrb_define_method(mrb, button, "symbol", button_symbol,
+// 	    MRB_ARGS_NONE());
+// }
 
 Button::~Button() = default;
 
@@ -174,7 +174,10 @@ Button::is_pressed() const
 	case Type::Symbol:
 		return context.is_pressed_symbol(_symbol, _alignment);
 	case Type::Image: return context.is_pressed_image(_image, _alignment);
-	case Type::Invalid: state->raise("Invalid button type");
-	default: euler_unreachable();
+	case Type::Invalid:
+		state->mrb()->raise(state->mrb()->argument_error(),
+		    "Invalid button type");
+		std::unreachable();
+	default: std::unreachable();
 	}
 }

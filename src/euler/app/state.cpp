@@ -30,11 +30,13 @@ State::gv_state() const
 	return mrb()->gv_get(mrb()->intern_cstr(GV_STATE_SYM));
 }
 
-void
+bool
 State::initialize()
 {
 	const auto self = util::Reference(this);
 	const auto mod = mrb()->define_module("Euler");
+	printf("initialized euler mod\n");
+	modules().mod = mod;
 	util::init(self, mod);
 #ifdef EULER_MATH
 	math::init(self, mod);

@@ -3,6 +3,8 @@
 #ifndef EULER_UTIL_EXT_H
 #define EULER_UTIL_EXT_H
 
+#include <utility>
+
 #include <mruby/throw.h>
 
 #include "euler/util/error.h"
@@ -176,14 +178,16 @@ template <typename T>
 static T *
 unwrap_data(mrb_state *mrb, const mrb_value &value, const mrb_data_type *type)
 {
+	auto state = State::get(mrb);
 	if (mrb_nil_p(value)) {
-		mrb_raisef(mrb, E_TYPE_ERROR, "Expected a %s object",
+		state->mrb()->raisef(E_TYPE_ERROR, "Expected a %s object",
 		    type->struct_name);
 	}
-	if (auto ptr = mrb_data_get_ptr(mrb, value, type); ptr != nullptr)
+	if (auto ptr = state->mrb()->data_get_ptr(value, type); ptr != nullptr)
 		return static_cast<T *>(ptr);
-	mrb_raisef(mrb, E_TYPE_ERROR, "Expected a %s object",
+	state->mrb()->raisef(E_TYPE_ERROR, "Expected a %s object",
 	    type->struct_name);
+	std::unreachable();
 }
 
 #define BIND_MRUBY(NAME, TYPENAME, MODULE)                                     \

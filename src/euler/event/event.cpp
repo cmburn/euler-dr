@@ -1220,7 +1220,6 @@ euler::event::sdl_event_to_mrb(
 		SET_INT_IV(window_id, render.windowID);
 		break;
 	default: {
-		// state->mrb()->gc_arena_restore(arena_index);
 		mrb_gc_arena_restore(mrb, arena_index);
 		const auto error
 		    = std::format("Unexpected event type {}", event.type);

@@ -3,12 +3,6 @@
 #include "euler/graphics/ext.h"
 #include "image.h"
 
-// const auto mrb = state->mrb();
-// auto &mod = state->module();
-// mod.graphics.module
-//     = mrb_define_module_under(mrb, mod.module, "Graphics");
-// Image::init(mrb, mod);
-
 RClass *
 euler::graphics::init(const util::Reference<util::State> &state, RClass *mod,
     RClass *)

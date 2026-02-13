@@ -51,7 +51,7 @@ public:
 	{
 		return Kind::Exception;
 	}
-	[[nodiscard]] virtual RClass *exception_class();
+	[[nodiscard]] virtual RClass *exception_class() const;
 	[[nodiscard]] virtual mrb_value to_mrb() const;
 	[[nodiscard]] const char *
 	what() const noexcept override
@@ -76,7 +76,7 @@ public:
 	{
 		return Kind::Standard;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -93,7 +93,7 @@ public:
 	{
 		return Kind::Runtime;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -110,7 +110,7 @@ public:
 	{
 		return Kind::Type;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -128,7 +128,7 @@ public:
 	{
 		return Kind::ZeroDivision;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -145,7 +145,7 @@ public:
 	{
 		return Kind::Argument;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value
 	to_mrb() const override
 	{
@@ -165,7 +165,7 @@ public:
 	{
 		return Kind::Index;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -182,7 +182,7 @@ public:
 	{
 		return Kind::Range;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -199,7 +199,7 @@ public:
 	{
 		return Kind::Name;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -216,7 +216,7 @@ public:
 	{
 		return Kind::NoMethod;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -233,7 +233,7 @@ public:
 	{
 		return Kind::Script;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -250,7 +250,7 @@ public:
 	{
 		return Kind::Syntax;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -268,7 +268,7 @@ public:
 	{
 		return Kind::LocalJump;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -285,7 +285,7 @@ public:
 	{
 		return Kind::Regexp;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -302,7 +302,7 @@ public:
 	{
 		return Kind::Frozen;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -320,7 +320,7 @@ public:
 	{
 		return Kind::NotImplemented;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -337,7 +337,7 @@ public:
 	{
 		return Kind::Key;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };
@@ -355,7 +355,7 @@ public:
 	{
 		return Kind::FloatDomain;
 	}
-	[[nodiscard]] RClass *exception_class() override;
+	[[nodiscard]] RClass *exception_class() const override;
 	[[nodiscard]] mrb_value to_mrb() const override;
 	[[nodiscard]] const char *what() const noexcept override;
 };

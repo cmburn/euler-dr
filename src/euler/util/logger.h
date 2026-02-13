@@ -17,10 +17,6 @@ namespace euler::util {
 class Logger : public Object {
 	BIND_MRUBY("Euler::Util::Logger", Logger, util.logger);
 public:
-	// static constexpr mrb_data_type TYPE = {
-	// 	.struct_name = "Euler::Util::Logger",
-	// 	.dfree = dfree<Logger>,
-	// };
 
 	enum class Severity {
 		Debug,

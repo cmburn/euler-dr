@@ -168,7 +168,7 @@ public:
 	virtual void upload_image(const char *label,
 	    const Reference<Image> &img)
 	    = 0;
-	virtual void initialize() = 0;
+	virtual bool initialize() = 0;
 	virtual void tick() const = 0;
 	[[nodiscard]] virtual const Modules &modules() const = 0;
 	[[nodiscard]] virtual Modules &modules() = 0;

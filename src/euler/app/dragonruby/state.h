@@ -39,16 +39,6 @@ public:
 	void upload_image(const char *label,
 	    const util::Reference<util::Image> &img) override;
 	[[nodiscard]] tick_t ticks() const override;
-	[[nodiscard]] const Modules &
-	modules() const override
-	{
-		return _modules;
-	}
-	[[nodiscard]] Modules &
-	modules() override
-	{
-		return _modules;
-	}
 
 private:
 	util::Reference<RubyState> _mrb_state;
@@ -56,7 +46,6 @@ private:
 	util::Reference<Storage> _user_storage;
 	util::Reference<Storage> _title_storage;
 	drb_api_t *_api;
-	Modules _modules = {};
 };
 } /* namespace euler::app::dragonruby */
 

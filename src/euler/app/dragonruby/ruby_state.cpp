@@ -743,6 +743,18 @@ RubyState::field_write_barrier(RBasic *b1, RBasic *b2)
 	_api.mrb_field_write_barrier(_mrb, b1, b2);
 }
 
+mrb_value
+RubyState::integer_to_str(mrb_value x, mrb_int base)
+{
+	return _api.mrb_fixnum_to_str(_mrb, x, base);
+}
+
+mrb_value
+RubyState::float_to_integer(mrb_value val)
+{
+	return _api.mrb_flo_to_fixnum(_mrb, val);
+}
+
 // mrb_value
 // RubyState::fixnum_to_str(const mrb_value x, const mrb_int base)
 // {
@@ -2264,6 +2276,12 @@ RubyState::str_to_dbl(const mrb_value str, const mrb_bool badcheck)
 	return _api.mrb_str_to_dbl(_mrb, str, badcheck);
 }
 
+mrb_value
+RubyState::str_to_integer(mrb_value str, mrb_int base, mrb_bool badcheck)
+{
+	return _api.mrb_str_to_inum(_mrb, str, base, badcheck);
+}
+
 const char *
 RubyState::string_cstr(const mrb_value str)
 {
@@ -2555,4 +2573,115 @@ RubyState::mrb() const
 void
 RubyState::raise_on_error()
 {
+	if (_mrb->exc == nullptr) return;
+	const auto exc = obj_value(_mrb->exc);
+	exc_raise(exc);
+}
+
+RClass *
+RubyState::error()
+{
+	return exc_get_id(intern_cstr("Error"));
+}
+
+RClass *
+RubyState::standard_error()
+{
+	return exc_get_id(intern_cstr("StandardError"));
+}
+
+RClass *
+RubyState::runtime_error()
+{
+	return exc_get_id(intern_cstr("RuntimeError"));
+}
+
+RClass *
+RubyState::type_error()
+{
+	return exc_get_id(intern_cstr("TypeError"));
+}
+
+RClass *
+RubyState::zero_division_error()
+{
+	return exc_get_id(intern_cstr("ZeroDivisionError"));
+}
+
+RClass *
+RubyState::argument_error()
+{
+	return exc_get_id(intern_cstr("ArgumentError"));
+}
+
+RClass *
+RubyState::index_error()
+{
+	return exc_get_id(intern_cstr("IndexError"));
+}
+
+RClass *
+RubyState::range_error()
+{
+	return exc_get_id(intern_cstr("RangeError"));
+}
+
+RClass *
+RubyState::name_error()
+{
+	return exc_get_id(intern_cstr("NameError"));
+}
+
+RClass *
+RubyState::no_method_error()
+{
+	return exc_get_id(intern_cstr("NoMethodError"));
+}
+
+RClass *
+RubyState::script_error()
+{
+	return exc_get_id(intern_cstr("ScriptError"));
+}
+
+RClass *
+RubyState::syntax_error()
+{
+	return exc_get_id(intern_cstr("SyntaxError"));
+}
+
+RClass *
+RubyState::local_jump_error()
+{
+	return exc_get_id(intern_cstr("LocalJumpError"));
+}
+
+RClass *
+RubyState::regexp_error()
+{
+	return exc_get_id(intern_cstr("RegExpError"));
+}
+
+RClass *
+RubyState::frozen_error()
+{
+	return exc_get_id(intern_cstr("FrozenError"));
+}
+
+RClass *
+RubyState::not_implemented_error()
+{
+	return exc_get_id(intern_cstr("NotImplementedError"));
+}
+
+RClass *
+RubyState::key_error()
+{
+	return exc_get_id(intern_cstr("KeyError"));
+}
+
+RClass *
+RubyState::float_domain_error()
+{
+	return exc_get_id(intern_cstr("FloatDomainError"));
 }
