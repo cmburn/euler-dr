@@ -33,9 +33,19 @@ target_compile_options(euler_util PUBLIC
         ${EULER_CFLAGS}
 )
 
+target_link_libraries(euler_util PUBLIC
+        armadillo
+)
+
 if (EULER_DRAGONRUBY_BUILD)
     target_link_libraries(euler_util PUBLIC
             dragonruby
     )
+endif ()
 
+if (EULER_NATIVE_BUILD)
+    target_link_libraries(euler_util PUBLIC
+            mruby
+            /home/cmburn/src/euler/cmake-build-debug/_deps/mruby/src/build/host/lib/libmruby.a
+    )
 endif ()

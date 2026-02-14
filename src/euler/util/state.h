@@ -22,9 +22,17 @@ public:
 	typedef uint64_t tick_t;
 	typedef decltype(std::thread::hardware_concurrency()) nthread_t;
 
-	enum class Runtime {
+	enum class Runtime : bool {
 		Native,
 		DragonRuby,
+	};
+
+	enum class Phase {
+		Load,
+		Input,
+		Update,
+		Draw,
+		Quit,
 	};
 
 	struct Modules {
@@ -165,6 +173,7 @@ public:
 	[[nodiscard]] virtual mrb_value gv_state() const = 0;
 	[[nodiscard]] static Reference<State> get(const mrb_state *mrb);
 	[[nodiscard]] virtual Reference<Image> load_image(const char *path) = 0;
+	[[nodiscard]] virtual Phase phase() const = 0;
 	virtual void upload_image(const char *label,
 	    const Reference<Image> &img)
 	    = 0;

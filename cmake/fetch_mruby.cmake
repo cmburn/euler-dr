@@ -32,14 +32,35 @@ macro(fetch_mruby TARGET)
     message(STATUS "Fetching mruby from ${fetch_mruby_GIT_REPOSITORY} at tag ${fetch_mruby_GIT_TAG}")
     message(STATUS "Using mruby config: ${fetch_mruby_CONFIG}")
 
-    ExternalProject_Add(${TARGET}
+    set(MRUBY_SRC_DIR ${CMAKE_BINARY_DIR}/_deps/${TARGET}/src)
+    set(MRUBY_BIN_DIR ${MRUBY_SRC_DIR}/build/host)
+
+    ExternalProject_Add(${TARGET}-build
             GIT_REPOSITORY ${fetch_mruby_GIT_REPOSITORY}
             GIT_TAG ${fetch_mruby_GIT_TAG}
             GIT_SHALLOW TRUE
-            SOURCE_DIR ${CMAKE_BINARY_DIR}/_deps/${TARGET}/src
-            BINARY_DIR ${CMAKE_BINARY_DIR}/_deps/${TARGET}/build
+            SOURCE_DIR ${MRUBY_SRC_DIR}
+            BINARY_DIR ${MRUBY_SRC_DIR}
             BUILD_COMMAND ${CMAKE_COMMAND} -E echo "No separate build step for mruby"
-            CONFIGURE_COMMAND cd ${CMAKE_BINARY_DIR}/_deps/${TARGET}/src && ${CMAKE_COMMAND} -E env CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} MRUBY_CONFIG=${fetch_mruby_CONFIG} rake all
+            CONFIGURE_COMMAND cd ${MRUBY_SRC_DIR} && ${CMAKE_COMMAND} -E env CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} MRUBY_CONFIG=${fetch_mruby_CONFIG} rake all
             INSTALL_COMMAND ""
+            BUILD_BYPRODUCTS ${MRUBY_BIN_DIR}/lib/libmruby.a
     )
+
+    add_library(${TARGET} INTERFACE)
+    target_link_libraries(${TARGET} INTERFACE ${MRUBY_BIN_DIR}/lib/libmruby.a)
+    target_include_directories(${TARGET} INTERFACE ${MRUBY_BIN_DIR}/include)
+    target_compile_definitions(${TARGET} INTERFACE
+            -DMRB_USE_CXX_EXCEPTION
+            -DMRB_USE_CXX_ABI
+            -DMRB_USE_SET
+            -DHAVE_MRUBY_IO_GEM
+            -DMRB_USE_RATIONAL
+            -DMRB_USE_COMPLEX
+            -DMRB_USE_BIGINT
+            -DMRB_USE_DEBUG_HOOK`
+    )
+
+    add_dependencies(${TARGET} ${TARGET}-build)
+
 endmacro()

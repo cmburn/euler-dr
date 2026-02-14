@@ -2,6 +2,8 @@
 
 #include "euler/gui/widget.h"
 
+#include <VK2D/nuklear_defs.h>
+
 #include "euler/gui/internal.h"
 #include "euler/gui/widget.h"
 #include "euler/gui/window.h"
@@ -30,7 +32,7 @@ read_row_args(mrb_state *mrb, mrb_value *block)
 		.values = kw_values,
 		.rest = nullptr,
 	};
-	mrb_get_args(mrb, ":&", &kwargs, block);
+	state->mrb()->get_args(":&", &kwargs, block);
 	euler::gui::Row::Settings settings = {};
 	if (!mrb_undef_p(kw_values[0]))
 		settings.height = static_cast<float>(mrb_float(kw_values[0]));
@@ -53,7 +55,6 @@ read_row_args(mrb_state *mrb, mrb_value *block)
 static mrb_value
 widget_display(mrb_state *mrb, const mrb_value self_value)
 {
-	// auto self = euler::util::unwrap<Widget>(mrb, self_value, &Widget::TYPE);
 	const auto state = euler::util::State::get(mrb);
 	const auto self = state->unwrap<Widget>(self_value);
 	self->display();
@@ -65,21 +66,17 @@ widget_row(mrb_state *mrb, const mrb_value self_value)
 {
 	auto state = euler::util::State::get(mrb);
 	auto self = state->unwrap<Widget>(self_value);
-	// auto self = euler::util::unwrap<Widget>(mrb, self_value, &Widget::TYPE);
 	mrb_value block = mrb_nil_value();
 	auto settings = read_row_args(mrb, &block);
-	const auto klass = state->modules().gui.row;
-	if (!mrb_block_given_p(mrb)) {
-		const auto row = euler::util::make_reference<euler::gui::Row>(
+	if (!state->mrb()->block_given_p()) {
+		auto row = euler::util::make_reference<euler::gui::Row>(
 		    euler::util::Reference(self), settings);
-		return euler::util::wrap(mrb, row, klass,
-		    &euler::gui::Row::TYPE);
+		return state->wrap(row);
 	}
 	mrb_value retval = mrb_nil_value();
 	self->row(settings, [&](auto &row) {
-		const auto value = euler::util::wrap(mrb, row, klass,
-		    &euler::gui::Row::TYPE);
-		retval = mrb_yield(mrb, block, value);
+		auto value = state->wrap(row);
+		retval = state->mrb()->yield(block, value);
 	});
 	return retval;
 }
@@ -105,18 +102,18 @@ to_nk(const Widget::Flags &flags)
 static mrb_value
 widget_title(mrb_state *mrb, const mrb_value self_value)
 {
-	const auto self
-	    = euler::util::unwrap<Widget>(mrb, self_value, &Widget::TYPE);
-	return mrb_str_new_cstr(mrb, self->title().c_str());
+	const auto state = euler::util::State::get(mrb);
+	const auto self = state->unwrap<Widget>(self_value);
+	return state->mrb()->str_new_cstr(self->title().c_str());
 }
 
 static mrb_value
 widget_set_title(mrb_state *mrb, const mrb_value self_value)
 {
-	const auto self
-	    = euler::util::unwrap<Widget>(mrb, self_value, &Widget::TYPE);
+	const auto state = euler::util::State::get(mrb);
+	const auto self = state->unwrap<Widget>(self_value);
 	char *title = nullptr;
-	mrb_get_args(mrb, "z", &title);
+	state->mrb()->get_args("z", &title);
 	self->set_title(title);
 	return mrb_nil_value();
 }
@@ -124,28 +121,29 @@ widget_set_title(mrb_state *mrb, const mrb_value self_value)
 static mrb_value
 widget_rect(mrb_state *mrb, const mrb_value self_value)
 {
-	const auto self
-	    = euler::util::unwrap<Widget>(mrb, self_value, &Widget::TYPE);
+	const auto state = euler::util::State::get(mrb);
+	const auto self = state->unwrap<Widget>(self_value);
 	const auto &[x, y, w, h] = self->rect();
-	const mrb_value hash = mrb_hash_new(mrb);
-	mrb_hash_set(mrb, hash, mrb_symbol_value(EULER_SYM(x)),
-	    mrb_float_value(mrb, x));
-	mrb_hash_set(mrb, hash, mrb_symbol_value(EULER_SYM(y)),
-	    mrb_float_value(mrb, y));
-	mrb_hash_set(mrb, hash, mrb_symbol_value(EULER_SYM(w)),
-	    mrb_float_value(mrb, w));
-	mrb_hash_set(mrb, hash, mrb_symbol_value(EULER_SYM(h)),
-	    mrb_float_value(mrb, h));
+	// const mrb_value hash = mrb_hash_new(mrb);
+	const mrb_value hash = state->mrb()->hash_new();
+	state->mrb()->hash_set(hash, mrb_symbol_value(EULER_SYM(x)),
+	    state->mrb()->float_value(x));
+	state->mrb()->hash_set(hash, mrb_symbol_value(EULER_SYM(y)),
+	    state->mrb()->float_value(y));
+	state->mrb()->hash_set(hash, mrb_symbol_value(EULER_SYM(w)),
+	    state->mrb()->float_value(w));
+	state->mrb()->hash_set(hash, mrb_symbol_value(EULER_SYM(h)),
+	    state->mrb()->float_value(h));
 	return hash;
 }
 
 static mrb_value
 widget_set_rect(mrb_state *mrb, const mrb_value self_value)
 {
-	const auto self
-	    = euler::util::unwrap<Widget>(mrb, self_value, &Widget::TYPE);
+	const auto state = euler::util::State::get(mrb);
+	const auto self = state->unwrap<Widget>(self_value);
 	mrb_value hash;
-	mrb_get_args(mrb, "H", &hash);
+	state->mrb()->get_args("H", &hash);
 	self->set_rect(Widget::read_widget_rect(mrb, hash));
 	return mrb_nil_value();
 }
@@ -153,72 +151,179 @@ widget_set_rect(mrb_state *mrb, const mrb_value self_value)
 static mrb_value
 widget_flags(mrb_state *mrb, const mrb_value self_value)
 {
-	const auto self
-	    = euler::util::unwrap<Widget>(mrb, self_value, &Widget::TYPE);
+	const auto state = euler::util::State::get(mrb);
+	const auto self = state->unwrap<Widget>(self_value);
+	const mrb_value arr = state->mrb()->ary_new_capa(10);
 	/* ReSharper disable once CppUseStructuredBinding */
 	const auto flags = self->flags();
-	// const mrb_value arr = mrb_ary_new_capa(mrb, 10);
-	if (flags.border)
-		mrb_ary_push(mrb, arr, mrb_symbol_value(EULER_SYM(border)));
-	if (flags.moveable)
-		mrb_ary_push(mrb, arr, mrb_symbol_value(EULER_SYM(moveable)));
-	if (flags.scalable)
-		mrb_ary_push(mrb, arr, mrb_symbol_value(EULER_SYM(scalable)));
-	if (flags.closeable)
-		mrb_ary_push(mrb, arr, mrb_symbol_value(EULER_SYM(closeable)));
-	if (flags.minimizable)
-		mrb_ary_push(mrb, arr,
+	if (flags.border) {
+		state->mrb()->ary_push(arr,
+		    mrb_symbol_value(EULER_SYM(border)));
+	}
+	if (flags.moveable) {
+		state->mrb()->ary_push(arr,
+		    mrb_symbol_value(EULER_SYM(moveable)));
+	}
+	if (flags.scalable) {
+		state->mrb()->ary_push(arr,
+		    mrb_symbol_value(EULER_SYM(scalable)));
+	}
+	if (flags.closeable) {
+		state->mrb()->ary_push(arr,
+		    mrb_symbol_value(EULER_SYM(closeable)));
+	}
+	if (flags.minimizable) {
+		state->mrb()->ary_push(arr,
 		    mrb_symbol_value(EULER_SYM(minimizable)));
-	if (flags.no_scrollbar)
-		mrb_ary_push(mrb, arr,
+	}
+	if (flags.no_scrollbar) {
+		state->mrb()->ary_push(arr,
 		    mrb_symbol_value(EULER_SYM(no_scrollbar)));
-	if (flags.title)
-		mrb_ary_push(mrb, arr, mrb_symbol_value(EULER_SYM(title)));
+	}
+	if (flags.title) {
+		state->mrb()->ary_push(arr, mrb_symbol_value(EULER_SYM(title)));
+	}
 	if (flags.scroll_auto_hide) {
-		mrb_ary_push(mrb, arr,
+		state->mrb()->ary_push(arr,
 		    mrb_symbol_value(EULER_SYM(scroll_auto_hide)));
 	}
-	if (flags.background)
-		mrb_ary_push(mrb, arr, mrb_symbol_value(EULER_SYM(background)));
-	if (flags.scale_left)
-		mrb_ary_push(mrb, arr, mrb_symbol_value(EULER_SYM(scale_left)));
-	if (flags.no_input)
-		mrb_ary_push(mrb, arr, mrb_symbol_value(EULER_SYM(no_input)));
+	if (flags.background) {
+		state->mrb()->ary_push(arr,
+		    mrb_symbol_value(EULER_SYM(background)));
+	}
+	if (flags.scale_left) {
+		state->mrb()->ary_push(arr,
+		    mrb_symbol_value(EULER_SYM(scale_left)));
+	}
+	if (flags.no_input) {
+		state->mrb()->ary_push(arr,
+		    mrb_symbol_value(EULER_SYM(no_input)));
+	}
 	return arr;
 }
 
 static mrb_value
 widget_set_flags(mrb_state *mrb, const mrb_value self_value)
 {
-	const auto self
-	    = euler::util::unwrap<Widget>(mrb, self_value, &Widget::TYPE);
+	const auto state = euler::util::State::get(mrb);
+	const auto self = state->unwrap<Widget>(self_value);
 	mrb_value arr;
-	mrb_get_args(mrb, "A", &arr);
-	self->set_flags(Widget::read_widget_flags(arr));
+	state->mrb()->get_args("A", &arr);
+	self->set_flags(Widget::read_widget_flags(mrb, arr));
 	return mrb_nil_value();
 }
 
-void
-Widget::init(mrb_state *mrb, util::State::Modules &mod)
+RClass *
+Widget::init(const euler::util::Reference<euler::util::State> &state,
+    RClass *mod, RClass *)
 {
-	mod.gui.widget = mrb_define_class_under(mrb, mod.gui.module, "Widget",
-	    mrb->object_class);
-	const auto widget = mod.gui.widget;
+	const auto widget = state->mrb()->define_class_under(mod, "Widget",
+	    state->object_class());
+	state->modules().gui.widget = widget;
 	MRB_SET_INSTANCE_TT(widget, MRB_TT_CDATA);
-	mrb_define_method(mrb, widget, "row", widget_row, MRB_ARGS_KEY(0, 3));
-	mrb_define_method(mrb, widget, "display", widget_display,
+	state->mrb()->define_method(widget, "row", widget_row,
+	    MRB_ARGS_KEY(0, 3));
+	state->mrb()->define_method(widget, "display", widget_display,
 	    MRB_ARGS_NONE());
-	mrb_define_method(mrb, widget, "title", widget_title, MRB_ARGS_NONE());
-	mrb_define_method(mrb, widget, "title=", widget_set_title,
+	state->mrb()->define_method(widget, "title", widget_title,
+	    MRB_ARGS_NONE());
+	state->mrb()->define_method(widget, "title=", widget_set_title,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, widget, "rect", widget_rect, MRB_ARGS_NONE());
-	mrb_define_method(mrb, widget, "rect=", widget_set_rect,
+	state->mrb()->define_method(widget, "rect", widget_rect,
+	    MRB_ARGS_NONE());
+	state->mrb()->define_method(widget, "rect=", widget_set_rect,
 	    MRB_ARGS_REQ(1));
-	mrb_define_method(mrb, widget, "flags", widget_flags, MRB_ARGS_NONE());
-	mrb_define_method(mrb, widget, "flags=", widget_set_flags,
+	state->mrb()->define_method(widget, "flags", widget_flags,
+	    MRB_ARGS_NONE());
+	state->mrb()->define_method(widget, "flags=", widget_set_flags,
 	    MRB_ARGS_REQ(1));
 }
 
+Widget::Rectangle
+Widget::bounds() const
+{
+	auto bounds = nk_window_get_bounds(context());
+	return Rectangle {
+		.x = bounds.x,
+		.y = bounds.y,
+		.w = bounds.w,
+		.h = bounds.h,
+	};
+}
+
+glm::vec2
+Widget::position() const
+{
+}
+
+glm::vec2
+Widget::size() const
+{
+}
+float
+Widget::width() const
+{
+}
+float
+Widget::height() const
+{
+}
+Widget::Rectangle
+Widget::content_region() const
+{
+}
+bool
+Widget::are_any_active() const
+{
+}
+glm::uvec2
+Widget::scroll() const
+{
+}
+bool
+Widget::has_focus() const
+{
+}
+bool
+Widget::is_hovered() const
+{
+}
+void
+Widget::set_bounds(const Rectangle &rect)
+{
+}
+void
+Widget::set_position(const glm::vec2 &pos)
+{
+}
+void
+Widget::set_size(const glm::vec2 &size)
+{
+}
+void
+Widget::focus()
+{
+}
+void
+Widget::set_scroll(const glm::uvec2 &scroll)
+{
+}
+void
+Widget::close()
+{
+}
+void
+Widget::minimize()
+{
+}
+void
+Widget::maximize()
+{
+}
+void
+Widget::show()
+{
+}
 Widget::~Widget() { release(); }
 
 void
@@ -239,28 +344,53 @@ Widget::read_widget_rect(mrb_state *mrb, mrb_value hash)
 }
 
 Widget::Flags
-Widget::read_widget_flags(const mrb_value arr)
+Widget::read_widget_flags(mrb_state *mrb, const mrb_value arr)
 {
 	Flags flags = {};
 	for (mrb_int i = 0, len = RARRAY_LEN(arr); i < len; ++i) {
 		const auto item = mrb_ary_entry(arr, i);
 		if (!mrb_symbol_p(item)) continue;
-		switch (mrb_symbol(item)) {
-		case EULER_SYM(border): flags.border = true; break;
-		case EULER_SYM(moveable): flags.moveable = true; break;
-		case EULER_SYM(scalable): flags.scalable = true; break;
-		case EULER_SYM(closeable): flags.closeable = true; break;
-		case EULER_SYM(minimizable): flags.minimizable = true; break;
-		case EULER_SYM(no_scrollbar): flags.no_scrollbar = true; break;
-		case EULER_SYM(title): flags.title = true; break;
-		case EULER_SYM(scroll_auto_hide):
+		auto sym = mrb_symbol(item);
+		if (sym == EULER_SYM(border)) {
+			flags.border = true;
+		} else if (sym == EULER_SYM(moveable)) {
+			flags.moveable = true;
+		} else if (sym == EULER_SYM(scalable)) {
+			flags.scalable = true;
+		} else if (sym == EULER_SYM(closeable)) {
+			flags.closeable = true;
+		} else if (sym == EULER_SYM(minimizable)) {
+			flags.minimizable = true;
+		} else if (sym == EULER_SYM(no_scrollbar)) {
+			flags.no_scrollbar = true;
+		} else if (sym == EULER_SYM(title)) {
+			flags.title = true;
+		} else if (sym == EULER_SYM(scroll_auto_hide)) {
 			flags.scroll_auto_hide = true;
-			break;
-		case EULER_SYM(background): flags.background = true; break;
-		case EULER_SYM(scale_left): flags.scale_left = true; break;
-		case EULER_SYM(no_input): flags.no_input = true; break;
-		default: break;
+		} else if (sym == EULER_SYM(background)) {
+			flags.background = true;
+		} else if (sym == EULER_SYM(scale_left)) {
+			flags.scale_left = true;
+		} else if (sym == EULER_SYM(no_input)) {
+			flags.no_input = true;
 		}
+
+		// switch (mrb_symbol(item)) {
+		// case EULER_SYM(border): flags.border = true; break;
+		// case EULER_SYM(moveable): flags.moveable = true; break;
+		// case EULER_SYM(scalable): flags.scalable = true; break;
+		// case EULER_SYM(closeable): flags.closeable = true; break;
+		// case EULER_SYM(minimizable): flags.minimizable = true; break;
+		// case EULER_SYM(no_scrollbar): flags.no_scrollbar = true; break;
+		// case EULER_SYM(title): flags.title = true; break;
+		// case EULER_SYM(scroll_auto_hide):
+		// 	flags.scroll_auto_hide = true;
+		// 	break;
+		// case EULER_SYM(background): flags.background = true; break;
+		// case EULER_SYM(scale_left): flags.scale_left = true; break;
+		// case EULER_SYM(no_input): flags.no_input = true; break;
+		// default: break;
+		// }
 	}
 	return flags;
 }

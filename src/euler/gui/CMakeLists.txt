@@ -52,5 +52,5 @@ target_compile_definitions(euler_gui PRIVATE
 )
 
 target_link_libraries(euler_gui PRIVATE
-        VK2D
+        Vulkan2D
 )

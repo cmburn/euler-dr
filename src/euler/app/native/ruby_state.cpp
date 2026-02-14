@@ -588,12 +588,6 @@ RubyState::debug_info_free(mrb_irep_debug_info *d)
 	WRAP_CALL(mrb_debug_info_free(_mrb, d));
 }
 
-void *
-RubyState::default_allocf(void *data, const size_t size, void *ptr)
-{
-	return WRAP_CALL(mrb_default_allocf(_mrb, data, size, ptr));
-}
-
 void
 RubyState::define_alias(RClass *c, const char *a, const char *b)
 {
@@ -1556,18 +1550,6 @@ RubyState::object_dead_p(RBasic *object)
 	return WRAP_CALL(mrb_object_dead_p(_mrb, object));
 }
 
-mrb_state *
-RubyState::open_allocf(const mrb_allocf f, void *ud)
-{
-	return WRAP_CALL(mrb_open_allocf(f, ud));
-}
-
-mrb_state *
-RubyState::open_core(const mrb_allocf f, void *ud)
-{
-	return WRAP_CALL(mrb_open_core(f, ud));
-}
-
 void
 RubyState::p(const mrb_value obj)
 {
@@ -2012,12 +1994,6 @@ mrb_value
 RubyState::vm_const_get(const mrb_sym sym)
 {
 	return WRAP_CALL(mrb_vm_const_get(_mrb, sym));
-}
-
-void
-RubyState::vm_const_set(const mrb_sym sym, const mrb_value val)
-{
-	WRAP_CALL(mrb_vm_const_set(_mrb, sym, val));
 }
 
 mrb_value

@@ -21,9 +21,9 @@ namespace euler::gui {
 class Widget;
 
 class Row final : public util::Object {
+	BIND_MRUBY("Euler::Gui::Row", Row, gui.row);
 public:
-	static const mrb_data_type TYPE;
-	static void init(mrb_state *mrb, util::State::Modules &mod);
+
 
 	enum class Layout : uint8_t {
 		Static,

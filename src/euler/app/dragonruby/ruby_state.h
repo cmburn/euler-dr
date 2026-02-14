@@ -279,8 +279,6 @@ public:
 	mrb_bool obj_respond_to(RClass *c, mrb_sym mid) override;
 	mrb_sym obj_to_sym(mrb_value name) override;
 	mrb_bool object_dead_p(RBasic *object) override;
-	mrb_state *open_allocf(mrb_allocf f, void *ud) override;
-	mrb_state *open_core(mrb_allocf f, void *ud) override;
 	void p(mrb_value) override;
 	mrb_parser_state *parse_file(FILE *, mrbc_context *) override;
 	mrb_parser_state *parse_nstring(const char *, size_t,

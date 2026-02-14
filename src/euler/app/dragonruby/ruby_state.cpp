@@ -1893,18 +1893,6 @@ RubyState::object_dead_p(RBasic *object)
 	return _api.mrb_object_dead_p(_mrb, object);
 }
 
-mrb_state *
-RubyState::open_allocf(const mrb_allocf f, void *ud)
-{
-	return _api.mrb_open_allocf(f, ud);
-}
-
-mrb_state *
-RubyState::open_core(const mrb_allocf f, void *ud)
-{
-	return _api.mrb_open_core(f, ud);
-}
-
 void
 RubyState::p(const mrb_value str)
 {

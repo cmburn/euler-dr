@@ -48,7 +48,7 @@ public:
 	};
 
 	static Rectangle read_widget_rect(mrb_state *mrb, mrb_value hash);
-	static Flags read_widget_flags(const mrb_value arr);
+	static Flags read_widget_flags(mrb_state *mrb, const mrb_value arr);
 	static const Settings DEFAULT_SETTINGS;
 
 	Widget(const util::Reference<Window> &gui, ID id,
@@ -128,6 +128,7 @@ public:
 
 private:
 	bool in_draw() const;
+	nk_context *context() const;
 
 	util::WeakReference<Window> _gui;
 	ID _id;

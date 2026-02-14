@@ -54,19 +54,19 @@ elseif (EULER_NATIVE_BUILD)
     add_compile_definitions(EULER_NATIVE)
 endif ()
 
-if (EULER_MATH_BUILD OR EULER_NATIVE_BUILD)
-    set(ARMADILLO_GIT_TAG 15.2.2)
-    FetchContent_Declare(armadillo
-            GIT_REPOSITORY https://gitlab.com/conradsnicta/armadillo-code.git
-            GIT_TAG ${ARMADILLO_GIT_TAG}
-            GIT_SHALLOW TRUE
-    )
-    option(STATIC_LIB "Build static libraries" ON)
-    if (NOT STATIC_LIB)
-        message(FATAL_ERROR "Euler requires STATIC_LIB to be ON")
-    endif ()
-    FetchContent_MakeAvailable(armadillo)
+# all versions require armadillo
+set(ARMADILLO_GIT_TAG 15.2.2)
+FetchContent_Declare(armadillo
+        GIT_REPOSITORY https://gitlab.com/conradsnicta/armadillo-code.git
+        GIT_TAG ${ARMADILLO_GIT_TAG}
+        GIT_SHALLOW TRUE
+)
+option(STATIC_LIB "Build static libraries" ON)
+if (NOT STATIC_LIB)
+    message(FATAL_ERROR "Euler requires STATIC_LIB to be ON")
 endif ()
+FetchContent_MakeAvailable(armadillo)
+#
 
 if (EULER_PHYSICS_BUILD)
     set(BOX2D_GIT_TAG c05c48738fbe5c27625e36c5f0cfbdaddfc8359a)
@@ -105,18 +105,18 @@ elseif (EULER_NATIVE_BUILD)
     # are certain API changes that Euler depends on that are not in 3.4.0.
     # We'll pin it at the 3.5 minor release and then track stable releases from
     # there.
-#    set(MRUBY_VERSION 3.5.0)
-#    set(MRUBY_EXTERN_NAME mruby)
-#    set(MRUBY_GIT_TAG 2da01c607f6341a18dcd726b46f3e7a4a2c49211)
-#    FetchContent_Declare(mruby
-#            GIT_REPOSITORY https://github.com/mruby/mruby
-#            GIT_COMMIT ${MRUBY_GIT_TAG}
-#            GIT_SHALLOW TRUE
-#    )
-#    FetchContent_MakeAvailable(mruby)
+    #    set(MRUBY_VERSION 3.5.0)
+    #    set(MRUBY_EXTERN_NAME mruby)
+    #    set(MRUBY_GIT_TAG 2da01c607f6341a18dcd726b46f3e7a4a2c49211)
+    #    FetchContent_Declare(mruby
+    #            GIT_REPOSITORY https://github.com/mruby/mruby
+    #            GIT_COMMIT ${MRUBY_GIT_TAG}
+    #            GIT_SHALLOW TRUE
+    #    )
+    #    FetchContent_MakeAvailable(mruby)
     fetch_mruby(mruby
             GIT_REPOSITORY https://github.com/mruby/mruby
-            GIT_TAG 299eebaa23bc045e95f13a04e92a5458b895bf08
+            GIT_TAG 12bc2cfaa1a7d4c9490ac25d0a00f80293d28868
     )
 
     set(PHYSFS_GIT_COMMIT d70c3fcf06814f8608c8327d3e8136063ee0133d)

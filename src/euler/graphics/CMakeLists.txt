@@ -34,7 +34,7 @@ target_compile_definitions(euler_graphics PUBLIC
 target_link_libraries(euler_graphics PUBLIC
         euler_util
         euler_vulkan
-        VK2D
+        Vulkan2D
         armadillo
         mruby
 )

@@ -48,11 +48,13 @@ public:
 		return _modules;
 	}
 
+	[[nodiscard]] Phase phase() const override;
+
 private:
 #ifdef EULER_PHYSICS
 	util::Reference<physics::World> _world;
 #endif
-
+	Phase _phase = Phase::Update;
 	float _fps = 0;
 	tick_t _last_tick = 0;
 	tick_t _tick = 0;

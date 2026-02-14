@@ -32,8 +32,6 @@ Row::button(const Button::Settings &settings)
 static mrb_value
 button_symbol(mrb_state *mrb, const mrb_value self_value)
 {
-	// const auto self = euler::util::unwrap<euler::gui::Button>(mrb,
-	//     self_value, &euler::gui::Button::TYPE);
 	const auto state = euler::util::State::get(mrb);
 	const auto self = state->unwrap<euler::gui::Button>(self_value);
 	return euler::gui::from_symbol(mrb, self->symbol());
@@ -75,7 +73,6 @@ row_button(mrb_state *mrb, const mrb_value self_value)
 	using namespace euler;
 	auto state = util::State::get(mrb);
 	auto self = state->unwrap<Row>(self_value);
-	// auto self = util::unwrap<Row>(mrb, self_value, &Row::TYPE);
 	if (!state->mrb()->block_given_p()) {
 		mrb_raise(mrb, mrb->eStandardError_class,
 		    "Block required for Row#button");
@@ -85,22 +82,22 @@ row_button(mrb_state *mrb, const mrb_value self_value)
 	const auto klass = state->modules().gui.button;
 	mrb_value out = mrb_nil_value();
 	self->button(settings, [&](util::Reference<gui::Button> &b) {
-		// const auto value
-		//     = euler::util::wrap(mrb, b, klass, &gui::Button::TYPE);
 		const auto value = state->wrap(b);
 		out = mrb_yield(mrb, block, value);
 	});
 	return out;
 }
 
-void
-Row::init(mrb_state *mrb, util::State::Modules &mod)
+RClass *
+Row::init(const euler::util::Reference<euler::util::State> &state, RClass *mod,
+    RClass *)
 {
-	mod.gui.row = mrb_define_class_under(mrb, mod.gui.module, "Row",
-	    mrb->object_class);
-	const auto row = mod.gui.row;
-	MRB_SET_INSTANCE_TT(row, MRB_TT_CDATA);
-	mrb_define_method(mrb, row, "button", row_button, MRB_ARGS_KEY(0, 3));
+	const auto klass = state->mrb()->define_class_under(mod, "Row",
+	    state->object_class());
+	MRB_SET_INSTANCE_TT(klass, MRB_TT_CDATA);
+	state->mrb()->define_method(klass, "button", row_button,
+	    MRB_ARGS_KEY(0, 3) | MRB_ARGS_BLOCK());
+	return klass;
 }
 
 Row::Row(const util::Reference<Widget> &window, const Settings &settings)

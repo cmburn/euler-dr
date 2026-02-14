@@ -5,6 +5,8 @@
 
 #include <complex>
 
+#include <armadillo>
+
 #include "euler/util/state.h"
 
 namespace euler::util {
@@ -271,6 +273,8 @@ is_numeric(mrb_state *mrb, const mrb_value v)
 {
 	return is_complex(mrb, v) || mrb_float_p(v) || mrb_fixnum_p(v);
 }
+
+typedef arma::Col<float>::fixed<2> Vec2;
 
 } /* namespace euler::util */
 

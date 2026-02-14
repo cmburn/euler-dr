@@ -127,8 +127,6 @@ public:
 	    mrb_ccontext *) override;
 	mrb_parser_state *parse_string(const char *, mrb_ccontext *) override;
 	mrb_parser_state *parser_new() override;
-	mrb_state *open_allocf(mrb_allocf f, void *ud) override;
-	mrb_state *open_core(mrb_allocf f, void *ud) override;
 	mrb_sym intern(const char *, size_t) override;
 	mrb_sym intern_check(const char *, size_t) override;
 	mrb_sym intern_check_cstr(const char *) override;
@@ -297,7 +295,6 @@ public:
 	void *calloc(size_t, size_t) override;
 	void *data_check_get_ptr(mrb_value, const mrb_data_type *) override;
 	void *data_get_ptr(mrb_value, const mrb_data_type *) override;
-	void *default_allocf(void *, size_t, void *) override;
 	void *malloc(size_t) override;
 	void *malloc_simple(size_t) override;
 	void *realloc(void *, size_t) override;
@@ -386,7 +383,6 @@ public:
 	void undef_class_method_id(RClass *cls, mrb_sym name) override;
 	void undef_method(RClass *cla, const char *name) override;
 	void undef_method_id(RClass *, mrb_sym) override;
-	void vm_const_set(mrb_sym, mrb_value) override;
 	void vm_cv_set(mrb_sym, mrb_value) override;
 	void vm_special_set(mrb_sym, mrb_value) override;
 	void warn(const char *fmt, ...) override;

@@ -5,6 +5,7 @@
 
 #include "euler/util/object.h"
 
+// extern "C" {
 #include <mruby.h>
 #include <mruby/array.h>
 #include <mruby/compile.h>
@@ -13,6 +14,7 @@
 #include <mruby/range.h>
 #include <mruby/string.h>
 #include <mruby/variable.h>
+// }
 
 namespace euler::util {
 
@@ -128,7 +130,6 @@ public:
 	    uint32_t start_pos, uint32_t end_pos)
 	    = 0;
 	virtual void debug_info_free(mrb_irep_debug_info *d) = 0;
-	virtual void *default_allocf(void *, size_t, void *) = 0;
 	virtual void define_alias(RClass *c, const char *a, const char *b) = 0;
 	virtual void define_alias_id(RClass *c, mrb_sym a, mrb_sym b) = 0;
 	virtual RClass *define_class(const char *name, RClass *super) = 0;
@@ -327,8 +328,8 @@ public:
 	virtual mrb_bool obj_respond_to(RClass *c, mrb_sym mid) = 0;
 	virtual mrb_sym obj_to_sym(mrb_value name) = 0;
 	virtual mrb_bool object_dead_p(RBasic *object) = 0;
-	virtual mrb_state *open_allocf(mrb_allocf f, void *ud) = 0;
-	virtual mrb_state *open_core(mrb_allocf f, void *ud) = 0;
+	// virtual mrb_state *open_allocf(mrb_allocf f, void *ud) = 0;
+	// virtual mrb_state *open_core(mrb_allocf f, void *ud) = 0;
 	virtual void p(mrb_value) = 0;
 	virtual mrb_parser_state *parse_file(FILE *, mrbc_context *) = 0;
 	virtual mrb_parser_state *parse_nstring(const char *, size_t,
@@ -436,7 +437,6 @@ public:
 	virtual void undef_method_id(RClass *, mrb_sym) = 0;
 	virtual mrb_value vformat(const char *format, va_list ap) = 0;
 	virtual mrb_value vm_const_get(mrb_sym) = 0;
-	virtual void vm_const_set(mrb_sym, mrb_value) = 0;
 	virtual mrb_value vm_cv_get(mrb_sym) = 0;
 	virtual void vm_cv_set(mrb_sym, mrb_value) = 0;
 	virtual RClass *vm_define_class(mrb_value, mrb_value, mrb_sym) = 0;

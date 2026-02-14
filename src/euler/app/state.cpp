@@ -83,3 +83,8 @@ State::unwrap(mrb_value value, const mrb_data_type *type) const
 {
 	return mrb()->data_check_get_ptr(value, type);
 }
+State::Phase
+State::phase() const
+{
+	return _phase;
+}
