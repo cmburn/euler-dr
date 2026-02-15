@@ -9,9 +9,8 @@
 #include <variant>
 #include <vector>
 
-#include <glm/glm.hpp>
-
 #include "euler/util/object.h"
+#include "euler/util/math.h"
 
 struct nk_font_config;
 
@@ -24,7 +23,7 @@ class Font final : public util::Object {
 public:
 	struct Config {
 		std::vector<std::pair<uint32_t, uint32_t>> glyph_ranges;
-		glm::vec2 spacing;
+		util::Vec2 spacing;
 		uint32_t fallback_glyph;
 	};
 

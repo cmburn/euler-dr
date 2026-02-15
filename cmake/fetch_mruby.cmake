@@ -58,7 +58,7 @@ macro(fetch_mruby TARGET)
             -DMRB_USE_RATIONAL
             -DMRB_USE_COMPLEX
             -DMRB_USE_BIGINT
-            -DMRB_USE_DEBUG_HOOK`
+            -DMRB_USE_DEBUG_HOOK
     )
 
     add_dependencies(${TARGET} ${TARGET}-build)

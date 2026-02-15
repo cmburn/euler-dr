@@ -6,8 +6,6 @@
 #include "euler/graphics/image.h"
 #include "euler/vulkan/texture.h"
 
-#include <glm/vec2.hpp>
-
 namespace euler::graphics {
 class Window;
 

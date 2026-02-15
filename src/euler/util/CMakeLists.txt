@@ -46,6 +46,6 @@ endif ()
 if (EULER_NATIVE_BUILD)
     target_link_libraries(euler_util PUBLIC
             mruby
-            /home/cmburn/src/euler/cmake-build-debug/_deps/mruby/src/build/host/lib/libmruby.a
+            SDL3-static
     )
 endif ()

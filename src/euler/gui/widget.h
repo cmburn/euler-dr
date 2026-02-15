@@ -107,20 +107,20 @@ public:
 	}
 
 	Rectangle bounds() const;
-	glm::vec2 position() const;
-	glm::vec2 size() const;
+	util::Vec2 position() const;
+	util::Vec2 size() const;
 	float width() const;
 	float height() const;
 	Rectangle content_region() const;
 	bool are_any_active() const;
-	glm::uvec2 scroll() const;
+	util::UVec2 scroll() const;
 	bool has_focus() const;
 	bool is_hovered() const;
 	void set_bounds(const Rectangle &rect);
-	void set_position(const glm::vec2 &pos);
-	void set_size(const glm::vec2 &size);
+	void set_position(const util::Vec2 &pos);
+	void set_size(const util::Vec2 &size);
 	void focus();
-	void set_scroll(const glm::uvec2 &scroll);
+	void set_scroll(const util::UVec2 &scroll);
 	void close();
 	void minimize();
 	void maximize();

@@ -66,7 +66,10 @@ if (NOT STATIC_LIB)
     message(FATAL_ERROR "Euler requires STATIC_LIB to be ON")
 endif ()
 FetchContent_MakeAvailable(armadillo)
-#
+
+#target_compile_definitions(armadillo PUBLIC
+#        -DARMA_MAT_PREALLOC=2
+#)
 
 if (EULER_PHYSICS_BUILD)
     set(BOX2D_GIT_TAG c05c48738fbe5c27625e36c5f0cfbdaddfc8359a)

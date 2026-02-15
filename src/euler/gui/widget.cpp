@@ -251,79 +251,131 @@ Widget::bounds() const
 	};
 }
 
-glm::vec2
+euler::util::Vec2
 Widget::position() const
 {
+	auto vec = nk_widget_position(context());
+	return util::Vec2 { vec.x, vec.y };
 }
 
-glm::vec2
+euler::util::Vec2
 Widget::size() const
 {
+	auto vec = nk_widget_size(context());
+	return util::Vec2 { vec.x, vec.y };
 }
+
 float
 Widget::width() const
 {
+	return size()[0];
 }
+
 float
 Widget::height() const
 {
+	return size()[1];
 }
+
 Widget::Rectangle
 Widget::content_region() const
 {
+	auto rect = nk_window_get_content_region(context());
+	return Rectangle {
+		.x = rect.x,
+		.y = rect.y,
+		.w = rect.w,
+		.h = rect.h,
+	};
 }
+
 bool
 Widget::are_any_active() const
 {
+	return nk_item_is_any_active(context());
 }
-glm::uvec2
+
+
+euler::util::UVec2
 Widget::scroll() const
 {
+	// auto vec = nk_window_get_scroll(context());
+	// return util::UVec2 {vec.x, vec.y};
+	uint32_t x, y;
+	nk_window_get_scroll(context(), &x, &y);
+	return util::UVec2 { x, y };
 }
+
+
 bool
 Widget::has_focus() const
 {
+	return nk_window_has_focus(context());
 }
+
+
 bool
 Widget::is_hovered() const
 {
+	return nk_window_is_hovered(context());
 }
+
 void
 Widget::set_bounds(const Rectangle &rect)
 {
+	struct nk_rect nk_rect = {
+		.x = rect.x,
+		.y = rect.y,
+		.w = rect.w,
+		.h = rect.h,
+	};
+	nk_window_set_bounds(context(), title().c_str(), nk_rect);
 }
+
 void
-Widget::set_position(const glm::vec2 &pos)
+Widget::set_position(const util::Vec2 &pos)
 {
+	struct nk_vec2 nk_vec = {
+		.x = pos[0],
+		.y = pos[1],
+	};
+	nk_window_set_position(context(), title().c_str(), nk_vec);
 }
+
 void
-Widget::set_size(const glm::vec2 &size)
+Widget::set_size(const util::Vec2 &size)
 {
+	struct nk_vec2 nk_vec = {
+		.x = size[0],
+		.y = size[1],
+	};
+	nk_window_set_size(context(), title().c_str(), nk_vec);
 }
+
 void
 Widget::focus()
 {
+	nk_window_set_focus(context(), title().c_str());
 }
+
 void
-Widget::set_scroll(const glm::uvec2 &scroll)
+Widget::set_scroll(const util::UVec2 &scroll)
 {
+	nk_window_set_scroll(context(), scroll[0], scroll[1]);
 }
+
 void
 Widget::close()
 {
+	nk_window_close(context(), title().c_str());
 }
-void
-Widget::minimize()
-{
-}
-void
-Widget::maximize()
-{
-}
+
 void
 Widget::show()
 {
+	nk_window_show(context(), title().c_str(), NK_SHOWN);
 }
+
 Widget::~Widget() { release(); }
 
 void
@@ -374,23 +426,6 @@ Widget::read_widget_flags(mrb_state *mrb, const mrb_value arr)
 		} else if (sym == EULER_SYM(no_input)) {
 			flags.no_input = true;
 		}
-
-		// switch (mrb_symbol(item)) {
-		// case EULER_SYM(border): flags.border = true; break;
-		// case EULER_SYM(moveable): flags.moveable = true; break;
-		// case EULER_SYM(scalable): flags.scalable = true; break;
-		// case EULER_SYM(closeable): flags.closeable = true; break;
-		// case EULER_SYM(minimizable): flags.minimizable = true; break;
-		// case EULER_SYM(no_scrollbar): flags.no_scrollbar = true; break;
-		// case EULER_SYM(title): flags.title = true; break;
-		// case EULER_SYM(scroll_auto_hide):
-		// 	flags.scroll_auto_hide = true;
-		// 	break;
-		// case EULER_SYM(background): flags.background = true; break;
-		// case EULER_SYM(scale_left): flags.scale_left = true; break;
-		// case EULER_SYM(no_input): flags.no_input = true; break;
-		// default: break;
-		// }
 	}
 	return flags;
 }

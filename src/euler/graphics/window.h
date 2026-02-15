@@ -6,7 +6,6 @@
 #include <string>
 
 #include <SDL3/SDL.h>
-#include <glm/glm.hpp>
 
 #include "euler/graphics/font.h"
 #include "euler/graphics/sprite.h"

@@ -11,12 +11,15 @@
 #include "euler/util/storage.h"
 
 namespace euler::app::native {
+class Logger;
+
 class State : public util::State {
 public:
 	struct Arguments { };
 	~State() override;
 	explicit State(const Arguments &args);
 	static Arguments parse_args(int argc, char **argv);
+	bool initialize() override;
 
 	[[nodiscard]] util::Reference<util::RubyState>
 	mrb() const override

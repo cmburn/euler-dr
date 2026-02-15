@@ -1,13 +1,17 @@
 /* SPDX-License-Identifier: ISC */
 
-#include "euler/util/image.h"
 #include "euler/app/native/state.h"
+
+#include "euler/util/image.h"
+#include "euler/app/native/logger.h"
 
 using euler::app::native::State;
 
 State::~State() = default;
+
 State::State(const Arguments &args)
 {
+	_mrb_state = util::make_reference<RubyState>();
 
 }
 
@@ -17,6 +21,14 @@ State::Arguments
 State::parse_args(int, char **)
 {
 	return {};
+}
+bool
+State::initialize()
+{
+	_mrb_state->mrb()->ud = util::Reference(this).wrap();
+	_log = euler::util::make_reference<Logger>();
+
+	return true;
 }
 
 euler::util::Reference<euler::util::Logger>

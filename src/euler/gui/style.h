@@ -9,6 +9,7 @@
 #include "euler/util/color.h"
 #include "euler/util/object.h"
 #include "euler/util/state.h"
+#include "euler/util/math.h"
 
 struct nk_color;
 struct nk_style_item;
@@ -96,7 +97,7 @@ struct Style final {
 
 	struct Text {
 		Color color;
-		glm::vec2 padding = { 0.0f, 0.0f };
+		util::Vec2 padding = { 0.0f, 0.0f };
 
 		nk_style_text to_nuklear(
 		    const util::Reference<util::State> &state) const;
@@ -116,9 +117,9 @@ struct Style final {
 		float color_factor_text = 1.0f;
 		float border = 0.0f;
 		float rounding = 0.0f;
-		glm::vec2 padding = { 0.0f, 0.0f };
-		glm::vec2 image_padding = { 0.0f, 0.0f };
-		glm::vec2 touch_padding = { 0.0f, 0.0f };
+		util::Vec2 padding = { 0.0f, 0.0f };
+		util::Vec2 image_padding = { 0.0f, 0.0f };
+		util::Vec2 touch_padding = { 0.0f, 0.0f };
 
 		nk_style_button to_nuklear(
 		    const util::Reference<util::State> &state) const;
@@ -136,8 +137,8 @@ struct Style final {
 		Color text_active;
 		Color text_background;
 		Alignment text_alignment;
-		glm::vec2 padding = { 0.0f, 0.0f };
-		glm::vec2 touch_padding = { 0.0f, 0.0f };
+		util::Vec2 padding = { 0.0f, 0.0f };
+		util::Vec2 touch_padding = { 0.0f, 0.0f };
 		float spacing = 0.0f;
 		float border = 0.0f;
 
@@ -169,9 +170,9 @@ struct Style final {
 		Alignment text_alignment;
 
 		float rounding = 0.0f;
-		glm::vec2 padding = { 0.0f, 0.0f };
-		glm::vec2 touch_padding = { 0.0f, 0.0f };
-		glm::vec2 image_padding = { 0.0f, 0.0f };
+		util::Vec2 padding = { 0.0f, 0.0f };
+		util::Vec2 touch_padding = { 0.0f, 0.0f };
+		util::Vec2 image_padding = { 0.0f, 0.0f };
 
 		nk_style_selectable to_nuklear(
 		    const util::Reference<util::State> &state) const;
@@ -198,9 +199,9 @@ struct Style final {
 		float border = 0.0f;
 		float rounding = 0.0f;
 		float bar_height = 0.0f;
-		glm::vec2 padding = { 0.0f, 0.0f };
-		glm::vec2 spacing = { 0.0f, 0.0f };
-		glm::vec2 cursor_size = { 0.0f, 0.0f };
+		util::Vec2 padding = { 0.0f, 0.0f };
+		util::Vec2 spacing = { 0.0f, 0.0f };
+		util::Vec2 cursor_size = { 0.0f, 0.0f };
 
 		nk_style_slider to_nuklear(
 		    const util::Reference<util::State> &state) const;
@@ -223,8 +224,8 @@ struct Style final {
 
 		float border = 0.0f;
 		float knob_border = 0.0f;
-		glm::vec2 padding = { 0.0f, 0.0f };
-		glm::vec2 spacing = { 0.0f, 0.0f };
+		util::Vec2 padding = { 0.0f, 0.0f };
+		util::Vec2 spacing = { 0.0f, 0.0f };
 
 		nk_style_knob to_nuklear(
 		    const util::Reference<util::State> &state) const;
@@ -245,7 +246,7 @@ struct Style final {
 		float border;
 		float cursor_border;
 		float cursor_rounding;
-		glm::vec2 padding = { 0.0f, 0.0f };
+		util::Vec2 padding = { 0.0f, 0.0f };
 
 		nk_style_progress to_nuklear(
 		    const util::Reference<util::State> &state) const;
@@ -264,7 +265,7 @@ struct Style final {
 		float rounding = 0.0f;
 		float border_cursor = 0.0f;
 		float rounding_cursor = 0.0f;
-		glm::vec2 padding = { 0.0f, 0.0f };
+		util::Vec2 padding = { 0.0f, 0.0f };
 
 		nk_style_scrollbar to_nuklear(
 		    const util::Reference<util::State> &state) const;
@@ -292,8 +293,8 @@ struct Style final {
 		float border = 0.0f;
 		float rounding = 0.0f;
 		float cursor_size = 1.0f;
-		glm::vec2 scrollbar_size = { 0.0f, 0.0f };
-		glm::vec2 padding = { 0.0f, 0.0f };
+		util::Vec2 scrollbar_size = { 0.0f, 0.0f };
+		util::Vec2 padding = { 0.0f, 0.0f };
 		float row_padding = 0.0f;
 
 		nk_style_edit to_nuklear(
@@ -315,7 +316,7 @@ struct Style final {
 
 		float border = 0.0f;
 		float rounding = 0.0f;
-		glm::vec2 padding = { 0.0f, 0.0f };
+		util::Vec2 padding = { 0.0f, 0.0f };
 		TextEdit exit;
 		Button increase_button;
 		Button decrease_button;
@@ -331,7 +332,7 @@ struct Style final {
 		Color color;
 		float border = 0.0f;
 		float rounding = 0.0f;
-		glm::vec2 padding = { 0.0f, 0.0f };
+		util::Vec2 padding = { 0.0f, 0.0f };
 
 		nk_style_chart to_nuklear(
 		    const util::Reference<util::State> &state) const;
@@ -348,8 +349,8 @@ struct Style final {
 		float border = 0.0f;
 		float rounding = 0.0f;
 		float indent = 0.0f;
-		glm::vec2 padding = { 0.0f, 0.0f };
-		glm::vec2 spacing = { 0.0f, 0.0f };
+		util::Vec2 padding = { 0.0f, 0.0f };
+		util::Vec2 spacing = { 0.0f, 0.0f };
 
 		nk_style_tab to_nuklear(
 		    const util::Reference<util::State> &state) const;
@@ -369,9 +370,9 @@ struct Style final {
 		Button button;
 		float border = 0.0f;
 		float rounding = 0.0f;
-		glm::vec2 content_padding;
-		glm::vec2 button_padding;
-		glm::vec2 spacing;
+		util::Vec2 content_padding;
+		util::Vec2 button_padding;
+		util::Vec2 spacing;
 
 		nk_style_combo to_nuklear(
 		    const util::Reference<util::State> &state) const;
@@ -387,9 +388,9 @@ struct Style final {
 			Color label_normal;
 			Color label_hover;
 			Color label_active;
-			glm::vec2 padding = { 0.0f, 0.0f };
-			glm::vec2 label_padding = { 0.0f, 0.0f };
-			glm::vec2 spacing = { 0.0f, 0.0f };
+			util::Vec2 padding = { 0.0f, 0.0f };
+			util::Vec2 label_padding = { 0.0f, 0.0f };
+			util::Vec2 spacing = { 0.0f, 0.0f };
 			nk_style_window_header to_nuklear(
 			    const util::Reference<util::State> &state) const;
 			static Header from_nuklear(
@@ -415,13 +416,13 @@ struct Style final {
 		float tooltip_border = 0.0f;
 		float popup_border = 0.0f;
 		float rounding = 0.0f;
-		glm::vec2 spacing = { 0.0f, 0.0f };
-		glm::vec2 group_padding = { 0.0f, 0.0f };
-		glm::vec2 popup_padding = { 0.0f, 0.0f };
-		glm::vec2 dropdown_padding;
-		glm::vec2 contextual_padding;
-		glm::vec2 menu_padding;
-		glm::vec2 tooltip_padding;
+		util::Vec2 spacing = { 0.0f, 0.0f };
+		util::Vec2 group_padding = { 0.0f, 0.0f };
+		util::Vec2 popup_padding = { 0.0f, 0.0f };
+		util::Vec2 dropdown_padding;
+		util::Vec2 contextual_padding;
+		util::Vec2 menu_padding;
+		util::Vec2 tooltip_padding;
 
 		nk_style_window to_nuklear(
 		    const util::Reference<util::State> &state) const;

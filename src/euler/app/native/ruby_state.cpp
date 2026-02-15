@@ -52,6 +52,11 @@ wrap_call(mrb_state *mrb, const auto &func)
 
 using euler::app::native::RubyState;
 
+RubyState::RubyState()
+{
+	_mrb = mrb_open();
+}
+
 mrb_state *
 RubyState::mrb() const
 {

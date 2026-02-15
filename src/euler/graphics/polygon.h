@@ -3,7 +3,6 @@
 #ifndef EULER_RENDERER_POLYGON_H
 #define EULER_RENDERER_POLYGON_H
 
-// #include <glm/glm.hpp>
 #include <vector>
 
 #include <armadillo>

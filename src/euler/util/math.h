@@ -275,6 +275,7 @@ is_numeric(mrb_state *mrb, const mrb_value v)
 }
 
 typedef arma::Col<float>::fixed<2> Vec2;
+typedef arma::Col<uint32_t>::fixed<2> UVec2;
 
 } /* namespace euler::util */
 

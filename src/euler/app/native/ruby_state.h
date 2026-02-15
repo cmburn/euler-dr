@@ -9,6 +9,7 @@
 namespace euler::app::native {
 class RubyState final : public util::RubyState {
 public:
+	RubyState();
 	mrb_state *mrb() const override;
 	void raise(RClass *c, const char *msg) override;
 	void raisef(RClass *c, const char *fmt, ...) override;

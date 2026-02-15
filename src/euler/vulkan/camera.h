@@ -3,7 +3,6 @@
 #ifndef EULER_VULKAN_CAMERA_H
 #define EULER_VULKAN_CAMERA_H
 
-#include <glm/fwd.hpp>
 
 #include "euler/util/object.h"
 
@@ -54,7 +53,7 @@ public:
 	}
 	void flush_ubo(DescriptorBuffer &buffer);
 	void set_state(State state);
-	glm::mat4 ubo() const;
+	//glm::mat4 ubo() const;
 	[[nodiscard]] util::Reference<Surface> surface() const;
 
 	Index
