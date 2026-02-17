@@ -180,12 +180,12 @@ unwrap_data(mrb_state *mrb, const mrb_value &value, const mrb_data_type *type)
 {
 	auto state = State::get(mrb);
 	if (mrb_nil_p(value)) {
-		state->mrb()->raisef(E_TYPE_ERROR, "Expected a %s object",
-		    type->struct_name);
+		state->mrb()->raisef(state->mrb()->type_error(),
+		    "Expected a %s object", type->struct_name);
 	}
 	if (auto ptr = state->mrb()->data_get_ptr(value, type); ptr != nullptr)
 		return static_cast<T *>(ptr);
-	state->mrb()->raisef(E_TYPE_ERROR, "Expected a %s object",
+	state->mrb()->raisef(state->mrb()->type_error(), "Expected a %s object",
 	    type->struct_name);
 	std::unreachable();
 }
@@ -207,7 +207,7 @@ private:                                                                       \
 
 #define BIND_MRUBY_DATA(NAME, TYPENAME, MODULE)                                \
 public:                                                                        \
-	static const mrb_data_type TYPE;\
+	static const mrb_data_type TYPE;                                       \
 	static RClass *init(                                                   \
 	    const ::euler::util::Reference<::euler::util::State> &state,       \
 	    RClass *mod, RClass *super = nullptr);                             \
@@ -220,47 +220,6 @@ public:                                                                        \
 private:                                                                       \
 	static_assert(true)
 
-/*
-#define ATTR_IV_READER(SYM) \
-	[](mrb_state *mrb, const mrb_value self) {                             \
-		auto state = (::euler::util::State::get(mrb));                 \
-		return state->mrb()->iv_get(self, EULER_IVSYM(SYM));           \
-	}
-
-#define ATTR_READER(SELF_TYPE, SELF_DATA, OTHER_DATA, SUPER, EXPR) \
-	[](mrb_state *mrb, const mrb_value self_value) {                       \
-		const auto self = ::euler::util::unwrap_data<SELF_TYPE>(mrb,   \
-		    self_value, &SELF_DATA);                                   \
-		const auto state = ::euler::util::State::get(mrb);             \
-		const auto mod = state->module();                              \
-		auto ans = (EXPR);                                             \
-		const auto obj                                                 \
-		    = Data_Wrap_Struct(mrb, (SUPER), &OTHER_DATA, ans.wrap()); \
-		const auto value = mrb_obj_value(obj);                         \
-		state->mrb()->gc_protect(mrb, value);                          \
-		return value;                                                  \
-	}
-
-#define ATTR_READER_DATA(SELF_TYPE, SELF_DATA, OTHER_TYPE, OTHER_DATA, EXPR)
-\
-	[](mrb_state *mrb, const mrb_value self_value) {                       \
-		const auto self = ::euler::util::unwrap_data<SELF_TYPE>(mrb,   \
-		    self_value, &SELF_DATA);                                   \
-		const auto ans = (EXPR);                                       \
-		if (ans == nullptr) return mrb_nil_value();                    \
-		const auto obj = Data_Wrap_Struct(mrb, mrb->object_class,      \
-		    &OTHER_DATA, static_cast<OTHER_TYPE *>(ans));              \
-		return mrb_obj_value(obj);                                     \
-	}
-
-#define ATTR_READER_VALUE(SELF_TYPE, SELF_DATA, WRAP, EXPR) \
-	[](mrb_state *mrb, const mrb_value self_value) {                       \
-		const auto self = ::euler::util::unwrap_data<SELF_TYPE>(mrb,   \
-		    self_value, &SELF_DATA);                                   \
-		auto ans = (EXPR);                                             \
-		return WRAP(ans);                                              \
-	}
-	*/
 
 float read_hash_float(mrb_state *mrb, const mrb_value hash, const mrb_sym key,
     const float default_value = 0.0f);

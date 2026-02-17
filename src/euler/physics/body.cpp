@@ -26,6 +26,7 @@ using euler::physics::Body;
 		kw_syms[i] = state->mrb()->intern_static(KW_NAMES[i], len);    \
 	}                                                                      \
 	mrb_value kw_values[KW_COUNT];                                         \
+	euler::physics::init_kw_values(kw_values);                             \
 	const mrb_kwargs kwargs = {                                            \
 		.num = KW_COUNT,                                               \
 		.required = 0,                                                 \
@@ -1093,7 +1094,8 @@ body_type(mrb_state *mrb, mrb_value self)
 	case b2_kinematicBody: return EULER_SYM_VAL(kinematic);
 	case b2_dynamicBody: return EULER_SYM_VAL(dynamic);
 	default:
-		state->mrb()->raise(E_RUNTIME_ERROR, "unknown body type");
+		state->mrb()->raise(state->mrb()->type_error(),
+		    "unknown body type");
 		std::unreachable();
 	}
 }
@@ -1109,7 +1111,8 @@ sym_to_body_type(mrb_state *mrb, const mrb_sym type_sym)
 		return b2_kinematicBody;
 	if (state->mrb()->equal(type, EULER_SYM_VAL(dynamic)))
 		return b2_dynamicBody;
-	state->mrb()->raise(E_ARGUMENT_ERROR, "invalid body type");
+	state->mrb()->raise(state->mrb()->argument_error(),
+	    "invalid body type");
 	std::unreachable();
 }
 
@@ -1375,7 +1378,8 @@ Body::parse_type(mrb_state *mrb, mrb_value value)
 	if (state->mrb()->equal(value, EULER_SYM_VAL(dynamic))) {
 		return b2_dynamicBody;
 	}
-	state->mrb()->raise(E_ARGUMENT_ERROR, "invalid body type");
+	state->mrb()->raise(state->mrb()->argument_error(),
+	    "invalid body type");
 	std::unreachable();
 }
 

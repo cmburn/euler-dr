@@ -10,10 +10,9 @@ const mrb_data_type Color::TYPE
 static mrb_value
 color_allocate(mrb_state *mrb, const mrb_value self)
 {
-	// auto obj = Data_Wrap_Struct(mrb, mrb_class_ptr(self),
-	//     &euler::util::Color::TYPE, new euler::util::Color(0, 0, 0, 255));
-	auto obj = Data_Wrap_Struct(mrb, mrb_class_ptr(self), &Color::TYPE,
-	    new Color(0, 0, 0, 255));
+	auto state = euler::util::State::get(mrb);
+	auto obj = state->mrb()->data_object_alloc(mrb_class_ptr(self),
+	    new Color(0, 0, 0, 255), &Color::TYPE);
 	return mrb_obj_value(obj);
 }
 
@@ -88,7 +87,7 @@ color_set_red(mrb_state *mrb, const mrb_value self_value)
 	mrb_int red;
 	state->mrb()->get_args("i", &red);
 	if (red < 0 || red > 255) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Red component must be in the range 0:255");
 	}
 	self->set_red(static_cast<uint8_t>(red));
@@ -104,7 +103,7 @@ color_set_green(mrb_state *mrb, const mrb_value self_value)
 	mrb_int green;
 	state->mrb()->get_args("i", &green);
 	if (green < 0 || green > 255) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Green component must be in the range 0:255");
 	}
 	self->set_green(static_cast<uint8_t>(green));
@@ -120,7 +119,7 @@ color_set_blue(mrb_state *mrb, const mrb_value self_value)
 	mrb_int blue;
 	state->mrb()->get_args("i", &blue);
 	if (blue < 0 || blue > 255) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Blue component must be in the range 0:255");
 	}
 	self->set_blue(static_cast<uint8_t>(blue));
@@ -136,7 +135,7 @@ color_set_alpha(mrb_state *mrb, const mrb_value self_value)
 	mrb_int alpha;
 	state->mrb()->get_args("i", &alpha);
 	if (alpha < 0 || alpha > 255) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Alpha component must be in the range 0:255");
 	}
 	self->set_alpha(static_cast<uint8_t>(alpha));
@@ -189,7 +188,7 @@ Color::read(mrb_state *mrb, mrb_value value)
 		if (sym == EULER_SYM(red)) return COLOR_RED;
 		if (sym == EULER_SYM(green)) return COLOR_GREEN;
 		if (sym == EULER_SYM(blue)) return COLOR_BLUE;
-		state->mrb()->raisef(E_ARGUMENT_ERROR,
+		state->mrb()->raisef(state->mrb()->argument_error(),
 		    "Unknown color symbol: %S", value);
 	}
 	const auto hash = state->mrb()->ensure_hash_type(value);
@@ -205,7 +204,7 @@ Color::read(mrb_state *mrb, mrb_value value)
 			    mrb_symbol_value(EULER_SYM(NAME2))));              \
 		}                                                              \
 		if (OUT < 0 || OUT > 255) {                                    \
-			state->mrb()->raisef(E_ARGUMENT_ERROR,                 \
+			state->mrb()->raisef(state->mrb()->argument_error(),   \
 			    "Color component " #NAME1                          \
 			    " (value %ld) must be in the range 0:255",         \
 			    OUT);                                              \

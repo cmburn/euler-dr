@@ -32,7 +32,7 @@ euler::physics::value_to_b2_vec(mrb_state *mrb, mrb_value val)
 	 */
 	if (mrb_array_p(val)) {
 		if (RARRAY_LEN(val) != 2) {
-			state->mrb()->raise(E_ARGUMENT_ERROR,
+			state->mrb()->raise(state->mrb()->argument_error(),
 			    "Array must have exactly two elements");
 		}
 		const auto x_val = state->mrb()->ensure_float_type(
@@ -50,7 +50,7 @@ euler::physics::value_to_b2_vec(mrb_state *mrb, mrb_value val)
 		const auto x_val = state->mrb()->hash_get(val, x_key);
 		const auto y_val = state->mrb()->hash_get(val, y_key);
 		if (mrb_nil_p(x_val) || mrb_nil_p(y_val)) {
-			state->mrb()->raise(E_ARGUMENT_ERROR,
+			state->mrb()->raise(state->mrb()->argument_error(),
 			    "Hash must have :x and :y keys");
 		}
 		const auto x_float = state->mrb()->ensure_float_type(x_val);
@@ -72,7 +72,7 @@ euler::physics::value_to_b2_vec(mrb_state *mrb, mrb_value val)
 #ifdef EULER_MATH
 	// TODO
 #endif
-	state->mrb()->raise(E_ARGUMENT_ERROR,
+	state->mrb()->raise(state->mrb()->argument_error(),
 	    "Invalid argument type for vector");
 	std::unreachable();
 }
@@ -91,7 +91,7 @@ euler::physics::value_to_b2_rot(mrb_state *mrb, mrb_value val)
 	const auto state = util::State::get(mrb);
 	if (mrb_array_p(val)) {
 		if (RARRAY_LEN(val) != 2) {
-			state->mrb()->raise(E_ARGUMENT_ERROR,
+			state->mrb()->raise(state->mrb()->argument_error(),
 			    "Array must have exactly two elements");
 		}
 		const auto c_val = state->mrb()->ensure_float_type(
@@ -109,7 +109,7 @@ euler::physics::value_to_b2_rot(mrb_state *mrb, mrb_value val)
 		const auto c_val = state->mrb()->hash_get(val, c_key);
 		const auto s_val = state->mrb()->hash_get(val, s_key);
 		if (mrb_nil_p(s_val) || mrb_nil_p(c_val)) {
-			state->mrb()->raise(E_ARGUMENT_ERROR,
+			state->mrb()->raise(state->mrb()->argument_error(),
 			    "Hash must have :sin and :cos keys");
 		}
 		const auto c_float = state->mrb()->ensure_float_type(c_val);
@@ -140,7 +140,7 @@ euler::physics::value_to_b2_rot(mrb_state *mrb, mrb_value val)
 			.s = std::sin(angle),
 		};
 	}
-	state->mrb()->raise(E_ARGUMENT_ERROR,
+	state->mrb()->raise(state->mrb()->argument_error(),
 	    "Invalid argument type for rotation");
 	std::unreachable();
 }
@@ -171,7 +171,7 @@ euler::physics::value_to_b2_transform(mrb_state *mrb, mrb_value val)
 {
 	const auto state = util::State::get(mrb);
 	if (!mrb_hash_p(val)) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Transform must be a hash with :position and :rotation "
 		    "keys");
 	}

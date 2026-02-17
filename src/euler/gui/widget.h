@@ -15,6 +15,7 @@ class Window;
 /* Equivalent to nk_window */
 class Widget final : public util::Object {
 	BIND_MRUBY("Euler::Gui::Widget", Widget, gui.widget);
+
 public:
 	using ID = uint64_t;
 	~Widget() override;

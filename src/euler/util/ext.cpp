@@ -2,9 +2,9 @@
 
 #include "euler/util/ext.h"
 
+#include "euler/util/color.h"
 #include "euler/util/logger.h"
 #include "euler/util/version.h"
-#include "euler/util/color.h"
 
 void
 euler::util::init(const Reference<State> &state, RClass *euler_mod)

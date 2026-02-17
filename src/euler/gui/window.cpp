@@ -11,33 +11,36 @@ using euler::gui::Window;
 mrb_value
 Window::display(const util::Reference<Widget> &widget)
 {
-	// if (widget == nullptr) return mrb_nil_value();
-	// auto mrb = state()->state();
-	// if (state()->phase() != util::State::Phase::Draw) {
-	// 	mrb_raise(mrb, mrb->eStandardError_class,
-	// 	    "Widgets can only be displayed during State#draw");
-	// }
-	// const auto id = widget->id();
-	// if (!_widget_callbacks.contains(widget->id())) {
-	// 	mrb_raise(mrb, mrb->eStandardError_class,
-	// 	    "Widget was not created by this Window, or has already "
-	// 	    "been released.");
-	// }
-	// const auto fn = _widget_callbacks.at(id);
-	// if (std::holds_alternative<NativeCallback>(fn)) {
-	// 	widget->call(std::get<NativeCallback>(fn));
-	// 	return mrb_nil_value();
-	// }
-	// auto out = mrb_nil_value();
-	// widget->call([&](auto &w) {
-	// 	assert(std::holds_alternative<mrb_value>(fn));
-	// 	const auto block = std::get<mrb_value>(fn);
-	// 	auto self_value = euler::util::wrap(mrb, w,
-	// 	    state()->module().gui.widget, &Widget::TYPE);
-	// 	out = mrb_funcall_argv(mrb, block, MRB_SYM(call), 1,
-	// 	    &self_value);
-	// });
-	// return out;
+	if (widget == nullptr) return mrb_nil_value();
+	auto mrb = state()->mrb()->mrb();
+	if (state()->phase() != util::State::Phase::Draw) {
+		// mrb_raise(mrb, mrb->eStandardError_class,
+		//     "Widgets can only be displayed during State#draw");
+		state()->mrb()->raise(
+		    state()->mrb()->mrb()->eStandardError_class,
+		    "Widgets can only be displayed during State#draw");
+	}
+	const auto id = widget->id();
+	if (!_widget_callbacks.contains(widget->id())) {
+		state()->mrb()->raise(
+		    state()->mrb()->mrb()->eStandardError_class,
+		    "Widget was not created by this Window, or has already "
+		    "been released.");
+	}
+	const auto fn = _widget_callbacks.at(id);
+	if (std::holds_alternative<NativeCallback>(fn)) {
+		widget->call(std::get<NativeCallback>(fn));
+		return mrb_nil_value();
+	}
+	auto out = mrb_nil_value();
+	widget->call([&](util::Reference<Widget> &w) -> void {
+		const auto block = std::get<mrb_value>(fn);
+		auto self_value
+		    = w.wrap(mrb, state()->modules().gui.widget, &Widget::TYPE);
+		state()->mrb()->funcall_argv(block, EULER_SYM(call), 1,
+		    &self_value);
+	});
+	return out;
 }
 
 void

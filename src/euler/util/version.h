@@ -9,13 +9,14 @@
 #include <mruby.h>
 #include <mruby/data.h>
 
-#include "euler/util/state.h"
 #include "euler/util/ext.h"
+#include "euler/util/state.h"
 
 namespace euler::util {
 
 class Version {
 	BIND_MRUBY_DATA("Euler::Util::Version", Version, util.version);
+
 public:
 	constexpr Version(const uint16_t major = 0, const uint16_t minor = 0,
 	    const uint16_t patch = 0)
@@ -28,8 +29,7 @@ public:
 		assert(patch < (1 << 12));
 	}
 
-	[[nodiscard]] uint32_t
-	to_int() const;
+	[[nodiscard]] uint32_t to_int() const;
 
 	[[nodiscard]] constexpr
 	operator uint32_t() const
@@ -75,7 +75,8 @@ public:
 		_patch = patch;
 	}
 
-	std::string to_string() const
+	std::string
+	to_string() const
 	{
 		return std::format("v{}.{}.{}", _major, _minor, _patch);
 	}

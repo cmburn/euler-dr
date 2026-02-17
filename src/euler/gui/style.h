@@ -7,9 +7,9 @@
 #include "euler/graphics/image.h"
 #include "euler/gui/common.h"
 #include "euler/util/color.h"
+#include "euler/util/math.h"
 #include "euler/util/object.h"
 #include "euler/util/state.h"
-#include "euler/util/math.h"
 
 struct nk_color;
 struct nk_style_item;

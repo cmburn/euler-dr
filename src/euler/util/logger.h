@@ -16,8 +16,8 @@
 namespace euler::util {
 class Logger : public Object {
 	BIND_MRUBY("Euler::Util::Logger", Logger, util.logger);
-public:
 
+public:
 	enum class Severity {
 		Debug,
 		Info,

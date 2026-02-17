@@ -408,7 +408,6 @@ are_compatible_sizes(size_type rows, size_type cols, size_type slices)
 		&& slices != dynamic_size);
 }
 
-
 static constexpr bool
 are_compatible_sizes(size_type rows, size_type cols)
 {

@@ -22,6 +22,12 @@ mrb_value surface_material_to_value(mrb_state *, const b2SurfaceMaterial *);
 b2SurfaceMaterial value_to_surface_material(mrb_state *, mrb_value);
 float coerce_float(mrb_state *, mrb_value);
 
+template <size_t N>
+void init_kw_values(mrb_value (&kw_values)[N])
+{
+	for (size_t i = 0; i < N; ++i) kw_values[i] = mrb_undef_value();
+}
+
 } /* namespace euler::physics */
 
 #endif /* EULER_PHYSICS_UTIL_H */

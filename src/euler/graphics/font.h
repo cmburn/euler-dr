@@ -9,8 +9,8 @@
 #include <variant>
 #include <vector>
 
-#include "euler/util/object.h"
 #include "euler/util/math.h"
+#include "euler/util/object.h"
 
 struct nk_font_config;
 

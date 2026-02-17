@@ -6,9 +6,9 @@
 #include <filesystem>
 #include <span>
 
+#include "euler/util/image.h"
 #include "euler/util/object.h"
 #include "euler/vulkan/internal.h"
-#include "euler/util/image.h"
 
 namespace euler::vulkan {
 
@@ -21,8 +21,6 @@ public:
 	{
 		return _texture;
 	}
-
-
 
 	void display(const Frame &spec) const override;
 	bool is_target() const override;

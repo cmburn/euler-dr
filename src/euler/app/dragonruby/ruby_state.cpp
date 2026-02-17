@@ -104,9 +104,14 @@ RubyState::get_args(const mrb_args_format format, ...)
 	va_list ap;
 	va_start(ap, format);
 	const auto argc = get_argc();
+	if (argc <= 0) {
+		va_end(ap);
+		return argc;
+	}
 	for (mrb_int i = 0; i < argc; ++i) args.push_back(va_arg(ap, void *));
 	va_end(ap);
-	return get_args_a(format, args.data());
+	auto out = get_args_a(format, args.data());
+	return out;
 }
 
 mrb_value
@@ -531,12 +536,6 @@ RubyState::debug_info_free(mrb_irep_debug_info *d)
 	_api.mrb_debug_info_free(_mrb, d);
 }
 
-void *
-RubyState::default_allocf(void *data, const size_t size, void *ptr)
-{
-	return _api.mrb_default_allocf(_mrb, data, size, ptr);
-}
-
 void
 RubyState::define_alias(RClass *c, const char *a, const char *b)
 {
@@ -941,6 +940,7 @@ RubyState::get_args_a(mrb_args_format format, void **ptr)
 	mrb_value kdict;
 	mrb_bool reqkarg = FALSE;
 	int argc_min = 0, argc_max = 0;
+	auto state = euler::util::State::get(mrb);
 
 	if (!argv_on_stack) {
 		auto a = mrb_ary_ptr(*array_argv);
@@ -996,8 +996,7 @@ check_exit:
 				if (opt) {
 					given = FALSE;
 				} else {
-					mrb_argnum_error(_mrb, argc, argc_min,
-					    argc_max);
+					argnum_error(argc, argc_min, argc_max);
 				}
 			}
 			break;
@@ -1026,7 +1025,7 @@ check_exit:
 
 				ss = argv[i++];
 				if (!class_ptr_p(ss)) {
-					mrb_raisef(_mrb, E_TYPE_ERROR,
+					raisef(state->mrb()->type_error(),
 					    "%v is not class/module", ss);
 				}
 				*p = ss;
@@ -1041,7 +1040,7 @@ check_exit:
 
 				ss = argv[i++];
 				if (!class_ptr_p(ss)) {
-					mrb_raisef(_mrb, E_TYPE_ERROR,
+					raisef(state->mrb()->type_error(),
 					    "%v is not class/module", ss);
 				}
 				*p = mrb_class_ptr(ss);
@@ -1065,7 +1064,7 @@ check_exit:
 			if (i < argc) {
 				*p = argv[i++];
 				if (!(altmode && mrb_nil_p(*p))) {
-					mrb_check_type(_mrb, *p, MRB_TT_ARRAY);
+					check_type(*p, MRB_TT_ARRAY);
 				}
 			}
 		} break;
@@ -1076,7 +1075,7 @@ check_exit:
 			if (i < argc) {
 				*p = argv[i++];
 				if (!(altmode && mrb_nil_p(*p))) {
-					mrb_check_type(_mrb, *p, MRB_TT_HASH);
+					check_type(*p, MRB_TT_HASH);
 				}
 			}
 		} break;
@@ -1109,8 +1108,8 @@ check_exit:
 				if (altmode && mrb_nil_p(ss)) {
 					*ps = nullptr;
 				} else {
-					_api.mrb_to_str(_mrb, ss);
-					*ps = RSTRING_CSTR(_mrb, ss);
+					to_str(ss);
+					*ps = state->mrb()->string_cstr(ss);
 				}
 			}
 		} break;
@@ -1128,7 +1127,7 @@ check_exit:
 					*pl = 0;
 				} else {
 					RArray *a;
-					mrb_check_type(_mrb, aa, MRB_TT_ARRAY);
+					check_type(aa, MRB_TT_ARRAY);
 					a = mrb_ary_ptr(aa);
 					*pb = ARY_PTR(a);
 					*pl = ARY_LEN(a);
@@ -1143,7 +1142,7 @@ check_exit:
 				mrb_value ss;
 				ss = argv[i++];
 				if (!mrb_istruct_p(ss)) {
-					mrb_raisef(_mrb, E_TYPE_ERROR,
+					raisef(state->mrb()->type_error(),
 					    "%v is not inline struct", ss);
 				}
 				*p = mrb_istruct_ptr(ss);
@@ -1154,17 +1153,14 @@ check_exit:
 			mrb_float *p;
 
 			p = static_cast<mrb_float *>(*ptr++);
-			if (i < argc) { *p = _api.mrb_to_flo(_mrb, argv[i++]); }
+			if (i < argc) { *p = to_flo(argv[i++]); }
 		} break;
 #endif
 		case 'i': {
 			mrb_int *p;
 
 			p = static_cast<mrb_int *>(*ptr++);
-			if (i < argc) {
-				*p = mrb_integer(
-				    _api.mrb_to_int(_mrb, argv[i++]));
-			}
+			if (i < argc) { *p = mrb_integer(to_int(argv[i++])); }
 		} break;
 		case 'b': {
 			mrb_bool *boolp = static_cast<mrb_bool *>(*ptr++);
@@ -1182,7 +1178,7 @@ check_exit:
 				mrb_value ss;
 
 				ss = argv[i++];
-				*symp = mrb_obj_to_sym(_mrb, ss);
+				*symp = obj_to_sym(ss);
 			}
 		} break;
 		case 'd': {
@@ -1197,8 +1193,7 @@ check_exit:
 				if (altmode && mrb_nil_p(dd)) {
 					*datap = nullptr;
 				} else {
-					*datap
-					    = mrb_data_get_ptr(_mrb, dd, type);
+					*datap = data_get_ptr(dd, type);
 				}
 			}
 		} break;
@@ -1213,7 +1208,7 @@ check_exit:
 				bp = _mrb->c->ci->stack + _mrb->c->ci->argc + 1;
 			}
 			if (altmode && mrb_nil_p(*bp)) {
-				mrb_raise(_mrb, E_ARGUMENT_ERROR,
+				raise(state->mrb()->argument_error(),
 				    "no block given");
 			}
 			*p = *bp;
@@ -1244,8 +1239,8 @@ check_exit:
 						*var = argv + i;
 					} else {
 						mrb_value args
-						    = mrb_ary_new_from_values(
-							_mrb, *pl, argv + i);
+						    = ary_new_from_values(*pl,
+							argv + i);
 						RARRAY(args)->c = nullptr;
 						*var = RARRAY_PTR(args);
 					}
@@ -1258,13 +1253,11 @@ check_exit:
 		} break;
 
 		case ':': {
-			mrb_value ksrc = mrb_hash_p(kdict)
-			    ? mrb_hash_dup(_mrb, kdict)
-			    : mrb_hash_new(_mrb);
+			mrb_value ksrc
+			    = mrb_hash_p(kdict) ? hash_dup(kdict) : hash_new();
 			const mrb_kwargs *kwargs
 			    = static_cast<const mrb_kwargs *>(*ptr++);
 			mrb_value *rest;
-
 			if (kwargs == nullptr) {
 				rest = nullptr;
 			} else {
@@ -1276,31 +1269,30 @@ check_exit:
 				static constexpr uint32_t keyword_max = 40;
 
 				if (kwnum > keyword_max || required > kwnum) {
-					mrb_raise(_mrb, E_ARGUMENT_ERROR,
+					raise(state->mrb()->argument_error(),
 					    "keyword number is too large");
 				}
 
 				for (j = required; j > 0;
 				    j--, kname++, values++) {
-					mrb_value k = mrb_symbol_value(*kname);
-					if (!mrb_hash_key_p(_mrb, ksrc, k)) {
-						mrb_raisef(_mrb,
-						    E_ARGUMENT_ERROR,
+					mrb_value k = symbol_value(*kname);
+					if (!hash_key_p(ksrc, k)) {
+						raisef(state->mrb()
+							   ->argument_error(),
 						    "missing keyword: %n",
 						    *kname);
 					}
-					*values = mrb_hash_delete_key(_mrb,
-					    ksrc, k);
-					mrb_gc_protect(_mrb, *values);
+					*values = hash_delete_key(ksrc, k);
+					gc_protect(*values);
 				}
 
 				for (j = kwnum - required; j > 0;
 				    j--, kname++, values++) {
-					mrb_value k = mrb_symbol_value(*kname);
-					if (mrb_hash_key_p(_mrb, ksrc, k)) {
-						*values = mrb_hash_delete_key(
-						    _mrb, ksrc, k);
-						mrb_gc_protect(_mrb, *values);
+					mrb_value k = symbol_value(*kname);
+					if (hash_key_p(ksrc, k)) {
+						*values
+						    = hash_delete_key(ksrc, k);
+						gc_protect(*values);
 					} else {
 						*values = mrb_undef_value();
 					}
@@ -1311,25 +1303,23 @@ check_exit:
 
 			if (rest) {
 				*rest = ksrc;
-			} else if (!mrb_hash_empty_p(_mrb, ksrc)) {
-				ksrc = mrb_hash_keys(_mrb, ksrc);
+			} else if (!hash_empty_p(ksrc)) {
+				ksrc = hash_keys(ksrc);
 				ksrc = RARRAY_PTR(ksrc)[0];
-				mrb_raisef(_mrb, E_ARGUMENT_ERROR,
+				raisef(state->mrb()->argument_error(),
 				    "unknown keyword: %v", ksrc);
 			}
 		} break;
 
 		default:
-			mrb_raisef(_mrb, E_ARGUMENT_ERROR,
+			raisef(state->mrb()->argument_error(),
 			    "invalid argument specifier %c", c);
 		}
 	}
 
 	// #undef ARGV
 	// #undef GET_ARG
-	if (!c && argc > i) {
-		mrb_argnum_error(_mrb, argc, argc_min, argc_max);
-	}
+	if (!c && argc > i) { argnum_error(argc, argc_min, argc_max); }
 finish:
 	return i;
 }
@@ -1361,7 +1351,7 @@ RubyState::gv_set(const mrb_sym sym, const mrb_value val)
 void
 RubyState::hash_check_kdict(const mrb_value self)
 {
-	const auto keys = mrb_hash_keys(_mrb, self);
+	const auto keys = hash_keys(self);
 	const mrb_int len = RARRAY_LEN(keys);
 	for (mrb_int i = 0; i < len; ++i) {
 		const auto key = ary_entry(keys, i);
@@ -2410,12 +2400,6 @@ mrb_value
 RubyState::vm_const_get(const mrb_sym sym)
 {
 	return _api.mrb_vm_const_get(_mrb, sym);
-}
-
-void
-RubyState::vm_const_set(const mrb_sym sym, const mrb_value val)
-{
-	_api.mrb_vm_const_set(_mrb, sym, val);
 }
 
 mrb_value

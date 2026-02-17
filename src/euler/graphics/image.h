@@ -10,6 +10,7 @@
 namespace euler::graphics {
 class Image final : public vulkan::Texture {
 	BIND_MRUBY("Euler::Graphics::Image", Image, graphics.image);
+
 public:
 	static util::Reference<Image> from_file(const char *);
 	static util::Reference<Image> from_buffer(std::span<const std::byte>);

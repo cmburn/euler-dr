@@ -6,19 +6,19 @@
 #include <array>
 #include <cstdint>
 
-
 #ifdef EULER_NATIVE
 #include <SDL3/SDL_pixels.h>
 #endif
 
+#include "euler/util/ext.h"
 #include "euler/util/object.h"
 #include "euler/util/state.h"
-#include "euler/util/ext.h"
 
 namespace euler::util {
 
 class Color {
 	BIND_MRUBY_DATA("Euler::Util::Color", Color, util.color);
+
 public:
 	// static const mrb_data_type TYPE;
 	// static void init(mrb_state *mrb, State::Modules &mod);
@@ -141,8 +141,6 @@ public:
 			_alpha / 255.0f,
 		};
 	}
-
-
 
 private:
 	uint8_t _red;

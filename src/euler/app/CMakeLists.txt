@@ -35,7 +35,10 @@ if (EULER_NATIVE_BUILD)
             native/state.h
             native/storage.cpp
             native/storage.h
+            native/window.cpp
+            native/window.h
     )
+
     target_compile_definitions(euler_app PUBLIC
             -DEULER_NATIVE
     )
@@ -49,6 +52,7 @@ if (EULER_NATIVE_BUILD)
             euler_graphics
             euler_gui
             euler_vulkan
+            spdlog
     )
 
     # if vulkan_sdk env var exists, use it instead of system headers

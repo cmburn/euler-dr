@@ -199,7 +199,8 @@ public:
 	wrap(Reference<T> &obj) const
 	{
 		if (obj == nullptr) return mrb_nil_value();
-		return obj.wrap(mrb()->mrb(), object_class(), &T::TYPE);
+		auto self = util::Reference(const_cast<State *>(this));
+		return obj.wrap(mrb()->mrb(), T::fetch_class(self), &T::TYPE);
 	}
 };
 

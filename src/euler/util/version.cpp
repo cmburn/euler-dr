@@ -25,8 +25,9 @@ in_bitmask(mrb_int n, size_t bits)
 static mrb_value
 version_allocate(mrb_state *mrb, const mrb_value self)
 {
-	auto obj = Data_Wrap_Struct(mrb, mrb_class_ptr(self), &Version::TYPE,
-	    new Version(0, 1, 0));
+	auto state = euler::util::State::get(mrb);
+	auto obj = state->mrb()->data_object_alloc(mrb_class_ptr(self),
+	    new Version(0, 1, 0), &Version::TYPE);
 	return mrb_obj_value(obj);
 }
 
@@ -37,7 +38,7 @@ parse_version_string(mrb_state *mrb, const char *str, mrb_int &major,
 	auto state = euler::util::State::get(mrb);
 	if (*str == 'v') ++str;
 	if (sscanf(str, "%ld.%ld.%ld", &major, &minor, &patch) != 3) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Invalid version string format");
 	}
 }
@@ -59,7 +60,7 @@ parse_single_version_arg(mrb_state *mrb, mrb_value arg, mrb_int &major,
 		patch = packed & 0xFFF;
 		return;
 	}
-	state->mrb()->raise(E_ARGUMENT_ERROR,
+	state->mrb()->raise(state->mrb()->argument_error(),
 	    "Expected version string or packed integer for single argument");
 }
 
@@ -90,17 +91,17 @@ read_version_args(mrb_state *mrb)
 		break;
 	case 3: state->mrb()->get_args("|iii", &major, &minor, &patch); break;
 	default:
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Invalid number of arguments");
 	}
 	if (!in_bitmask(major, 10))
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Major version out of range");
 	if (!in_bitmask(minor, 10))
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Minor version out of range");
 	if (!in_bitmask(patch, 12))
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Patch version out of range");
 	return {
 		static_cast<uint32_t>(major),
@@ -172,7 +173,7 @@ version_set_major(mrb_state *mrb, const mrb_value self_value)
 	mrb_int major;
 	state->mrb()->get_args("i", &major);
 	if (!in_bitmask(major, 10))
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Major version out of range");
 	self->set_major(static_cast<uint32_t>(major));
 	return mrb_nil_value();
@@ -187,7 +188,7 @@ version_set_minor(mrb_state *mrb, const mrb_value self_value)
 	mrb_int minor;
 	state->mrb()->get_args("i", &minor);
 	if (!in_bitmask(minor, 10))
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Minor version out of range");
 	self->set_minor(static_cast<uint32_t>(minor));
 	return mrb_nil_value();
@@ -202,7 +203,7 @@ version_set_patch(mrb_state *mrb, const mrb_value self_value)
 	mrb_int patch;
 	state->mrb()->get_args("i", &patch);
 	if (!in_bitmask(patch, 12))
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Patch version out of range");
 	self->set_patch(static_cast<uint32_t>(patch));
 	return mrb_nil_value();

@@ -1,4 +1,4 @@
-class Player
+lass Player
   attr_reader :position
   attr_reader :image
 

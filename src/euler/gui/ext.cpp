@@ -5,4 +5,3 @@
 #include <mruby.h>
 
 #include "euler/gui/widget.h"
-

@@ -23,6 +23,7 @@ public:
 
 	~State() override = default;
 	explicit State(const Arguments &args);
+	bool initialize() override;
 
 	[[nodiscard]] util::Reference<util::RubyState>
 	mrb() const override

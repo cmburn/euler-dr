@@ -115,6 +115,13 @@ private:
 	std::atomic<uint32_t> _count;
 };
 
+
+RData *safe_data_object_alloc(
+	mrb_state *mrb,
+   RClass *klass,
+   void *datap,
+   const mrb_data_type *type);
+
 void *checked_unwrap_ptr(mrb_state *mrb, const mrb_value value,
     const mrb_data_type *type);
 
@@ -228,7 +235,7 @@ public:
 		/* We're returning an instance of ourselves. Since we're the
 		 * same size as a void *, we can be passed around as one. */
 		auto ptr = this->wrap();
-		auto data = Data_Wrap_Struct(mrb, cls, type, ptr);
+		auto data = safe_data_object_alloc(mrb, cls, ptr, type);
 		return mrb_obj_value(data);
 	}
 

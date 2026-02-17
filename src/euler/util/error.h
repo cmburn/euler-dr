@@ -8,7 +8,6 @@
 
 #include "euler/util/object.h"
 
-
 namespace euler::util {
 
 class State;
@@ -361,8 +360,9 @@ public:
 };
 /* ReSharper restore CppClassCanBeFinal */
 
-// Reference<Error> wrap_exception(const Reference<State> &state, const std::exception &e);
-// Reference<Error> wrap_ruby_exception(const Reference<State> &state, RObject *exc);
+// Reference<Error> wrap_exception(const Reference<State> &state, const
+// std::exception &e); Reference<Error> wrap_ruby_exception(const
+// Reference<State> &state, RObject *exc);
 
 template <typename T, typename... Args>
 inline Reference<Error>

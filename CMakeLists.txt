@@ -103,24 +103,20 @@ elseif (EULER_NATIVE_BUILD)
 
     # Native we pull in mruby, physfs, SDL, and Vulkan2D.
 
-    # Note that the 3.5.0 is not yet out, however the native bindings for Euler
-    # follow the repository HEAD and 3.5.0 is the next planned release. There
-    # are certain API changes that Euler depends on that are not in 3.4.0.
-    # We'll pin it at the 3.5 minor release and then track stable releases from
-    # there.
-    #    set(MRUBY_VERSION 3.5.0)
-    #    set(MRUBY_EXTERN_NAME mruby)
-    #    set(MRUBY_GIT_TAG 2da01c607f6341a18dcd726b46f3e7a4a2c49211)
-    #    FetchContent_Declare(mruby
-    #            GIT_REPOSITORY https://github.com/mruby/mruby
-    #            GIT_COMMIT ${MRUBY_GIT_TAG}
-    #            GIT_SHALLOW TRUE
-    #    )
-    #    FetchContent_MakeAvailable(mruby)
     fetch_mruby(mruby
             GIT_REPOSITORY https://github.com/mruby/mruby
             GIT_TAG 12bc2cfaa1a7d4c9490ac25d0a00f80293d28868
     )
+
+    set(SPDLOG_GIT_COMMIT 79524ddd08a4ec981b7fea76afd08ee05f83755d)
+    set(SPDLOG_USE_STD_FORMAT ON)
+    FetchContent_Declare(spdlog
+            GIT_REPOSITORY https://github.com/gabime/spdlog
+            GIT_COMMIT ${SPDLOG_GIT_COMMIT}
+            GIT_TAG v1.x
+            GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(spdlog)
 
     set(PHYSFS_GIT_COMMIT d70c3fcf06814f8608c8327d3e8136063ee0133d)
     FetchContent_Declare(physfs

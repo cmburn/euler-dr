@@ -22,9 +22,8 @@ class Widget;
 
 class Row final : public util::Object {
 	BIND_MRUBY("Euler::Gui::Row", Row, gui.row);
+
 public:
-
-
 	enum class Layout : uint8_t {
 		Static,
 		Dynamic,

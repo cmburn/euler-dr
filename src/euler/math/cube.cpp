@@ -74,7 +74,8 @@ CubeImpl<T, Rows, Cols, Slices>::at(const util::Reference<util::State> &state)
  */
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::set_at(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::set_at(
+    const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	auto argc = mrb->get_argc();
@@ -85,7 +86,8 @@ CubeImpl<T, Rows, Cols, Slices>::set_at(const util::Reference<util::State> &stat
 		auto r = unwrap_num<size_type>(state, rval);
 		auto c = unwrap_num<size_type>(state, cval);
 		auto s = unwrap_num<size_type>(state, sval);
-		auto value = unwrap_num<T, Rows, Cols, Slices>(state, value_val);
+		auto value
+		    = unwrap_num<T, Rows, Cols, Slices>(state, value_val);
 		_cube(r, c, s) = value;
 		return mrb_nil_value();
 	}
@@ -93,7 +95,8 @@ CubeImpl<T, Rows, Cols, Slices>::set_at(const util::Reference<util::State> &stat
 		mrb_value index_val, value_val;
 		mrb->get_args("oo", &index_val, &value_val);
 		auto index = unwrap_num<size_type>(state, index_val);
-		auto value = unwrap_num<T, Rows, Cols, Slices>(state, value_val);
+		auto value
+		    = unwrap_num<T, Rows, Cols, Slices>(state, value_val);
 		_cube(index) = value;
 		return mrb_nil_value();
 	}
@@ -113,7 +116,8 @@ CubeImpl<T, Rows, Cols, Slices>::set_at(const util::Reference<util::State> &stat
  */
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::clamp(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::clamp(
+    const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value min_val, max_val;
@@ -133,7 +137,8 @@ CubeImpl<T, Rows, Cols, Slices>::clamp(const util::Reference<util::State> &state
  */
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::clean(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::clean(
+    const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value threshold_val;
@@ -151,7 +156,8 @@ CubeImpl<T, Rows, Cols, Slices>::clean(const util::Reference<util::State> &state
  */
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::copy_size(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::copy_size(
+    const util::Reference<util::State> &state)
 {
 	auto mrb = state->mrb();
 	mrb_value other_val;
@@ -168,61 +174,71 @@ CubeImpl<T, Rows, Cols, Slices>::map(const util::Reference<util::State> &state)
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::has_infinity(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::has_infinity(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::has_nan(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::has_nan(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::imaginary(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::imaginary(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::in_range(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::in_range(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::index_max(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::index_max(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::index_min(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::index_min(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::is_complex(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::is_complex(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::is_empty(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::is_empty(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::is_finite(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::is_finite(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::is_zero(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::is_zero(
+    const util::Reference<util::State> &state)
 {
 }
 
@@ -246,37 +262,43 @@ CubeImpl<T, Rows, Cols, Slices>::real(const util::Reference<util::State> &state)
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::replace(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::replace(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::reset(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::reset(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::resize(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::resize(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::set_imaginary(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::set_imaginary(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::set_real(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::set_real(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::set_size(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::set_size(
+    const util::Reference<util::State> &state)
 {
 }
 
@@ -288,19 +310,22 @@ CubeImpl<T, Rows, Cols, Slices>::size(const util::Reference<util::State> &state)
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::to_string(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::to_string(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::transform(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::transform(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::columns(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::columns(
+    const util::Reference<util::State> &state)
 {
 }
 
@@ -312,13 +337,15 @@ CubeImpl<T, Rows, Cols, Slices>::rows(const util::Reference<util::State> &state)
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::slices(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::slices(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::column(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::column(
+    const util::Reference<util::State> &state)
 {
 }
 
@@ -330,19 +357,22 @@ CubeImpl<T, Rows, Cols, Slices>::row(const util::Reference<util::State> &state)
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::slice(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::slice(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::column_to_matrix(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::column_to_matrix(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::each_slice(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::each_slice(
+    const util::Reference<util::State> &state)
 {
 }
 
@@ -354,25 +384,29 @@ CubeImpl<T, Rows, Cols, Slices>::fill(const util::Reference<util::State> &state)
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::imbue(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::imbue(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::insert_columns(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::insert_columns(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::insert_rows(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::insert_rows(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::insert_slices(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::insert_slices(
+    const util::Reference<util::State> &state)
 {
 }
 
@@ -384,43 +418,50 @@ CubeImpl<T, Rows, Cols, Slices>::ones(const util::Reference<util::State> &state)
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::randn(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::randn(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::randu(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::randu(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::reshape(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::reshape(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::row_to_matrix(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::row_to_matrix(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::shed_columns(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::shed_columns(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::shed_rows(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::shed_rows(
+    const util::Reference<util::State> &state)
 {
 }
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::shed_slices(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::shed_slices(
+    const util::Reference<util::State> &state)
 {
 }
 
@@ -432,7 +473,8 @@ CubeImpl<T, Rows, Cols, Slices>::swap(const util::Reference<util::State> &state)
 
 template <typename T, size_type Rows, size_type Cols, size_type Slices>
 mrb_value
-CubeImpl<T, Rows, Cols, Slices>::zeros(const util::Reference<util::State> &state)
+CubeImpl<T, Rows, Cols, Slices>::zeros(
+    const util::Reference<util::State> &state)
 {
 }
 

@@ -19,6 +19,11 @@
 #include <mruby/throw.h>
 #include <mruby/variable.h>
 
+// sanity check at a desparate moment
+#ifdef EULER_DRAGONRUBY
+#error "This file should not be included in the DragonRuby build"
+#endif
+
 static auto
 wrap_call(mrb_state *mrb, const auto &func)
 {
@@ -52,10 +57,7 @@ wrap_call(mrb_state *mrb, const auto &func)
 
 using euler::app::native::RubyState;
 
-RubyState::RubyState()
-{
-	_mrb = mrb_open();
-}
+RubyState::RubyState() { _mrb = mrb_open(); }
 
 mrb_state *
 RubyState::mrb() const

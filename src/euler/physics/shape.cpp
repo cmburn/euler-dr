@@ -75,13 +75,13 @@ capsule_set_centers(mrb_state *mrb, mrb_value self)
 	mrb_value center;
 	state->mrb()->get_args("A", &center);
 	if (RARRAY_LEN(center) != 2) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "center must be an array of two points");
 	}
-	const b2Vec2 center1
-	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(center, 0));
-	const b2Vec2 center2
-	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(center, 1));
+	const b2Vec2 center1 = euler::physics::value_to_b2_vec(mrb,
+	    state->mrb()->ary_ref(center, 0));
+	const b2Vec2 center2 = euler::physics::value_to_b2_vec(mrb,
+	    state->mrb()->ary_ref(center, 1));
 	const mrb_value center_val = state->mrb()->ary_new_capa(2);
 	state->mrb()->ary_push(center_val,
 	    euler::physics::b2_vec_to_value(mrb, center1));
@@ -107,13 +107,13 @@ capsule_initialize(mrb_state *mrb, mrb_value self)
 	mrb_float radius;
 	state->mrb()->get_args("Af", &center, &radius);
 	if (RARRAY_LEN(center) != 2) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "center must be an array of two points");
 	}
-	const b2Vec2 center1
-	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(center, 0));
-	const b2Vec2 center2
-	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(center, 1));
+	const b2Vec2 center1 = euler::physics::value_to_b2_vec(mrb,
+	    state->mrb()->ary_ref(center, 0));
+	const b2Vec2 center2 = euler::physics::value_to_b2_vec(mrb,
+	    state->mrb()->ary_ref(center, 1));
 	const mrb_value center_val = state->mrb()->ary_new_capa(2);
 	state->mrb()->ary_push(center_val,
 	    euler::physics::b2_vec_to_value(mrb, center1));
@@ -173,13 +173,13 @@ capsule_shape(mrb_state *mrb, mrb_value self)
 	b2Capsule capsule;
 	capsule.radius = (float)mrb_float(radius_val);
 	if (RARRAY_LEN(center_val) != 2) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "center must be an array of two points");
 	}
 	capsule.center1 = euler::physics::value_to_b2_vec(mrb,
-	    mrb_ary_entry(center_val, 0));
+	    state->mrb()->ary_ref(center_val, 0));
 	capsule.center2 = euler::physics::value_to_b2_vec(mrb,
-	    mrb_ary_entry(center_val, 1));
+	    state->mrb()->ary_ref(center_val, 1));
 	return capsule;
 }
 
@@ -344,14 +344,14 @@ polygon_set_vertices(mrb_state *mrb, mrb_value self)
 	state->mrb()->get_args("A", &vertices);
 	const mrb_int len = RARRAY_LEN(vertices);
 	if (len > B2_MAX_POLYGON_VERTICES) {
-		state->mrb()->raisef(E_ARGUMENT_ERROR,
+		state->mrb()->raisef(state->mrb()->argument_error(),
 		    "Number of vertices exceeds maximum (%d)",
 		    B2_MAX_POLYGON_VERTICES);
 	}
 
 	const mrb_value arr = state->mrb()->ary_new_capa(len);
 	for (mrb_int i = 0; i < len; ++i) {
-		const mrb_value value = mrb_ary_entry(vertices, i);
+		const mrb_value value = state->mrb()->ary_ref(vertices, i);
 		const b2Vec2 vec = euler::physics::value_to_b2_vec(mrb, value);
 		state->mrb()->ary_push(value,
 		    euler::physics::b2_vec_to_value(mrb, vec));
@@ -391,7 +391,7 @@ polygon_set_normals(mrb_state *mrb, mrb_value self)
 	const mrb_int len = RARRAY_LEN(normals);
 	const mrb_value arr = state->mrb()->ary_new_capa(len);
 	for (mrb_int i = 0; i < len; ++i) {
-		const mrb_value value = mrb_ary_entry(normals, i);
+		const mrb_value value = state->mrb()->ary_ref(normals, i);
 		const b2Vec2 vec = euler::physics::value_to_b2_vec(mrb, value);
 		state->mrb()->ary_push(value,
 		    euler::physics::b2_vec_to_value(mrb, vec));
@@ -467,7 +467,7 @@ read_offset(mrb_state *mrb, mrb_value offset, b2Vec2 *position, b2Rot *rotation)
 {
 	const auto state = euler::util::State::get(mrb);
 	if (!mrb_hash_p(offset) || RARRAY_LEN(offset) != 2) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    ":offset must be a hash with :position and :rotation keys");
 	}
 	const auto pos_value
@@ -484,13 +484,13 @@ polygon_initialize_box(mrb_state *mrb, mrb_value box, mrb_value radius,
 {
 	const auto state = euler::util::State::get(mrb);
 	if (!mrb_array_p(box) || RARRAY_LEN(box) != 2) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    ":box must be an array of two elements [width, height]");
 	}
 	const float width_value
-	    = euler::physics::coerce_float(mrb, mrb_ary_entry(box, 0));
+	    = euler::physics::coerce_float(mrb, state->mrb()->ary_ref(box, 0));
 	const float height_value
-	    = euler::physics::coerce_float(mrb, mrb_ary_entry(box, 1));
+	    = euler::physics::coerce_float(mrb, state->mrb()->ary_ref(box, 1));
 	const float half_width = width_value / 2.0f;
 	const float half_height = height_value / 2.0f;
 	if (mrb_nil_p(radius)) {
@@ -517,14 +517,14 @@ value_to_hull(mrb_state *mrb, mrb_value hull)
 {
 	const auto state = euler::util::State::get(mrb);
 	if (mrb_nil_p(hull) || !mrb_array_p(hull)) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Expected an array of points as hull argument");
 	}
 	const mrb_int len = RARRAY_LEN(hull);
 	std::vector<b2Vec2> points;
 	points.reserve(len);
 	for (mrb_int i = 0; i < len; ++i) {
-		const auto entry = mrb_ary_entry(hull, i);
+		const auto entry = state->mrb()->ary_ref(hull, i);
 		const auto value = euler::physics::value_to_b2_vec(mrb, entry);
 		points.push_back(value);
 	}
@@ -539,7 +539,7 @@ polygon_initialize_hull(mrb_state *mrb, mrb_value hull_value, mrb_value radius,
 	const b2Hull hull = value_to_hull(mrb, hull_value);
 	if (mrb_nil_p(radius)) {
 		if (mrb_nil_p(offset)) {
-			state->mrb()->raise(E_ARGUMENT_ERROR,
+			state->mrb()->raise(state->mrb()->argument_error(),
 			    "For non-box polygons, either :offset or :radius "
 			    "must be passed");
 		}
@@ -608,6 +608,7 @@ polygon_read_args(mrb_state *mrb)
 	for (size_t i = 0; i < KW_COUNT; ++i)
 		kw_syms[i] = state->mrb()->intern_cstr(KW_NAMES[i]);
 	mrb_value kw_values[KW_COUNT];
+	euler::physics::init_kw_values(kw_values);
 	const mrb_kwargs kwargs = {
 		.num = KW_COUNT,
 		.required = 0,
@@ -623,7 +624,7 @@ polygon_read_args(mrb_state *mrb)
 	auto radius = mrb_nil_value();
 	auto offset = mrb_nil_value();
 	if (!mrb_undef_p(kw_values[POINTS]) && !mrb_undef_p(kw_values[BOX])) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Cannot specify both :points and :box");
 	}
 	if (!mrb_undef_p(kw_values[POINTS])) {
@@ -631,7 +632,7 @@ polygon_read_args(mrb_state *mrb)
 	} else if (!mrb_undef_p(kw_values[BOX])) {
 		box = kw_values[BOX];
 	} else {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "Must specify :points or :box");
 	}
 
@@ -760,13 +761,13 @@ segment_set_points(mrb_state *mrb, mrb_value self)
 	mrb_value points;
 	state->mrb()->get_args("A", &points);
 	if (RARRAY_LEN(points) != 2) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "points must be an array of two points");
 	}
-	const b2Vec2 p1
-	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 0));
-	const b2Vec2 p2
-	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 1));
+	const b2Vec2 p1 = euler::physics::value_to_b2_vec(mrb,
+	    state->mrb()->ary_ref(points, 0));
+	const b2Vec2 p2 = euler::physics::value_to_b2_vec(mrb,
+	    state->mrb()->ary_ref(points, 1));
 	const mrb_value points_val = state->mrb()->ary_new_capa(2);
 	state->mrb()->ary_push(points_val,
 	    euler::physics::b2_vec_to_value(mrb, p1));
@@ -790,13 +791,13 @@ segment_initialize(mrb_state *mrb, mrb_value self)
 	mrb_value points;
 	state->mrb()->get_args("A", &points);
 	if (RARRAY_LEN(points) != 2) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "points must be an array of two points");
 	}
-	const b2Vec2 p1
-	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 0));
-	const b2Vec2 p2
-	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 1));
+	const b2Vec2 p1 = euler::physics::value_to_b2_vec(mrb,
+	    state->mrb()->ary_ref(points, 0));
+	const b2Vec2 p2 = euler::physics::value_to_b2_vec(mrb,
+	    state->mrb()->ary_ref(points, 1));
 	const mrb_value points_val = state->mrb()->ary_new_capa(2);
 	state->mrb()->ary_push(points_val,
 	    euler::physics::b2_vec_to_value(mrb, p1));
@@ -843,13 +844,13 @@ segment_shape(mrb_state *mrb, mrb_value self)
 	const mrb_value points
 	    = state->mrb()->iv_get(self, state->mrb()->intern_cstr("@points"));
 	if (RARRAY_LEN(points) != 2) {
-		state->mrb()->raise(E_ARGUMENT_ERROR,
+		state->mrb()->raise(state->mrb()->argument_error(),
 		    "points must be an array of two points");
 	}
-	const b2Vec2 p1
-	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 0));
-	const b2Vec2 p2
-	    = euler::physics::value_to_b2_vec(mrb, mrb_ary_entry(points, 1));
+	const b2Vec2 p1 = euler::physics::value_to_b2_vec(mrb,
+	    state->mrb()->ary_ref(points, 0));
+	const b2Vec2 p2 = euler::physics::value_to_b2_vec(mrb,
+	    state->mrb()->ary_ref(points, 1));
 	return (b2Segment) {
 		.point1 = p1,
 		.point2 = p2,
@@ -1519,7 +1520,7 @@ Shape::shape_data(mrb_state *mrb, mrb_value val)
 		return segment_shape(mrb, val);
 	// if (cls_name == "Euler::Physics::ChainSegment")
 	// 	return chain_segment_shape(mrb, val);
-	state->mrb()->raisef(E_ARGUMENT_ERROR,
+	state->mrb()->raisef(state->mrb()->argument_error(),
 	    "Expected a Shape data object, got %s", cls_name.c_str());
 	std::unreachable();
 }
@@ -1692,7 +1693,8 @@ Shape::type_to_symbol(mrb_state *mrb, Type type)
 	case Type::Polygon: return EULER_SYM_VAL(polygon);
 	case Type::ChainSegment: return EULER_SYM_VAL(chain_segment);
 	default:
-		state->mrb()->raise(E_ARGUMENT_ERROR, "unknown shape type");
+		state->mrb()->raise(state->mrb()->argument_error(),
+		    "unknown shape type");
 		std::unreachable();
 	}
 }

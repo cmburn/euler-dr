@@ -295,7 +295,6 @@ Widget::are_any_active() const
 	return nk_item_is_any_active(context());
 }
 
-
 euler::util::UVec2
 Widget::scroll() const
 {
@@ -306,13 +305,11 @@ Widget::scroll() const
 	return util::UVec2 { x, y };
 }
 
-
 bool
 Widget::has_focus() const
 {
 	return nk_window_has_focus(context());
 }
-
 
 bool
 Widget::is_hovered() const

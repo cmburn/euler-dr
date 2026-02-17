@@ -40,7 +40,8 @@ joint_type(mrb_state *mrb, mrb_value self)
 	case b2_weldJoint: return EULER_SYM_VAL(weld);
 	case b2_wheelJoint: return EULER_SYM_VAL(wheel);
 	default:
-		state->mrb()->raise(E_TYPE_ERROR, "Unknown joint type");
+		state->mrb()->raise(state->mrb()->type_error(),
+		    "Unknown joint type");
 		std::unreachable();
 	}
 }

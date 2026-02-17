@@ -108,7 +108,6 @@ public:
 	    mrb_irep_debug_info *info, const char *filename, uint16_t *lines,
 	    uint32_t start_pos, uint32_t end_pos) override;
 	void debug_info_free(mrb_irep_debug_info *d) override;
-	void *default_allocf(void *, size_t, void *) override;
 	void define_alias(RClass *c, const char *a, const char *b) override;
 	void define_alias_id(RClass *c, mrb_sym a, mrb_sym b) override;
 	RClass *define_class(const char *name, RClass *super) override;
@@ -371,7 +370,6 @@ public:
 	void undef_method_id(RClass *, mrb_sym) override;
 	mrb_value vformat(const char *format, va_list ap) override;
 	mrb_value vm_const_get(mrb_sym) override;
-	void vm_const_set(mrb_sym, mrb_value) override;
 	mrb_value vm_cv_get(mrb_sym) override;
 	void vm_cv_set(mrb_sym, mrb_value) override;
 	RClass *vm_define_class(mrb_value, mrb_value, mrb_sym) override;

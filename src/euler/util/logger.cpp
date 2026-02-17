@@ -5,18 +5,13 @@
 using euler::util::Logger;
 
 static Logger::Severity
-severity_from_symbol(const mrb_sym sym)
+severity_from_symbol(mrb_state *mrb, const mrb_sym sym)
 {
-	if (sym == mrb_intern_cstr(nullptr, "debug"))
-		return Logger::Severity::Debug;
-	if (sym == mrb_intern_cstr(nullptr, "info"))
-		return Logger::Severity::Info;
-	if (sym == mrb_intern_cstr(nullptr, "warn"))
-		return Logger::Severity::Warn;
-	if (sym == mrb_intern_cstr(nullptr, "error"))
-		return Logger::Severity::Error;
-	if (sym == mrb_intern_cstr(nullptr, "fatal"))
-		return Logger::Severity::Fatal;
+	if (sym == EULER_SYM("debug")) return Logger::Severity::Debug;
+	if (sym == EULER_SYM("info")) return Logger::Severity::Info;
+	if (sym == EULER_SYM("warn")) return Logger::Severity::Warn;
+	if (sym == EULER_SYM("error")) return Logger::Severity::Error;
+	if (sym == EULER_SYM("fatal")) return Logger::Severity::Fatal;
 	return Logger::Severity::Unknown;
 }
 
@@ -30,7 +25,7 @@ log(mrb_state *mrb, const mrb_value self)
 	const char *msg;
 	mrb_int len;
 	state->mrb()->get_args("ns", &severity_sym, &msg, &len);
-	const auto severity = severity_from_symbol(severity_sym);
+	const auto severity = severity_from_symbol(mrb, severity_sym);
 	const std::string_view message(msg, static_cast<std::size_t>(len));
 	logger->log(severity, "{}", message);
 	return mrb_nil_value();
@@ -54,7 +49,8 @@ log_severity(mrb_state *mrb, const mrb_value self)
 RClass *
 Logger::init(const Reference<State> &state, RClass *mod, RClass *)
 {
-	const auto cls = state->mrb()->define_class_under(mod, "Logger", state->object_class());
+	const auto cls = state->mrb()->define_class_under(mod, "Logger",
+	    state->object_class());
 	MRB_SET_INSTANCE_TT(cls, MRB_TT_DATA);
 	state->mrb()->define_method(cls, "log", ::log, MRB_ARGS_REQ(2));
 	state->mrb()->define_method(cls, "debug", log_severity<Severity::Debug>,

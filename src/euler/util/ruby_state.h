@@ -5,7 +5,6 @@
 
 #include "euler/util/object.h"
 
-// extern "C" {
 #include <mruby.h>
 #include <mruby/array.h>
 #include <mruby/compile.h>
@@ -14,7 +13,6 @@
 #include <mruby/range.h>
 #include <mruby/string.h>
 #include <mruby/variable.h>
-// }
 
 namespace euler::util {
 
@@ -482,7 +480,6 @@ public:
 	virtual RClass *key_error() = 0;
 	virtual RClass *float_domain_error() = 0;
 	virtual bool block_given_p() = 0;
-
 
 	template <typename... Args>
 	mrb_value

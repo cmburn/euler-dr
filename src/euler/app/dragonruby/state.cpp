@@ -17,6 +17,12 @@ State::State(const Arguments &args)
 	args.state->ud = util::Reference(this).wrap();
 }
 
+bool
+State::initialize()
+{
+	return true;
+}
+
 euler::util::Reference<euler::util::Logger>
 State::log() const
 {

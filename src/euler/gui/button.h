@@ -12,6 +12,7 @@ namespace euler::gui {
 
 class Button final : public Element {
 	BIND_MRUBY("Euler::GUI::Button", Button, gui.button);
+
 public:
 	/* If 'None', go with whatever is the current global option */
 	enum class Behavior : uint8_t {

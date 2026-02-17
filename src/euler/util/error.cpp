@@ -16,7 +16,7 @@ Error::Error(const Reference<State> &state, const std::string &message)
 RClass *
 Error::exception_class() const
 {
-	return  _state->mrb()->mrb()->eException_class;
+	return _state->mrb()->mrb()->eException_class;
 }
 
 mrb_value

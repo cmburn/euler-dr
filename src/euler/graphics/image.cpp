@@ -20,7 +20,7 @@ image_from_file(mrb_state *mrb, const mrb_value)
 	state->mrb()->get_args("z", &path);
 	auto img = Image::from_file(path);
 	if (!img->is_loaded()) {
-		state->mrb()->raisef(E_ARGUMENT_ERROR,
+		state->mrb()->raisef(state->mrb()->argument_error(),
 		    "Unable to load image from file: %s", path);
 	}
 	// return euler::util::wrap(mrb, img, state->module().graphics.image,
@@ -98,13 +98,16 @@ read_frame_args(mrb_state *mrb, const mrb_value hash)
 	const auto scale_sym = mrb_symbol_value(EULER_SYM(scale));
 	const auto sheet = state->mrb()->hash_get(hash, sheet_sym);
 	if (mrb_nil_p(sheet))
-		state->mrb()->raise(E_ARGUMENT_ERROR, "Missing sheet location");
+		state->mrb()->raise(state->mrb()->argument_error(),
+		    "Missing sheet location");
 	const auto position = state->mrb()->hash_get(hash, position_sym);
 	if (mrb_nil_p(position))
-		state->mrb()->raise(E_ARGUMENT_ERROR, "Missing position");
+		state->mrb()->raise(state->mrb()->argument_error(),
+		    "Missing position");
 	const auto scale = state->mrb()->hash_get(hash, scale_sym);
 	if (mrb_nil_p(scale))
-		state->mrb()->raise(E_ARGUMENT_ERROR, "Missing scale");
+		state->mrb()->raise(state->mrb()->argument_error(),
+		    "Missing scale");
 
 	return Frame {
 		.sheet = read_location_args(mrb, sheet),

@@ -75,8 +75,8 @@ public:
 	typedef detail::pod_type_t<T> pod_type;
 	typedef arma::Col<pod_type> pod_vector_type;
 	friend class Size;
-	template <typename , size_type> friend class VectorImpl;
-	template <typename , size_type, size_type > friend class MatrixImpl;
+	template <typename, size_type> friend class VectorImpl;
+	template <typename, size_type, size_type> friend class MatrixImpl;
 
 	VectorImpl(const vector_type &vec);
 
