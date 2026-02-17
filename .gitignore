@@ -11,3 +11,5 @@
 /tmp/
 /logs/
 /errors
+/Gemfile.lock
+/config/mruby/config.rb.lock

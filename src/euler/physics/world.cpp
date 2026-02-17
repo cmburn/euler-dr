@@ -171,13 +171,11 @@ world_step(mrb_state *mrb, const mrb_value self)
 		.rest = nullptr,
 	};
 	state->mrb()->get_args("|f:", &time_step, &kwargs);
-	printf("here\n");
 	if (!mrb_undef_p(kw_values[SUBSTEPS])) {
 		substep_count
 		    = static_cast<int>(mrb_integer(kw_values[SUBSTEPS]));
 	}
 	world->step(static_cast<float>(time_step), substep_count);
-	printf("here 2\n");
 	return mrb_nil_value();
 }
 
