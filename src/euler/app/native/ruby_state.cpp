@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: ISC */
 
 #include "euler/app/native/ruby_state.h"
-#include "euler/util/state.h"
 
 #include <cassert>
 #include <functional>
+#include <sstream>
 #include <vector>
 
 #include <mruby.h>
@@ -19,7 +19,10 @@
 #include <mruby/throw.h>
 #include <mruby/variable.h>
 
-// sanity check at a desparate moment
+#include "euler/app/native/state.h"
+#include "euler/util/state.h"
+
+// sanity check at a desperate moment
 #ifdef EULER_DRAGONRUBY
 #error "This file should not be included in the DragonRuby build"
 #endif
@@ -31,22 +34,23 @@ wrap_call(mrb_state *mrb, const auto &func)
 	using T = decltype(func());
 	auto prev_jmpbuf = mrb->jmp; // save previous jmpbuf
 	mrb_jmpbuf new_jmpbuf = {};
+	auto state = euler::util::State::get(mrb);
 	MRB_TRY(&new_jmpbuf)
 	{
 		if constexpr (std::is_void_v<T>) {
 			func();
 			mrb->jmp = prev_jmpbuf; // restore previous jmpbuf
-			return;
+			state->mrb()->raise_on_error();
 		} else {
 			auto result = func();
 			mrb->jmp = prev_jmpbuf; // restore previous jmpbuf
+			state->mrb()->raise_on_error();
 			return result;
 		}
 	}
 	MRB_CATCH(&new_jmpbuf)
 	{
 		mrb->jmp = prev_jmpbuf;
-		auto state = euler::util::State::get(mrb);
 		state->mrb()->raise_on_error();
 		return decltype(func())();
 	}
@@ -58,6 +62,12 @@ wrap_call(mrb_state *mrb, const auto &func)
 using euler::app::native::RubyState;
 
 RubyState::RubyState() { _mrb = mrb_open(); }
+void
+RubyState::initialize(util::Reference<State> &state)
+{
+	_mrb->ud = state.wrap();
+	// state->log()->info(" ")
+}
 
 mrb_state *
 RubyState::mrb() const
@@ -1509,6 +1519,7 @@ RubyState::obj_is_instance_of(const mrb_value obj, RClass *c)
 	return WRAP_CALL(mrb_obj_is_instance_of(_mrb, obj, c));
 }
 
+/* Due to how we handle errors */
 mrb_bool
 RubyState::obj_is_kind_of(const mrb_value obj, RClass *c)
 {
@@ -2086,12 +2097,36 @@ RubyState::write_barrier(RBasic *rb)
 {
 	WRAP_CALL(mrb_write_barrier(_mrb, rb));
 }
+
+#ifndef EULER_MAX_RAISE_ATTEMPTS
+#define EULER_MAX_RAISE_DEPTH 8
+#endif
+
 void
 RubyState::raise_on_error()
 {
+	if (_mrb->exc == nullptr) return;
+	if (_raise_depth >= EULER_MAX_RAISE_DEPTH) {
+		throw util::make_error<util::RuntimeError>(
+		    util::Reference(this),
+		    "Maximum raise recursive depth ({}) exceeded",
+		    EULER_MAX_RAISE_DEPTH);
+	}
+
+	const auto exc = _mrb->exc;
+	_mrb->exc = nullptr;
+	try {
+		util::throw_error(util::Reference(this), exc);
+	} catch (mrb_jmpbuf *e) {
+		++_raise_depth;
+		raise_on_error();
+	} catch (...) {
+		--_raise_depth;
+		throw;
+	}
 }
 RClass *
-RubyState::error()
+RubyState::exception()
 {
 	return _mrb->eException_class;
 }
@@ -2100,106 +2135,283 @@ RubyState::standard_error()
 {
 	return _mrb->eStandardError_class;
 }
+
+#define ERROR_CLASS(name) this->exc_get_id(EULER_SYM(name))
+
 RClass *
 RubyState::runtime_error()
 {
 	const auto mrb = _mrb;
-	return E_RUNTIME_ERROR;
+	return ERROR_CLASS(RuntimeError);
 }
+
 RClass *
 RubyState::type_error()
 {
 	const auto mrb = _mrb;
-	return E_TYPE_ERROR;
+	return ERROR_CLASS(TypeError);
 }
+
 RClass *
 RubyState::zero_division_error()
 {
 	const auto mrb = _mrb;
-	return E_ZERODIV_ERROR;
+	return ERROR_CLASS(ZeroDivisionError);
 }
+
 RClass *
 RubyState::argument_error()
 {
 	const auto mrb = _mrb;
-	return E_ARGUMENT_ERROR;
+	return ERROR_CLASS(ArgumentError);
 }
+
 RClass *
 RubyState::index_error()
 {
 	const auto mrb = _mrb;
-	return E_INDEX_ERROR;
+	return ERROR_CLASS(IndexError);
 }
+
 RClass *
 RubyState::range_error()
 {
 	const auto mrb = _mrb;
-	return E_RANGE_ERROR;
+	return ERROR_CLASS(RangeError);
 }
+
 RClass *
 RubyState::name_error()
 {
 	const auto mrb = _mrb;
-	return E_NAME_ERROR;
+	return ERROR_CLASS(NameError);
 }
+
 RClass *
 RubyState::no_method_error()
 {
 	const auto mrb = _mrb;
-	return E_NOMETHOD_ERROR;
+	return ERROR_CLASS(NoMethodError);
 }
+
 RClass *
 RubyState::script_error()
 {
 	const auto mrb = _mrb;
-	return E_SCRIPT_ERROR;
+	return ERROR_CLASS(ScriptError);
 }
+
 RClass *
 RubyState::syntax_error()
 {
 	const auto mrb = _mrb;
-	return E_SYNTAX_ERROR;
+	return ERROR_CLASS(SyntaxError);
 }
+
 RClass *
 RubyState::local_jump_error()
 {
 	const auto mrb = _mrb;
-	return E_LOCALJUMP_ERROR;
+	return ERROR_CLASS(LocalJumpError);
 }
+
 RClass *
 RubyState::regexp_error()
 {
 	const auto mrb = _mrb;
-	return E_REGEXP_ERROR;
+	return ERROR_CLASS(RegexpError);
 }
+
 RClass *
 RubyState::frozen_error()
 {
 	const auto mrb = _mrb;
-	return E_FROZEN_ERROR;
+	return ERROR_CLASS(FrozenError);
 }
+
 RClass *
 RubyState::not_implemented_error()
 {
 	const auto mrb = _mrb;
-	return E_NOTIMP_ERROR;
+	return ERROR_CLASS(NotImplementedError);
 }
+
 RClass *
 RubyState::key_error()
 {
 	const auto mrb = _mrb;
-	return E_KEY_ERROR;
+	return ERROR_CLASS(KeyError);
 }
+
 RClass *
 RubyState::float_domain_error()
 {
 	const auto mrb = _mrb;
-	return E_FLOATDOMAIN_ERROR;
+	return ERROR_CLASS(FloatDomainError);
 }
+
+#undef ERROR_CLASS
+
 bool
 RubyState::block_given_p()
 {
 	return WRAP_CALL(mrb_block_given_p(_mrb));
+}
+euler::util::Error::TypeInfo
+RubyState::error_type_info(RObject *exc)
+{
+	using util::Error;
+	const auto value = mrb_obj_value(exc);
+	if (!mrb_obj_is_kind_of(_mrb, value, exception()))
+		throw std::invalid_argument("Not an exception");
+	if (mrb_obj_is_kind_of(_mrb, value, script_error())) {
+		if (mrb_obj_is_kind_of(_mrb, value, not_implemented_error())) {
+			return {
+				.kind = Error::Kind::NotImplemented,
+				.is_custom = !mrb_obj_is_instance_of(_mrb,
+				    value, not_implemented_error()),
+			};
+		}
+		if (mrb_obj_is_kind_of(_mrb, value, syntax_error())) {
+			return {
+				.kind = Error::Kind::Syntax,
+				.is_custom = !mrb_obj_is_instance_of(_mrb,
+				    value, syntax_error()),
+			};
+		}
+		return {
+			.kind = Error::Kind::Script,
+			.is_custom
+			= !mrb_obj_is_instance_of(_mrb, value, script_error()),
+		};
+	}
+	if (mrb_obj_is_kind_of(_mrb, value, index_error())) {
+		return {
+			.kind = Error::Kind::Index,
+			.is_custom
+			= !mrb_obj_is_instance_of(_mrb, value, index_error()),
+		};
+	}
+	if (mrb_obj_is_kind_of(_mrb, value, key_error())) {
+		return {
+			.kind = Error::Kind::Key,
+			.is_custom
+			= !mrb_obj_is_instance_of(_mrb, value, key_error()),
+		};
+	}
+	if (mrb_obj_is_kind_of(_mrb, value, no_method_error())) {
+		return {
+			.kind = Error::Kind::NoMethod,
+			.is_custom = !mrb_obj_is_instance_of(_mrb, value,
+			    no_method_error()),
+		};
+	}
+	if (mrb_obj_is_kind_of(_mrb, value, float_domain_error())) {
+		return {
+			.kind = Error::Kind::FloatDomain,
+			.is_custom = !mrb_obj_is_instance_of(_mrb, value,
+			    float_domain_error()),
+		};
+	}
+	if (mrb_obj_is_kind_of(_mrb, value, frozen_error())) {
+		return {
+			.kind = Error::Kind::Frozen,
+			.is_custom
+			= !mrb_obj_is_instance_of(_mrb, value, frozen_error()),
+		};
+	}
+	if (mrb_obj_is_kind_of(_mrb, value, argument_error())) {
+		return {
+			.kind = Error::Kind::Argument,
+			.is_custom = !mrb_obj_is_instance_of(_mrb, value,
+			    argument_error()),
+		};
+	}
+	if (mrb_obj_is_kind_of(_mrb, value, local_jump_error())) {
+		return {
+			.kind = Error::Kind::LocalJump,
+			.is_custom = !mrb_obj_is_instance_of(_mrb, value,
+			    local_jump_error()),
+		};
+	}
+	if (mrb_obj_is_kind_of(_mrb, value, name_error())) {
+		return {
+			.kind = Error::Kind::Name,
+			.is_custom
+			= !mrb_obj_is_instance_of(_mrb, value, name_error()),
+		};
+	}
+	if (mrb_obj_is_kind_of(_mrb, value, range_error())) {
+
+		return {
+			.kind = Error::Kind::Range,
+			.is_custom
+			= !mrb_obj_is_instance_of(_mrb, value, range_error()),
+		};
+	}
+	if (mrb_obj_is_kind_of(_mrb, value, regexp_error())) {
+		return {
+			.kind = Error::Kind::Regexp,
+			.is_custom
+			= !mrb_obj_is_instance_of(_mrb, value, regexp_error()),
+		};
+	}
+	if (mrb_obj_is_kind_of(_mrb, value, runtime_error())) {
+		return {
+			.kind = Error::Kind::Runtime,
+			.is_custom
+			= !mrb_obj_is_instance_of(_mrb, value, runtime_error()),
+		};
+	}
+	if (mrb_obj_is_kind_of(_mrb, value, type_error())) {
+		return {
+			.kind = Error::Kind::Type,
+			.is_custom
+			= !mrb_obj_is_instance_of(_mrb, value, type_error()),
+		};
+	}
+	if (mrb_obj_is_kind_of(_mrb, value, zero_division_error())) {
+		return {
+			.kind = Error::Kind::ZeroDivision,
+			.is_custom = !mrb_obj_is_instance_of(_mrb, value,
+			    zero_division_error()),
+		};
+	}
+	return {
+		.kind = Error::Kind::Standard,
+		.is_custom
+		= !mrb_obj_is_instance_of(_mrb, value, standard_error()),
+	};
+}
+
+static mrb_value
+obj_attr_reader(mrb_state *mrb, RObject *exc, mrb_sym name)
+{
+	const auto value = mrb_obj_value(exc);
+	return mrb_funcall_argv(mrb, value, name, 0, nullptr);
+}
+
+std::string
+RubyState::error_cause(RObject *exc)
+{
+	const auto mrb = _mrb;
+	const auto result = obj_attr_reader(mrb, exc, EULER_SYM(message));
+	return mrb_string_cstr(_mrb, result);
+}
+
+std::string
+RubyState::error_backtrace(RObject *exc)
+{
+	const auto mrb = _mrb;
+	const auto bt = obj_attr_reader(mrb, exc, EULER_SYM(backtrace));
+	std::stringstream ss;
+	if (mrb_nil_p(bt)) return {};
+	for (mrb_int i = 0, len = RARRAY_LEN(bt); i < len; ++i) {
+		const auto item = mrb_ary_entry(bt, i);
+		const auto line = mrb_string_cstr(_mrb, item);
+		ss << "  " << line << "\n";
+	}
+	return ss.str();
 }
 
 mrb_value

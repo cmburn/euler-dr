@@ -17,7 +17,7 @@ class Image;
 
 class State : public Object {
 public:
-	~State() override = default;
+	~State() override;
 	State();
 	typedef uint64_t tick_t;
 	typedef decltype(std::thread::hardware_concurrency()) nthread_t;
@@ -37,14 +37,16 @@ public:
 
 	struct Modules {
 		RClass *mod = nullptr;
-
 		struct {
 			RClass *mod = nullptr;
 			RClass *state = nullptr;
+#ifdef EULER_NATIVE
+			RClass *window = nullptr;
+#endif
 		} app;
 
 		struct {
-			RClass *module = nullptr;
+			RClass *mod = nullptr;
 			RClass *base = nullptr;
 			RClass *display = nullptr;
 			RClass *window = nullptr;
@@ -123,8 +125,10 @@ public:
 			RClass *color = nullptr;
 			RClass *version = nullptr;
 			RClass *logger = nullptr;
+			RClass *storage = nullptr;
 		} util;
 
+#ifdef EULER_MATH
 		struct {
 			RClass *mod = nullptr;
 			RClass *nonscalar = nullptr;
@@ -137,7 +141,9 @@ public:
 			RClass *size = nullptr;
 			RClass *vector = nullptr;
 		} math;
+#endif
 
+#ifdef EULER_PHYSICS
 		struct {
 			RClass *mod = nullptr;
 			RClass *body = nullptr;
@@ -158,6 +164,7 @@ public:
 			RClass *polygon = nullptr;
 			RClass *segment = nullptr;
 		} physics;
+#endif
 	};
 
 	[[nodiscard]] virtual Reference<RubyState> mrb() const = 0;
@@ -169,16 +176,21 @@ public:
 	[[nodiscard]] virtual tick_t ticks() const = 0;
 	[[nodiscard]] virtual tick_t last_tick() const = 0;
 	[[nodiscard]] virtual float fps() const = 0;
+	[[nodiscard]] virtual float dt() const = 0;
 	[[nodiscard]] virtual tick_t total_ticks() const = 0;
 	[[nodiscard]] virtual mrb_value gv_state() const = 0;
 	[[nodiscard]] static Reference<State> get(const mrb_state *mrb);
 	[[nodiscard]] virtual Reference<Image> load_image(const char *path) = 0;
 	[[nodiscard]] virtual Phase phase() const = 0;
+	virtual void set_phase(Phase phase) = 0;
+	[[nodiscard]] virtual const std::string &progname() const = 0;
+	[[nodiscard]] virtual const std::string &title() const = 0;
 	virtual void upload_image(const char *label,
 	    const Reference<Image> &img)
 	    = 0;
 	virtual bool initialize() = 0;
-	virtual void tick() const = 0;
+	virtual void tick() = 0;
+	virtual mrb_value self_value() const = 0;
 	[[nodiscard]] virtual const Modules &modules() const = 0;
 	[[nodiscard]] virtual Modules &modules() = 0;
 	[[nodiscard]] virtual void *unwrap(mrb_value value,
@@ -202,6 +214,9 @@ public:
 		auto self = util::Reference(const_cast<State *>(this));
 		return obj.wrap(mrb()->mrb(), T::fetch_class(self), &T::TYPE);
 	}
+
+protected:
+	virtual const mrb_data_type *data_type() const = 0;
 };
 
 #define EULER_SYM_LIT(LIT)                                                     \

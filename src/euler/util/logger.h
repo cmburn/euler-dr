@@ -27,6 +27,8 @@ public:
 		Unknown,
 	};
 
+	static Severity parse_severity(std::string_view str);
+
 	[[nodiscard]] virtual const std::string &subsystem() const = 0;
 	virtual void set_subsystem(std::string_view name) = 0;
 	[[nodiscard]] virtual Severity severity() const = 0;

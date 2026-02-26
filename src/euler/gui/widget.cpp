@@ -237,6 +237,7 @@ Widget::init(const euler::util::Reference<euler::util::State> &state,
 	    MRB_ARGS_NONE());
 	state->mrb()->define_method(widget, "flags=", widget_set_flags,
 	    MRB_ARGS_REQ(1));
+	return widget;
 }
 
 Widget::Rectangle
@@ -484,4 +485,10 @@ bool
 Widget::in_draw() const
 {
 	return gui()->state()->phase() == util::State::Phase::Draw;
+}
+
+nk_context *
+Widget::context() const
+{
+	return gui()->context();
 }

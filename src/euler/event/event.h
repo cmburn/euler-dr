@@ -11,7 +11,7 @@ namespace euler::event {
 
 mrb_value sdl_event_to_mrb(const util::Reference<util::State> &state,
     const SDL_Event &event);
-RClass *init(const util::Reference<util::State> &state, RClass *mod, RClass *);
+RClass *init(const util::Reference<util::State> &state, RClass *mod, RClass * = nullptr);
 
 } /* namespace euler::app */
 

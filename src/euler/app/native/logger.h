@@ -23,6 +23,9 @@ public:
 	[[nodiscard]] util::Reference<util::Logger> copy(
 	    std::optional<std::string_view> subsystem) const override;
 
+	static std::shared_ptr<spdlog::sinks::sink> stdout_sink();
+	static std::shared_ptr<spdlog::sinks::sink> stderr_sink();
+
 protected:
 	void write_log(Severity level,
 	    const std::string &message) const override;

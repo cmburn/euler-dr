@@ -1242,12 +1242,11 @@ RClass *
 euler::event::init(const util::Reference<util::State> &state, RClass *mod,
     RClass *)
 {
-	// auto &app = state->module().app;
 	const auto mrb = state->mrb()->mrb();
 	auto &event = state->modules().event;
-	event.module = state->mrb()->define_module_under(mod, "Event");
+	event.mod = state->mrb()->define_module_under(mod, "Event");
 
-	event.base = state->mrb()->define_class_under(event.module, "Base",
+	event.base = state->mrb()->define_class_under(event.mod, "Base",
 	    state->object_class());
 
 #define DEFINE_ATTR_READER(TYPE, ATTR)                                         \
@@ -1263,7 +1262,7 @@ euler::event::init(const util::Reference<util::State> &state, RClass *mod,
 
 #define DEFINE_EVENT(TYPE, NAME)                                               \
 	do {                                                                   \
-		(event.TYPE) = state->mrb()->define_class_under(event.module,  \
+		(event.TYPE) = state->mrb()->define_class_under(event.mod,     \
 		    (#NAME), event.base);                                      \
 		DEFINE_ATTR_READER(TYPE, timestamp);                           \
 		DEFINE_ATTR_READER(TYPE, type);                                \
@@ -1469,5 +1468,5 @@ euler::event::init(const util::Reference<util::State> &state, RClass *mod,
 	DEFINE_ATTR_READER(render, window_id);
 #undef DEFINE_ATTR_READER
 #undef DEFINE_EVENT
-	return event.module;
+	return event.mod;
 }

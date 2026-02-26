@@ -396,7 +396,7 @@ public:
 	[[nodiscard]] util::Reference<State> state() const;
 	mrb_state *mrb() const override;
 	void raise_on_error() override;
-	RClass *error() override;
+	RClass *exception() override;
 	RClass *standard_error() override;
 	RClass *runtime_error() override;
 	RClass *type_error() override;

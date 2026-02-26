@@ -6,16 +6,17 @@
 #include "euler/util/logger.h"
 #include "euler/util/version.h"
 
-void
-euler::util::init(const Reference<State> &state, RClass *euler_mod)
+RClass *
+euler::util::init(const Reference<State> &state, RClass *, RClass *)
 {
-	const auto mod = state->mrb()->define_module_under(euler_mod, "Util");
-	(void)mod;
 	auto &util = state->modules().util;
+	const auto mod = util.mod;
 	util.logger = Logger::init(state, mod);
 	util.version = Version::init(state, mod);
 	util.color = Color::init(state, mod);
+	return mod;
 }
+
 float
 euler::util::read_hash_float(mrb_state *mrb, const mrb_value hash,
     const mrb_sym key, const float default_value)

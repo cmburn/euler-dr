@@ -10,6 +10,7 @@ option(EULER_MATH_BUILD "Build Euler::Math module" OFF)
 option(EULER_PHYSICS_BUILD "Build Euler::Physics module" ON)
 option(EULER_DRAGONRUBY_PATH "Path to DragonRuby installation" "")
 option(EULER_GUI_BUILD "Build Euler::GUI module" ON)
+option(EULER_NET_BUILD "Build Euler::Net module" ON)
 option(EULER_GRAPHICS_BUILD "Build Euler::Graphics module" ON)
 option(EULER_EVENT_BUILD "Build Euler::Event module" ON)
 option(BUILD_TESTS "Build tests" OFF)
@@ -81,6 +82,23 @@ if (EULER_PHYSICS_BUILD)
     FetchContent_MakeAvailable(box2d)
 endif ()
 
+if (EULER_NET_BUILD)
+    set(PROTOBUF_GIT_TAG v34.0)
+    FetchContent_Declare(protobuf
+            GIT_REPOSITORY https://github.com/protocolbuffers/protobuf
+            GIT_TAG ${PROTOBUF_GIT_TAG}
+            GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(protobuf)
+    set(GNS_TAG v1.4.1)
+    FetchContent_Declare(gns
+            GIT_REPOSITORY https://github.com/ValveSoftware/GameNetworkingSockets
+            GIT_TAG ${GNS_TAG}
+            GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(gns)
+endif ()
+
 if (EULER_DRAGONRUBY_BUILD)
     # TODO: Nuklear support
     if (NOT EULER_DRAGONRUBY_PATH)
@@ -103,9 +121,10 @@ elseif (EULER_NATIVE_BUILD)
 
     # Native we pull in mruby, physfs, SDL, and Vulkan2D.
 
+    # TODO: stabilize on 3.5.0 once it's released
     fetch_mruby(mruby
             GIT_REPOSITORY https://github.com/mruby/mruby
-            GIT_TAG 12bc2cfaa1a7d4c9490ac25d0a00f80293d28868
+            GIT_TAG master
     )
 
     set(SPDLOG_GIT_COMMIT 79524ddd08a4ec981b7fea76afd08ee05f83755d)

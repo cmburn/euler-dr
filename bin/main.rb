@@ -1,4 +1,4 @@
-lass Player
+class Player
   attr_reader :position
   attr_reader :image
 
@@ -28,7 +28,7 @@ lass Player
   end
 end
 
-class State < Euler::App::State
+class State < Euler::Util::State
   SPRITE_PATH = 'assets/caveguy.png'
   def load
     @counter = 0
@@ -71,3 +71,4 @@ end
 # rubocop:disable Style/GlobalVars
 $app = State.new
 # rubocop:enable Style/GlobalVars
+

@@ -7,43 +7,43 @@
 using namespace euler::gui;
 using namespace euler;
 
-static nk_color
-color_to_nuklear(const util::Color color)
-{
-	return nk_color {
-		.r = color.red(),
-		.g = color.green(),
-		.b = color.blue(),
-		.a = color.alpha(),
-	};
-}
-
-static euler::util::Color
-color_from_nuklear(const nk_color color)
-{
-	return util::Color {
-		color.r,
-		color.g,
-		color.b,
-		color.a,
-	};
-}
-
-static euler::util::Reference<euler::graphics::Image>
-image_from_nuklear(const util::Reference<util::State> &,
-    const struct nk_image &)
-{
-	// TODO: this gets tricky
-	return nullptr;
-}
-
-static struct nk_image
-image_to_nuklear(const util::Reference<util::State> &,
-    const euler::util::Reference<euler::graphics::Image> &)
-{
-	// TODO: this also gets tricky
-	return {};
-}
+// static nk_color
+// color_to_nuklear(const util::Color color)
+// {
+// 	return nk_color {
+// 		.r = color.red(),
+// 		.g = color.green(),
+// 		.b = color.blue(),
+// 		.a = color.alpha(),
+// 	};
+// }
+//
+// static euler::util::Color
+// color_from_nuklear(const nk_color color)
+// {
+// 	return util::Color {
+// 		color.r,
+// 		color.g,
+// 		color.b,
+// 		color.a,
+// 	};
+// }
+//
+// static euler::util::Reference<euler::graphics::Image>
+// image_from_nuklear(const util::Reference<util::State> &,
+//     const struct nk_image &)
+// {
+// 	// TODO: this gets tricky
+// 	return nullptr;
+// }
+//
+// static struct nk_image
+// image_to_nuklear(const util::Reference<util::State> &,
+//     const euler::util::Reference<euler::graphics::Image> &)
+// {
+// 	// TODO: this also gets tricky
+// 	return {};
+// }
 
 static_assert(NK_COLOR_COUNT == ColorTable::ATTRIBUTE_COUNT,
     "Nuklear color count does not match ColorTable attribute count");

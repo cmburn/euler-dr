@@ -8,20 +8,28 @@
 
 #include "euler/util/object.h"
 
+
 namespace euler::util {
 
-class State;
+class RubyState;
 
 /* ReSharper disable CppClassCanBeFinal */
 class Error : public std::exception {
 public:
 	~Error() override;
-	Error(const Reference<State> &state, const std::string &message);
-	template <typename... Args>
-	Error(const Reference<State> &state, std::format_args fmt, Args... args)
-	    : Error(state, std::format(fmt, args...))
-	{
-	}
+	// Error(const Reference<RubyState> &state, const std::string &message);
+	// template <typename... Args>
+	// Error(const Reference<RubyState> &state, std::format_args fmt,
+	//     Args... args)
+	//     : Error(state, std::format(fmt, args...))
+	// {
+	// }
+	// Error(const Reference<RubyState> &state, RObject *exc);
+
+	Error(const Reference<RubyState> &state, const std::string &cause,
+	    const char *class_name = nullptr,
+	    const std::optional<std::string_view> &backtrace = std::nullopt);
+	Error(const Reference<RubyState> &state, RObject *exc);
 
 	enum class Kind {
 		Exception,
@@ -42,7 +50,17 @@ public:
 		NotImplemented,
 		Key,
 		FloatDomain,
-		Custom,
+	};
+
+	// attempts to determine the most specific exception type for the given
+	// exception object, and returns it. If the type is not a known type,
+	// throws std::invalid_argument.
+	// static Kind underlying_type(const Reference<RubyState> &state,
+	//     RObject *exc);
+
+	struct TypeInfo {
+		Kind kind;
+		bool is_custom;
 	};
 
 	[[nodiscard]] virtual Kind
@@ -57,16 +75,34 @@ public:
 	{
 		return _message.c_str();
 	}
+	[[nodiscard]] virtual bool
+	is_custom() const
+	{
+		return false;
+	}
+
+	[[nodiscard]] Reference<RubyState> state() const;
+
+private:
+	Reference<RubyState> _state;
 
 protected:
+	std::string _cause;
+	std::string _backtrace;
+
+private:
 	std::string _message;
-	Reference<State> _state;
 };
 
 class StandardError : public Error {
 public:
-	StandardError(const Reference<State> &state, const std::string &message)
+	StandardError(const Reference<RubyState> &state,
+	    const std::string &message)
 	    : Error(state, message)
+	{
+	}
+	StandardError(const Reference<RubyState> &state, RObject *exc)
+	    : Error(state, exc)
 	{
 	}
 	~StandardError() override = default;
@@ -76,14 +112,17 @@ public:
 		return Kind::Standard;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class RuntimeError : public StandardError {
 public:
-	RuntimeError(const Reference<State> &state, const std::string &message)
+	RuntimeError(const Reference<RubyState> &state,
+	    const std::string &message)
 	    : StandardError(state, message)
+	{
+	}
+	RuntimeError(const Reference<RubyState> &state, RObject *exc)
+	    : StandardError(state, exc)
 	{
 	}
 	~RuntimeError() override = default;
@@ -93,14 +132,16 @@ public:
 		return Kind::Runtime;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class TypeError : public Error {
 public:
-	TypeError(const Reference<State> &state, const std::string &message)
+	TypeError(const Reference<RubyState> &state, const std::string &message)
 	    : Error(state, message)
+	{
+	}
+	TypeError(const Reference<RubyState> &state, RObject *exc)
+	    : Error(state, exc)
 	{
 	}
 	~TypeError() override = default;
@@ -110,15 +151,17 @@ public:
 		return Kind::Type;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class ZeroDivisionError : public StandardError {
 public:
-	ZeroDivisionError(const Reference<State> &state,
+	ZeroDivisionError(const Reference<RubyState> &state,
 	    const std::string &message)
 	    : StandardError(state, message)
+	{
+	}
+	ZeroDivisionError(const Reference<RubyState> &state, RObject *exc)
+	    : StandardError(state, exc)
 	{
 	}
 	~ZeroDivisionError() override = default;
@@ -128,14 +171,17 @@ public:
 		return Kind::ZeroDivision;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
-class ArgumentError final : public StandardError {
+class ArgumentError : public StandardError {
 public:
-	ArgumentError(const Reference<State> &state, const std::string &message)
+	ArgumentError(const Reference<RubyState> &state,
+	    const std::string &message)
 	    : StandardError(state, message)
+	{
+	}
+	ArgumentError(const Reference<RubyState> &state, RObject *exc)
+	    : StandardError(state, exc)
 	{
 	}
 	~ArgumentError() override = default;
@@ -144,18 +190,17 @@ public:
 	{
 		return Kind::Argument;
 	}
-	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value
-	to_mrb() const override
-	{
-		return mrb_nil_value();
-	}
 };
 
 class IndexError : public StandardError {
 public:
-	IndexError(const Reference<State> &state, const std::string &message)
+	IndexError(const Reference<RubyState> &state,
+	    const std::string &message)
 	    : StandardError(state, message)
+	{
+	}
+	IndexError(const Reference<RubyState> &state, RObject *exc)
+	    : StandardError(state, exc)
 	{
 	}
 	~IndexError() override = default;
@@ -165,14 +210,17 @@ public:
 		return Kind::Index;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class RangeError : public StandardError {
 public:
-	RangeError(const Reference<State> &state, const std::string &message)
+	RangeError(const Reference<RubyState> &state,
+	    const std::string &message)
 	    : StandardError(state, message)
+	{
+	}
+	RangeError(const Reference<RubyState> &state, RObject *exc)
+	    : StandardError(state, exc)
 	{
 	}
 	~RangeError() override = default;
@@ -182,14 +230,16 @@ public:
 		return Kind::Range;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class NameError : public StandardError {
 public:
-	NameError(const Reference<State> &state, const std::string &message)
+	NameError(const Reference<RubyState> &state, const std::string &message)
 	    : StandardError(state, message)
+	{
+	}
+	NameError(const Reference<RubyState> &state, RObject *exc)
+	    : StandardError(state, exc)
 	{
 	}
 	~NameError() override = default;
@@ -199,14 +249,17 @@ public:
 		return Kind::Name;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class NoMethodError : public NameError {
 public:
-	NoMethodError(const Reference<State> &state, const std::string &message)
+	NoMethodError(const Reference<RubyState> &state,
+	    const std::string &message)
 	    : NameError(state, message)
+	{
+	}
+	NoMethodError(const Reference<RubyState> &state, RObject *exc)
+	    : NameError(state, exc)
 	{
 	}
 	~NoMethodError() override = default;
@@ -216,14 +269,17 @@ public:
 		return Kind::NoMethod;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class ScriptError : public Error {
 public:
-	ScriptError(const Reference<State> &state, const std::string &message)
+	ScriptError(const Reference<RubyState> &state,
+	    const std::string &message)
 	    : Error(state, message)
+	{
+	}
+	ScriptError(const Reference<RubyState> &state, RObject *exc)
+	    : Error(state, exc)
 	{
 	}
 	~ScriptError() override = default;
@@ -233,14 +289,17 @@ public:
 		return Kind::Script;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class SyntaxError : public ScriptError {
 public:
-	SyntaxError(const Reference<State> &state, const std::string &message)
+	SyntaxError(const Reference<RubyState> &state,
+	    const std::string &message)
 	    : ScriptError(state, message)
+	{
+	}
+	SyntaxError(const Reference<RubyState> &state, RObject *exc)
+	    : ScriptError(state, exc)
 	{
 	}
 	~SyntaxError() override = default;
@@ -250,15 +309,17 @@ public:
 		return Kind::Syntax;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class LocalJumpError : public StandardError {
 public:
-	LocalJumpError(const Reference<State> &state,
+	LocalJumpError(const Reference<RubyState> &state,
 	    const std::string &message)
 	    : StandardError(state, message)
+	{
+	}
+	LocalJumpError(const Reference<RubyState> &state, RObject *exc)
+	    : StandardError(state, exc)
 	{
 	}
 	~LocalJumpError() override = default;
@@ -268,14 +329,17 @@ public:
 		return Kind::LocalJump;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class RegexpError : public StandardError {
 public:
-	RegexpError(const Reference<State> &state, const std::string &message)
+	RegexpError(const Reference<RubyState> &state,
+	    const std::string &message)
 	    : StandardError(state, message)
+	{
+	}
+	RegexpError(const Reference<RubyState> &state, RObject *exc)
+	    : StandardError(state, exc)
 	{
 	}
 	~RegexpError() override = default;
@@ -285,14 +349,17 @@ public:
 		return Kind::Regexp;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class FrozenError : public RuntimeError {
 public:
-	FrozenError(const Reference<State> &state, const std::string &message)
+	FrozenError(const Reference<RubyState> &state,
+	    const std::string &message)
 	    : RuntimeError(state, message)
+	{
+	}
+	FrozenError(const Reference<RubyState> &state, RObject *exc)
+	    : RuntimeError(state, exc)
 	{
 	}
 	~FrozenError() override = default;
@@ -302,15 +369,17 @@ public:
 		return Kind::Frozen;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class NotImplementedError : public ScriptError {
 public:
-	NotImplementedError(const Reference<State> &state,
+	NotImplementedError(const Reference<RubyState> &state,
 	    const std::string &message)
 	    : ScriptError(state, message)
+	{
+	}
+	NotImplementedError(const Reference<RubyState> &state, RObject *exc)
+	    : ScriptError(state, exc)
 	{
 	}
 	~NotImplementedError() override = default;
@@ -320,14 +389,16 @@ public:
 		return Kind::NotImplemented;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class KeyError : public IndexError {
 public:
-	KeyError(const Reference<State> &state, const std::string &message)
+	KeyError(const Reference<RubyState> &state, const std::string &message)
 	    : IndexError(state, message)
+	{
+	}
+	KeyError(const Reference<RubyState> &state, RObject *exc)
+	    : IndexError(state, exc)
 	{
 	}
 	~KeyError() override = default;
@@ -337,15 +408,17 @@ public:
 		return Kind::Key;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 
 class FloatDomainError : public RangeError {
 public:
-	FloatDomainError(const Reference<State> &state,
+	FloatDomainError(const Reference<RubyState> &state,
 	    const std::string &message)
 	    : RangeError(state, message)
+	{
+	}
+	FloatDomainError(const Reference<RubyState> &state, RObject *exc)
+	    : RangeError(state, exc)
 	{
 	}
 	~FloatDomainError() override = default;
@@ -355,23 +428,60 @@ public:
 		return Kind::FloatDomain;
 	}
 	[[nodiscard]] RClass *exception_class() const override;
-	[[nodiscard]] mrb_value to_mrb() const override;
-	[[nodiscard]] const char *what() const noexcept override;
 };
 /* ReSharper restore CppClassCanBeFinal */
 
-// Reference<Error> wrap_exception(const Reference<State> &state, const
-// std::exception &e); Reference<Error> wrap_ruby_exception(const
-// Reference<State> &state, RObject *exc);
+std::string error_cause(const Reference<RubyState> &state, RObject *exc);
+std::string error_backtrace(const Reference<RubyState> &state, RObject *exc);
+
+template <typename T>
+concept ErrorType = std::derived_from<T, Error>;
+
+template <ErrorType T = Error> class CustomError : public T {
+public:
+	CustomError(const Reference<RubyState> &state, RObject *exc)
+	    : T(state, exc)
+	    , _exc(exc)
+	{
+		this->_cause = error_cause(state, exc);
+		this->_backtrace = error_backtrace(state, exc);
+	}
+
+	~CustomError() override = default;
+
+	[[nodiscard]] bool
+	is_custom() const override
+	{
+		return true;
+	}
+
+	[[nodiscard]] RClass *
+	exception_class() const override
+	{
+		return this->state()->obj_class(mrb_obj_value(_exc));
+	}
+
+	[[nodiscard]] const char *
+	what() const noexcept override
+	{
+		const auto str = this->state()->any_to_s(mrb_obj_value(_exc));
+		return this->state()->string_cstr(str);
+	}
+
+private:
+	RObject *_exc;
+};
 
 template <typename T, typename... Args>
-inline Reference<Error>
-make_error(const Reference<State> &state,
+inline auto
+make_error(const Reference<RubyState> &state,
     const std::format_string<Args...> &fmt, Args &&...args)
 {
-	auto message = std::format(fmt, args...);
-	return util::make_reference<T>(state, message);
+	auto message = std::format(fmt, std::forward<Args>(args)...);
+	return T(state, message);
 }
+
+[[noreturn]] void throw_error(const Reference<RubyState> &state, RObject *exc);
 
 } /* namespace euler::util */
 

@@ -2,6 +2,8 @@
 
 #include "euler/app/native/logger.h"
 
+#include <spdlog/sinks/stdout_color_sinks.h>
+
 euler::app::native::Logger::Logger(std::string_view subsystem,
     const std::shared_ptr<spdlog::sinks::sink> &error,
     const std::shared_ptr<spdlog::sinks::sink> &output)
@@ -11,10 +13,14 @@ euler::app::native::Logger::Logger(std::string_view subsystem,
 	_error_sink = error;
 	_output_sink = output;
 	std::vector<spdlog::sink_ptr> sinks;
-	if (_error_sink != nullptr) sinks.push_back(_error_sink);
+	if (_error_sink != nullptr) {
+		_error_sink->set_level(spdlog::level::err);
+		sinks.push_back(_error_sink);
+	}
 	if (_output_sink != nullptr) sinks.push_back(_output_sink);
 	_logger = std::make_unique<spdlog::logger>(subsystem.data(),
 	    sinks.begin(), sinks.end());
+	_logger->set_level(spdlog::level::debug);
 }
 const std::string &
 euler::app::native::Logger::subsystem() const
@@ -49,6 +55,18 @@ euler::app::native::Logger::copy(
 	    subsystem.value_or(_subsystem), _error_sink, _output_sink);
 	other->set_severity(severity());
 	return other;
+}
+
+std::shared_ptr<spdlog::sinks::sink>
+euler::app::native::Logger::stdout_sink()
+{
+	return std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+}
+
+std::shared_ptr<spdlog::sinks::sink>
+euler::app::native::Logger::stderr_sink()
+{
+	return std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
 }
 
 void

@@ -23,16 +23,17 @@ button_symbol(mrb_state *mrb, const mrb_value self_value)
 	return euler::gui::from_symbol(mrb, self->symbol());
 }
 
-// void
-// Button::init(mrb_state *mrb, util::State::Modules &mod)
-// {
-// 	mod.gui.button = mrb_define_class_under(mrb, mod.gui.module, "Button",
-// 	    mod.gui.element);
-// 	const auto button = mod.gui.button;
-// 	MRB_SET_INSTANCE_TT(button, MRB_TT_CDATA);
-// 	mrb_define_method(mrb, button, "symbol", button_symbol,
-// 	    MRB_ARGS_NONE());
-// }
+RClass *
+Button::init(const euler::util::Reference<euler::util::State> &state,
+    RClass *mod, RClass *)
+{
+	auto button = state->mrb()->define_class_under(mod, "Button",
+	    state->object_class());
+	MRB_SET_INSTANCE_TT(button, MRB_TT_DATA);
+	state->mrb()->define_method(button, "symbol", button_symbol,
+	    MRB_ARGS_NONE());
+	return button;
+}
 
 Button::~Button() = default;
 

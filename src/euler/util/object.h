@@ -90,6 +90,12 @@ public:
 		return _object == nullptr;
 	}
 
+	void *
+	wrap() const
+	{
+		return unsafe_cast<void *>(*this);
+	}
+
 private:
 	T *_object = nullptr;
 };
@@ -115,12 +121,8 @@ private:
 	std::atomic<uint32_t> _count;
 };
 
-
-RData *safe_data_object_alloc(
-	mrb_state *mrb,
-   RClass *klass,
-   void *datap,
-   const mrb_data_type *type);
+RData *safe_data_object_alloc(mrb_state *mrb, RClass *klass, void *datap,
+    const mrb_data_type *type);
 
 void *checked_unwrap_ptr(mrb_state *mrb, const mrb_value value,
     const mrb_data_type *type);

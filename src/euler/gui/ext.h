@@ -13,7 +13,8 @@ namespace euler::gui {
 
 // void init(const util::Reference<util::State> &state);
 
-RClass *init(const util::Reference<util::State> &state, RClass *mod, RClass *);
+RClass *init(const util::Reference<util::State> &state, RClass *mod,
+    RClass * = nullptr);
 
 } /* namespace euler::gui */
 

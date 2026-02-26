@@ -18,7 +18,6 @@ nk_symbol_type
 euler::gui::to_nuklear(const util::Reference<util::State> &state,
     const Symbol symbol)
 {
-	const auto mrb = state->mrb()->mrb();
 	switch (symbol) {
 	case Symbol::None: return NK_SYMBOL_NONE;
 	case Symbol::X: return NK_SYMBOL_X;

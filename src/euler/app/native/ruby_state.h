@@ -7,9 +7,12 @@
 #include "euler/util/ruby_state.h"
 
 namespace euler::app::native {
+class State;
+
 class RubyState final : public util::RubyState {
 public:
 	RubyState();
+	void initialize(util::Reference<State> &state);
 	mrb_state *mrb() const override;
 	void raise(RClass *c, const char *msg) override;
 	void raisef(RClass *c, const char *fmt, ...) override;
@@ -389,7 +392,7 @@ public:
 	void warn(const char *fmt, ...) override;
 	void write_barrier(RBasic *) override;
 	void raise_on_error() override;
-	RClass *error() override;
+	RClass *exception() override;
 	RClass *standard_error() override;
 	RClass *runtime_error() override;
 	RClass *type_error() override;
@@ -409,8 +412,14 @@ public:
 	RClass *float_domain_error() override;
 	bool block_given_p() override;
 
+	util::Error::TypeInfo error_type_info(RObject *exc) override;
+	std::string error_cause(RObject *exc) override;
+	std::string error_backtrace(RObject *exc) override;
+
 private:
-	mrb_state *_mrb;
+
+	mrb_state *_mrb = nullptr;
+	mrb_int _raise_depth = 0;
 };
 } /* namespace euler::app::native */
 

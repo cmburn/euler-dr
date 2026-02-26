@@ -121,7 +121,7 @@ define_function(const Reference<State> &state, RClass *cls, const char *name,
 	state->mrb()->define_class_method(cls, name, fn, args);
 }
 
-void init(const Reference<State> &state, RClass *mod);
+RClass *init(const Reference<State> &state, RClass *mod, RClass * = nullptr);
 
 template <typename T>
 static void

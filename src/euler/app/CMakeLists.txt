@@ -53,6 +53,7 @@ if (EULER_NATIVE_BUILD)
             euler_gui
             euler_vulkan
             spdlog
+            physfs-static
     )
 
     # if vulkan_sdk env var exists, use it instead of system headers

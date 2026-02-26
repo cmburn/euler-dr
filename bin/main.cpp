@@ -6,7 +6,7 @@ int
 main(const int argc, char **argv)
 {
 	try {
-		auto args = euler::app::State::parse_args(argc, argv);
+		auto args = euler::app::State::Arguments::parse(argc, argv);
 		auto state = euler::util::make_reference<euler::app::State>(args);
 		if (!state->initialize()) {
 			state->log()->error("Failed to initialize state");

@@ -29,14 +29,6 @@ Row::button(const Button::Settings &settings)
 	return util::make_reference<Button>(util::Reference(this), settings);
 }
 
-static mrb_value
-button_symbol(mrb_state *mrb, const mrb_value self_value)
-{
-	const auto state = euler::util::State::get(mrb);
-	const auto self = state->unwrap<euler::gui::Button>(self_value);
-	return euler::gui::from_symbol(mrb, self->symbol());
-}
-
 static euler::gui::Button::Settings
 read_button_args(mrb_state *mrb, mrb_value *block)
 {
@@ -79,11 +71,10 @@ row_button(mrb_state *mrb, const mrb_value self_value)
 	}
 	mrb_value block = mrb_nil_value();
 	auto settings = read_button_args(mrb, &block);
-	const auto klass = state->modules().gui.button;
 	mrb_value out = mrb_nil_value();
 	self->button(settings, [&](util::Reference<gui::Button> &b) {
 		const auto value = state->wrap(b);
-		out = mrb_yield(mrb, block, value);
+		out = state->mrb()->yield(block, value);
 	});
 	return out;
 }

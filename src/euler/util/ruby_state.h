@@ -14,7 +14,10 @@
 #include <mruby/string.h>
 #include <mruby/variable.h>
 
+#include "error.h"
+
 namespace euler::util {
+class Error;
 
 /* Note that the implementation of this interface must convert ruby exceptions
  * into C++ exceptions, if mRuby is not built with C++ exceptions enabled (such
@@ -461,7 +464,7 @@ public:
 	virtual mrb_value int_value(mrb_int i) = 0;
 	virtual mrb_value float_value(mrb_float f) = 0;
 	virtual mrb_value symbol_value(mrb_sym i) = 0;
-	virtual RClass *error() = 0;
+	virtual RClass *exception() = 0;
 	virtual RClass *standard_error() = 0;
 	virtual RClass *runtime_error() = 0;
 	virtual RClass *type_error() = 0;
@@ -480,6 +483,10 @@ public:
 	virtual RClass *key_error() = 0;
 	virtual RClass *float_domain_error() = 0;
 	virtual bool block_given_p() = 0;
+	virtual Error::TypeInfo error_type_info(RObject *exc) = 0;
+	virtual std::string error_cause(RObject *exc) = 0;
+	virtual std::string error_backtrace(RObject *exc) = 0;
+
 
 	template <typename... Args>
 	mrb_value

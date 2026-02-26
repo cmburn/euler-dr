@@ -24,7 +24,7 @@ class State final : public EULER_APP_NAMESPACE::State {
 	BIND_MRUBY("Euler::App::State", State, app.state);
 
 public:
-	~State() override = default;
+ 	~State() override;
 	explicit State(const Arguments &args);
 	[[nodiscard]] nthread_t available_threads() const override;
 	[[nodiscard]] mrb_value gv_state() const override;
@@ -32,7 +32,7 @@ public:
 	[[nodiscard]] tick_t last_tick() const override;
 	[[nodiscard]] float fps() const override;
 	[[nodiscard]] tick_t total_ticks() const override;
-	void tick() const override;
+	void tick() override;
 	[[nodiscard]] RClass *object_class() const override;
 	void *unwrap(mrb_value value, const mrb_data_type *type) const override;
 
@@ -49,11 +49,21 @@ public:
 	}
 
 	[[nodiscard]] Phase phase() const override;
+	void set_phase(Phase phase) override;
+	mrb_value self_value() const override;
+
+protected:
+	[[nodiscard]] const mrb_data_type *data_type() const override
+	{
+		return &TYPE;
+	}
 
 private:
+	void initialize_self();
 #ifdef EULER_PHYSICS
 	util::Reference<physics::World> _world;
 #endif
+	bool _initialized_self = false;
 	Phase _phase = Phase::Update;
 	float _fps = 0;
 	tick_t _last_tick = 0;
@@ -64,6 +74,7 @@ private:
 	tick_t _last_frame_tick = 0;
 	tick_t _last_frame_total_ticks = 0;
 	Modules _modules = {};
+	mrb_value _self_value = mrb_nil_value();
 };
 } /* namespace euler::app */
 

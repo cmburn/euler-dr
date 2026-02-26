@@ -1,0 +1,42 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+agent ArgumentError
+agent Exception
+agent FloatDomainError
+agent FrozenError
+agent IndexError
+agent KeyError
+agent LocalJumpError
+agent NameError
+agent NoMethodError
+agent NotImplementedError
+agent RangeError
+agent RegexpError
+agent RuntimeError
+agent ScriptError
+agent StandardError
+agent SyntaxError
+agent TypeError
+agent ZeroDivisionError
+
+Exception <-- ScriptError
+Exception <-- StandardError
+IndexError <-- KeyError
+NameError <-- NoMethodError
+RangeError <-- FloatDomainError
+RuntimeError <-- FrozenError
+ScriptError <-- NotImplementedError
+ScriptError <-- SyntaxError
+StandardError <-- ArgumentError
+StandardError <-- IndexError
+StandardError <-- LocalJumpError
+StandardError <-- NameError
+StandardError <-- RangeError
+StandardError <-- RegexpError
+StandardError <-- RuntimeError
+StandardError <-- TypeError
+StandardError <-- ZeroDivisionError
+
+
+@enduml

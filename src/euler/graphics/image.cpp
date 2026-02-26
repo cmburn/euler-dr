@@ -23,8 +23,6 @@ image_from_file(mrb_state *mrb, const mrb_value)
 		state->mrb()->raisef(state->mrb()->argument_error(),
 		    "Unable to load image from file: %s", path);
 	}
-	// return euler::util::wrap(mrb, img, state->module().graphics.image,
-	//     &Image::TYPE);
 	return state->wrap(img);
 }
 
@@ -38,8 +36,6 @@ image_from_buffer(mrb_state *mrb, const mrb_value)
 	const auto buffer = std::span(reinterpret_cast<const std::byte *>(ptr),
 	    static_cast<size_t>(len));
 	auto img = Image::from_buffer(buffer);
-	// return euler::util::wrap(mrb, img, state->module().graphics.image,
-	//     &Image::TYPE);
 	return state->wrap(img);
 }
 
@@ -52,8 +48,6 @@ image_create_target(mrb_state *mrb, const mrb_value)
 	state->mrb()->get_args("ff", &width, &height);
 	auto img = Image::create_target(static_cast<float>(width),
 	    static_cast<float>(height));
-	// return euler::util::wrap(mrb, img, state->module().graphics.image,
-	//     &Image::TYPE);
 	return state->wrap(img);
 }
 

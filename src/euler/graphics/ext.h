@@ -7,7 +7,7 @@
 
 namespace euler::graphics {
 
-RClass *init(const util::Reference<util::State> &state, RClass *mod, RClass *);
+RClass *init(const util::Reference<util::State> &state, RClass *mod, RClass * = nullptr);
 
 } /* namespace euler::graphics */
 

@@ -67,3 +67,13 @@ Logger::init(const Reference<State> &state, RClass *mod, RClass *)
 	    log_severity<Severity::Unknown>, MRB_ARGS_REQ(1));
 	return cls;
 }
+Logger::Severity
+Logger::parse_severity(std::string_view str)
+{
+	if (str == "debug") return Severity::Debug;
+	if (str == "info") return Severity::Info;
+	if (str == "warn") return Severity::Warn;
+	if (str == "error") return Severity::Error;
+	if (str == "fatal") return Severity::Fatal;
+	return Severity::Unknown;
+}

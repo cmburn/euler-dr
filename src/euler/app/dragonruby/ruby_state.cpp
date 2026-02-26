@@ -927,6 +927,7 @@ RubyState::get_argv()
 mrb_int
 RubyState::get_args_a(mrb_args_format format, void **ptr)
 {
+	printf("get_args_a\n");
 	mrb_state *mrb = _mrb;
 	const char *fmt = format;
 	char c;
@@ -941,6 +942,7 @@ RubyState::get_args_a(mrb_args_format format, void **ptr)
 	mrb_bool reqkarg = FALSE;
 	int argc_min = 0, argc_max = 0;
 	auto state = euler::util::State::get(mrb);
+	printf("argc = %d\n", argc);
 
 	if (!argv_on_stack) {
 		auto a = mrb_ary_ptr(*array_argv);
@@ -1269,6 +1271,9 @@ check_exit:
 				static constexpr uint32_t keyword_max = 40;
 
 				if (kwnum > keyword_max || required > kwnum) {
+					printf("kwnum = %d\nkeyword_max = "
+					       "%d\nrequired = %d\n",
+					    kwnum, keyword_max, required);
 					raise(state->mrb()->argument_error(),
 					    "keyword number is too large");
 				}
@@ -2551,7 +2556,7 @@ RubyState::raise_on_error()
 }
 
 RClass *
-RubyState::error()
+RubyState::exception()
 {
 	return exc_get_id(intern_cstr("Error"));
 }
