@@ -61,7 +61,11 @@ sdl_init_flags()
 		return State::get(mrb)->mrb()->iv_get(self, EULER_IVSYM(SYM)); \
 	}
 
-static constexpr auto state_log = ATTR_IV_READER(log);
+static constexpr auto state_log = [](mrb_state *mrb, const mrb_value self) {
+	const auto value = State::get(mrb)->mrb()->iv_get(self, EULER_IVSYM(log));
+	assert(!mrb_nil_p(value));
+	return value;
+};
 static constexpr auto state_user_storage = ATTR_IV_READER(user_storage);
 static constexpr auto state_title_storage = ATTR_IV_READER(title_storage);
 static constexpr auto state_window = ATTR_IV_READER(window);
@@ -303,6 +307,7 @@ State::initialize()
 		return false;
 	}
 	auto gv = gv_state();
+	set_ivs();
 	if (mrb_nil_p(gv)) {
 		log()->error("File '{}' did not set $state", filename);
 		return false;
@@ -311,6 +316,7 @@ State::initialize()
 	if (!check_global_state()) return false;
 	/* ReSharper disable once CppDFAConstantConditions */
 	/* ReSharper disable once CppDFAUnreachableCode */
+
 	if (!app_load()) return false;
 	return true;
 }
@@ -419,7 +425,7 @@ State::app_input(const SDL_Event &event)
 	auto mrb = this->mrb()->mrb();
 	const auto arg = event::sdl_event_to_mrb(util::Reference(this), event);
 	assert(!mrb_nil_p(arg));
-	this->mrb()->funcall_id(gv_state(), EULER_SYM(input), 1, arg);
+	this->mrb()->funcall_argv(gv_state(), EULER_SYM(input), 1, &arg);
 	return !is_quit;
 }
 
@@ -429,7 +435,7 @@ State::app_draw()
 	if (!_methods.draw) return true;
 	try {
 		const auto mrb = this->mrb()->mrb();
-		this->mrb()->funcall_id(gv_state(), EULER_SYM(draw), 0);
+		this->mrb()->funcall_argv(gv_state(), EULER_SYM(draw));
 		tick();
 		return true;
 	} catch (const std::exception &e) {
@@ -450,7 +456,7 @@ State::app_load()
 	auto gvs = gv_state();
 	auto inspect = this->mrb()->inspect(gvs);
 	log()->info("loading with class {}", this->mrb()->string_cstr(inspect));
-	this->mrb()->funcall_id(gvs, EULER_SYM(load), 0);
+	this->mrb()->funcall_argv(gvs, EULER_SYM(load));
 	tick();
 	return true;
 }
@@ -460,7 +466,7 @@ State::app_quit()
 {
 	if (!_methods.quit) return true;
 	const auto mrb = this->mrb()->mrb();
-	this->mrb()->funcall_id(gv_state(), EULER_SYM(quit), 0);
+	this->mrb()->funcall_argv(gv_state(), EULER_SYM(quit));
 	return true;
 }
 

@@ -33,6 +33,9 @@ endif ()
 if (EULER_PHYSICS_BUILD)
     add_subdirectory(euler/physics)
 endif ()
+if (EULER_NET_BUILD)
+    add_subdirectory(euler/net)
+endif ()
 
 add_compile_definitions(EULER_INTERNAL_BUILD)
 

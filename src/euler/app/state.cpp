@@ -117,8 +117,10 @@ State::set_phase(Phase phase)
 mrb_value
 State::self_value() const
 {
-	assert(_initialized_self);
-	return _self_value;
+	// assert(_initialized_self);
+	// return _self_value;
+	auto gv = gv_state();
+	return mrb_nil_p(gv) ? _self_value : gv;
 }
 void
 State::initialize_self()

@@ -201,11 +201,11 @@ public:
 	    ...)
 	    = 0;
 	virtual mrb_value funcall_argv(mrb_value val, mrb_sym name,
-	    mrb_int argc, const mrb_value *argv)
+	    mrb_int argc = 0, const mrb_value *argv = nullptr)
 	    = 0;
-	virtual mrb_value funcall_id(mrb_value val, mrb_sym mid, mrb_int argc,
-	    ...)
-	    = 0;
+	// virtual mrb_value funcall_id(mrb_value val, mrb_sym mid, mrb_int
+	//     argc, ...)
+	//     = 0;
 	virtual mrb_value funcall_with_block(mrb_value val, mrb_sym name,
 	    mrb_int argc, const mrb_value *argv, mrb_value block)
 	    = 0;
@@ -486,7 +486,6 @@ public:
 	virtual Error::TypeInfo error_type_info(RObject *exc) = 0;
 	virtual std::string error_cause(RObject *exc) = 0;
 	virtual std::string error_backtrace(RObject *exc) = 0;
-
 
 	template <typename... Args>
 	mrb_value

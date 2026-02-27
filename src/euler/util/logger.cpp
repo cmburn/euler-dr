@@ -39,10 +39,8 @@ log_severity(mrb_state *mrb, const mrb_value self)
 	const auto logger = Reference<Logger>::unwrap(mrb, self);
 	const auto state = State::get(mrb);
 	const char *msg;
-	mrb_int len;
-	state->mrb()->get_args("s", &msg, &len);
-	const std::string_view message(msg, static_cast<std::size_t>(len));
-	logger->log(Severity, "{}", message);
+	state->mrb()->get_args("z", &msg);
+	logger->log(Severity, "{}", msg);
 	return mrb_nil_value();
 }
 

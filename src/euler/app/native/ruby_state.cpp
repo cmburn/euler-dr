@@ -912,18 +912,18 @@ RubyState::funcall_argv(const mrb_value val, const mrb_sym name,
 	return WRAP_CALL(mrb_funcall_argv(_mrb, val, name, argc, argv));
 }
 
-mrb_value
-RubyState::funcall_id(const mrb_value val, const mrb_sym mid,
-    const mrb_int argc, ...)
-{
-	va_list ap;
-	va_start(ap, argc);
-	std::vector<mrb_value> argv;
-	argv.reserve(argc);
-	for (mrb_int i = 0; i < argc; ++i)
-		argv.push_back(va_arg(ap, mrb_value));
-	return funcall_argv(val, mid, argc, argv.data());
-}
+// mrb_value
+// RubyState::funcall_id(const mrb_value val, const mrb_sym mid,
+//     const mrb_int argc, ...)
+// {
+// 	va_list ap;
+// 	va_start(ap, argc);
+// 	std::vector<mrb_value> argv;
+// 	argv.reserve(argc);
+// 	for (mrb_int i = 0; i < argc; ++i)
+// 		argv.push_back(va_arg(ap, mrb_value));
+// 	return funcall_argv(val, mid, argc, argv.data());
+// }
 
 mrb_value
 RubyState::funcall_with_block(const mrb_value val, const mrb_sym name,

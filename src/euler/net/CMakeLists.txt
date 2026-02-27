@@ -1,54 +1,20 @@
 add_library(euler_net STATIC
-        authentication_status.cpp
-        authentication_status.h
-        config_value.cpp
-        config_value.h
-        connection_info.cpp
-        connection_info.h
-        connection_real_time_lane_status.cpp
-        connection_real_time_lane_status.h
-        connection_real_time_status.cpp
-        connection_real_time_status.h
         connection_signaling.cpp
         connection_signaling.h
-        connection_status_changed_callback.cpp
-        connection_status_changed_callback.h
         fake_udp_port.cpp
         fake_udp_port.h
         game_id.cpp
         game_id.h
-        identity.cpp
-        identity.h
-        identity_render.cpp
-        identity_render.h
-        ip_address.cpp
-        ip_address.h
-        ip_address_render.cpp
-        ip_address_render.h
-        message.cpp
-        message.h
-        messages_session_failed.cpp
-        messages_session_failed.h
-        messages_session_request.cpp
-        messages_session_request.h
-        networking_message.cpp
-        networking_message.h
-        networking_messages.cpp
-        networking_messages.h
-        networking_sockets.cpp
-        networking_sockets.h
-        networking_utils.cpp
-        networking_utils.h
-        real_time_lane_status.cpp
-        real_time_lane_status.h
-        real_time_status.cpp
-        real_time_status.h
-        relay_network_status.cpp
-        relay_network_status.h
+        messages.cpp
+        messages.h
         signaling_receive_context.cpp
         signaling_receive_context.h
+        sockets.cpp
+        sockets.h
         steam_id.cpp
         steam_id.h
+        utils.cpp
+        utils.h
 )
 
 target_link_libraries(euler_net PUBLIC

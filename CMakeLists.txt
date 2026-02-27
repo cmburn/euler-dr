@@ -68,6 +68,8 @@ if (NOT STATIC_LIB)
 endif ()
 FetchContent_MakeAvailable(armadillo)
 
+add_compile_options(-O0 -g)
+
 #target_compile_definitions(armadillo PUBLIC
 #        -DARMA_MAT_PREALLOC=2
 #)
@@ -83,6 +85,7 @@ if (EULER_PHYSICS_BUILD)
 endif ()
 
 if (EULER_NET_BUILD)
+    # required by GNS
     set(PROTOBUF_GIT_TAG v34.0)
     FetchContent_Declare(protobuf
             GIT_REPOSITORY https://github.com/protocolbuffers/protobuf

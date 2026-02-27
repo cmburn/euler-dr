@@ -2,8 +2,9 @@ class Player
   attr_reader :position
   attr_reader :image
 
-  def initialize(position:, sprite:)
+  def initialize(position:, image:)
     @position = position
+    @image = image
   end
 
   def movement

@@ -190,8 +190,8 @@ public:
 	    ...) override;
 	mrb_value funcall_argv(mrb_value val, mrb_sym name, mrb_int argc,
 	    const mrb_value *argv) override;
-	mrb_value funcall_id(mrb_value val, mrb_sym mid, mrb_int argc,
-	    ...) override;
+	// mrb_value funcall_id(mrb_value val, mrb_sym mid, mrb_int argc,
+	//     ...) override;
 	mrb_value funcall_with_block(mrb_value val, mrb_sym name, mrb_int argc,
 	    const mrb_value *argv, mrb_value block) override;
 	mrb_value get_arg1() override;

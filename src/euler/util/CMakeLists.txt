@@ -11,6 +11,8 @@ add_library(euler_util STATIC
         ruby_state.h
         object.cpp
         object.h
+        pack.cpp
+        pack.h
         state.cpp
         state.h
         storage.cpp
