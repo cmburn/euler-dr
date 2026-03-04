@@ -1,8 +1,12 @@
 CMake 3.23+ and Ruby 3+ are required to build the project.
 
-If the native version is being built, Vulkan SDK 1.4+ is also required.
+This is a C++ extension to DragonRuby. Currently, only the physics bindings
+are functional, but more are currently underway. 
 
-I intend to keep this project compatible with PC (Windows, Linux, Mac, *BSD)
-and Nintendo Switch via the native backend. Other platforms can be targeted
-via the DragonRuby backend.
+You should only need to pass -DEULER_DRAGONRUBY_PATH=... to CMake to build the
+project. The other options are for features in current development that do not
+work yet.
 
+In the near future, I am working on adding math, networking, and GUI libraries.
+At some point I intend to have a native, standalone, Vulkan based backend as
+well targeting PC and Switch, but that is a long way off.

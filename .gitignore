@@ -11,6 +11,6 @@
 /native/
 /tmp/
 /logs/
-/errors
+/errors/
 /Gemfile.lock
 /config/mruby/config.rb.lock
