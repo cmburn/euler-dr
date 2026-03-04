@@ -15,7 +15,6 @@ elseif (EULER_NATIVE_BUILD)
     list(APPEND EULER_DEFINITIONS
             -DEULER_NATIVE
             -DEULER_GRAPHICS
-            -DEULER_GUI
             -DEULER_VULKAN
     )
 endif ()
@@ -25,6 +24,12 @@ if (EULER_MATH_BUILD)
 endif ()
 if (EULER_PHYSICS_BUILD)
     list(APPEND EULER_DEFINITIONS -DEULER_PHYSICS)
+endif ()
+if (EULER_NET_BUILD)
+    list(APPEND EULER_DEFINITIONS -DEULER_NET)
+endif ()
+if (EULER_GUI_BUILD)
+    list(APPEND EULER_DEFINITIONS -DEULER_GUI)
 endif ()
 
 if (EULER_MATH_BUILD)
@@ -36,6 +41,10 @@ endif ()
 if (EULER_NET_BUILD)
     add_subdirectory(euler/net)
 endif ()
+if (EULER_GUI_BUILD)
+    add_subdirectory(euler/gui)
+endif ()
+
 
 add_compile_definitions(EULER_INTERNAL_BUILD)
 
@@ -59,8 +68,6 @@ if (EULER_DRAGONRUBY_BUILD)
 endif ()
 
 if (EULER_NATIVE_BUILD)
-    add_subdirectory(euler/event)
     add_subdirectory(euler/graphics)
-    add_subdirectory(euler/gui)
     add_subdirectory(euler/vulkan)
 endif ()
