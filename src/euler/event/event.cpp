@@ -190,10 +190,8 @@ sdl_scancode_sym(mrb_state *mrb, const SDL_Scancode code)
 	case SDL_SCANCODE_C: return EULER_SYM(c);
 	case SDL_SCANCODE_CANCEL: return EULER_SYM(cancel);
 	case SDL_SCANCODE_CAPSLOCK: return EULER_SYM(capslock);
-	case SDL_SCANCODE_CHANNEL_DECREMENT:
-		return EULER_SYM(channel_decrement);
-	case SDL_SCANCODE_CHANNEL_INCREMENT:
-		return EULER_SYM(channel_increment);
+	case SDL_SCANCODE_CHANNEL_DECREMENT: return EULER_SYM(channel_decrement);
+	case SDL_SCANCODE_CHANNEL_INCREMENT: return EULER_SYM(channel_increment);
 	case SDL_SCANCODE_CLEAR: return EULER_SYM(clear);
 	case SDL_SCANCODE_CLEARAGAIN: return EULER_SYM(clearagain);
 	case SDL_SCANCODE_COMMA: return EULER_SYM(comma);
@@ -272,8 +270,7 @@ sdl_scancode_sym(mrb_state *mrb, const SDL_Scancode code)
 	case SDL_SCANCODE_KP_COMMA: return EULER_SYM(kp_comma);
 	case SDL_SCANCODE_KP_D: return EULER_SYM(kp_d);
 	case SDL_SCANCODE_KP_DBLAMPERSAND: return EULER_SYM(kp_dblampersand);
-	case SDL_SCANCODE_KP_DBLVERTICALBAR:
-		return EULER_SYM(kp_dblverticalbar);
+	case SDL_SCANCODE_KP_DBLVERTICALBAR: return EULER_SYM(kp_dblverticalbar);
 	case SDL_SCANCODE_KP_DECIMAL: return EULER_SYM(kp_decimal);
 	case SDL_SCANCODE_KP_DIVIDE: return EULER_SYM(kp_divide);
 	case SDL_SCANCODE_KP_E: return EULER_SYM(kp_e);
@@ -324,14 +321,12 @@ sdl_scancode_sym(mrb_state *mrb, const SDL_Scancode code)
 	case SDL_SCANCODE_LSHIFT: return EULER_SYM(lshift);
 	case SDL_SCANCODE_M: return EULER_SYM(m);
 	case SDL_SCANCODE_MEDIA_EJECT: return EULER_SYM(media_eject);
-	case SDL_SCANCODE_MEDIA_FAST_FORWARD:
-		return EULER_SYM(media_fast_forward);
+	case SDL_SCANCODE_MEDIA_FAST_FORWARD: return EULER_SYM(media_fast_forward);
 	case SDL_SCANCODE_MEDIA_NEXT_TRACK: return EULER_SYM(media_next_track);
 	case SDL_SCANCODE_MEDIA_PAUSE: return EULER_SYM(media_pause);
 	case SDL_SCANCODE_MEDIA_PLAY: return EULER_SYM(media_play);
 	case SDL_SCANCODE_MEDIA_PLAY_PAUSE: return EULER_SYM(media_play_pause);
-	case SDL_SCANCODE_MEDIA_PREVIOUS_TRACK:
-		return EULER_SYM(media_previous_track);
+	case SDL_SCANCODE_MEDIA_PREVIOUS_TRACK: return EULER_SYM(media_previous_track);
 	case SDL_SCANCODE_MEDIA_RECORD: return EULER_SYM(media_record);
 	case SDL_SCANCODE_MEDIA_REWIND: return EULER_SYM(media_rewind);
 	case SDL_SCANCODE_MEDIA_SELECT: return EULER_SYM(media_select);
@@ -378,8 +373,7 @@ sdl_scancode_sym(mrb_state *mrb, const SDL_Scancode code)
 	case SDL_SCANCODE_SYSREQ: return EULER_SYM(sysreq);
 	case SDL_SCANCODE_T: return EULER_SYM(t);
 	case SDL_SCANCODE_TAB: return EULER_SYM(tab);
-	case SDL_SCANCODE_THOUSANDSSEPARATOR:
-		return EULER_SYM(thousandsseparator);
+	case SDL_SCANCODE_THOUSANDSSEPARATOR: return EULER_SYM(thousandsseparator);
 	case SDL_SCANCODE_U: return EULER_SYM(u);
 	case SDL_SCANCODE_UNDO: return EULER_SYM(undo);
 	case SDL_SCANCODE_UP: return EULER_SYM(up);

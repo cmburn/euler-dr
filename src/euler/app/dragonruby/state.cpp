@@ -29,32 +29,38 @@ State::log() const
 	return _log;
 }
 
-euler::util::Reference<euler::util::Storage>
-State::user_storage() const
-{
-	return _user_storage;
-}
-
-euler::util::Reference<euler::util::Storage>
-State::title_storage() const
-{
-	return _title_storage;
-}
-
 euler::util::Reference<euler::util::Image>
 State::load_image(const char *)
 {
 	return nullptr;
 }
 
-void
-State::upload_image(const char *, const util::Reference<util::Image> &)
-{
-	// No-op for now
-}
-
 State::tick_t
 State::ticks() const
 {
 	return _api->SDL_GetTicks();
+}
+float
+State::dt() const
+{
+	static constexpr float FPS = 1.0 / 60.0;
+	return FPS;
+}
+const std::string &
+State::progname() const
+{
+	static const std::string name = "dragonruby";
+	return name;
+}
+const std::string &
+State::title() const
+{
+	static const std::string title = "DragonRuby";
+	return title;
+}
+
+bool
+State::preinit()
+{
+	return true;
 }

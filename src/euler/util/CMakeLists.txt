@@ -3,26 +3,28 @@ add_library(euler_util STATIC
         color.h
         error.cpp
         error.h
+        ext.cpp
+        ext.h
         image.cpp
         image.h
         logger.cpp
         logger.h
-        ruby_state.cpp
-        ruby_state.h
+        math.cpp
+        math.h
         object.cpp
         object.h
         pack.cpp
         pack.h
+        ruby_state.cpp
+        ruby_state.h
         state.cpp
         state.h
         storage.cpp
         storage.h
         system.cpp
         system.h
-        ext.cpp
-        ext.h
-        math.cpp
-        math.h
+        types.cpp
+        types.h
         version.cpp
         version.h
 )
@@ -36,7 +38,12 @@ target_compile_options(euler_util PUBLIC
 )
 
 target_link_libraries(euler_util PUBLIC
-        armadillo
+        eigen
+)
+
+# TODO: not this
+target_include_directories(euler_util PUBLIC
+        ${CMAKE_CURRENT_BINARY_DIR}/../../_deps/eigen-src
 )
 
 if (EULER_DRAGONRUBY_BUILD)

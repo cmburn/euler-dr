@@ -3,6 +3,7 @@
 #include "euler/app/native/state.h"
 
 #include <iostream>
+#include <fstream>
 
 #include <physfs.h>
 #include <SDL3/SDL_timer.h>
@@ -61,11 +62,12 @@ sdl_init_flags()
 		return State::get(mrb)->mrb()->iv_get(self, EULER_IVSYM(SYM)); \
 	}
 
-static constexpr auto state_log = [](mrb_state *mrb, const mrb_value self) {
-	const auto value = State::get(mrb)->mrb()->iv_get(self, EULER_IVSYM(log));
-	assert(!mrb_nil_p(value));
-	return value;
-};
+// static constexpr auto state_log = [](mrb_state *mrb, const mrb_value self) {
+// 	const auto value = State::get(mrb)->mrb()->iv_get(self, EULER_IVSYM(log));
+// 	assert(!mrb_nil_p(value));
+// 	return value;
+// };
+static constexpr auto state_log = ATTR_IV_READER(log);
 static constexpr auto state_user_storage = ATTR_IV_READER(user_storage);
 static constexpr auto state_title_storage = ATTR_IV_READER(title_storage);
 static constexpr auto state_window = ATTR_IV_READER(window);
@@ -272,9 +274,9 @@ State::initialize()
 	mods.event.mod = event::init(self, mods.mod);
 	mods.graphics.mod = graphics::init(self, mods.mod);
 	mods.gui.mod = gui::init(self, mods.mod);
-#ifdef EULER_MATH
-	mods.math.mod = math::init(self, mods.mod);
-#endif
+// #ifdef EULER_MATH
+// 	mods.math.mod = math::init(self, mods.mod);
+// #endif
 #ifdef EULER_PHYSICS
 	mods.physics.mod = physics::init(self, mods.mod);
 #endif
@@ -283,10 +285,6 @@ State::initialize()
 	set_ivs();
 	auto cls = mods.app.state;
 	mrb()->define_method(cls, "log", state_log, MRB_ARGS_NONE());
-	mrb()->define_method(cls, "user_storage", state_user_storage,
-	    MRB_ARGS_NONE());
-	mrb()->define_method(cls, "title_storage", state_title_storage,
-	    MRB_ARGS_NONE());
 	mrb()->define_method(cls, "window", state_window, MRB_ARGS_NONE());
 
 	if (!std::filesystem::exists(_file)) {
@@ -327,27 +325,10 @@ State::log() const
 	return _log;
 }
 
-euler::util::Reference<euler::util::Storage>
-State::user_storage() const
-{
-	return _user_storage;
-}
-
-euler::util::Reference<euler::util::Storage>
-State::title_storage() const
-{
-	return _title_storage;
-}
-
 euler::util::Reference<euler::util::Image>
 State::load_image(const char *)
 {
 	return nullptr;
-}
-
-void
-State::upload_image(const char *, const util::Reference<util::Image> &)
-{
 }
 
 State::tick_t
@@ -382,6 +363,39 @@ float
 State::dt() const
 {
 	return (ticks() - last_tick()) / 1000.0f;
+}
+
+bool
+State::is_key_down(const mrb_sym sym)
+{
+	const int code = _scancodes_by_sym.at(sym);
+	if (code == 0)
+		throw util::ArgumentError(mrb(), "Invalid code");
+	int n_keys = 0;
+	const auto key_states = SDL_GetKeyboardState(&n_keys);
+	assert(n_keys > code);
+	return key_states[code];
+}
+
+bool
+State::is_mod_down(mrb_sym)
+{
+	// TODO
+	return false;
+}
+
+euler::util::Reference<euler::util::Image>
+State::image_from_ruby(mrb_value)
+{
+	// TODO
+	return nullptr;
+}
+
+mrb_value
+State::image_to_ruby(const util::Reference<util::Image> &)
+{
+	// TODO
+	return mrb_nil_value();
 }
 
 bool

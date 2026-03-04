@@ -7,7 +7,6 @@
 
 #include "euler/app/dragonruby/logger.h"
 #include "euler/app/dragonruby/ruby_state.h"
-#include "euler/app/dragonruby/storage.h"
 #include "euler/util/image.h"
 #include "euler/util/object.h"
 #include "euler/util/state.h"
@@ -31,21 +30,18 @@ public:
 		return _mrb_state;
 	}
 	[[nodiscard]] util::Reference<util::Logger> log() const override;
-	[[nodiscard]] util::Reference<util::Storage>
-	user_storage() const override;
-	[[nodiscard]] util::Reference<util::Storage>
-	title_storage() const override;
+
 	[[nodiscard]] util::Reference<util::Image> load_image(
 	    const char *path) override;
-	void upload_image(const char *label,
-	    const util::Reference<util::Image> &img) override;
 	[[nodiscard]] tick_t ticks() const override;
+	float dt() const override;
+	const std::string &progname() const override;
+	const std::string &title() const override;
+	bool preinit() override;
 
 private:
 	util::Reference<RubyState> _mrb_state;
 	util::Reference<Logger> _log;
-	util::Reference<Storage> _user_storage;
-	util::Reference<Storage> _title_storage;
 	drb_api_t *_api;
 };
 } /* namespace euler::app::dragonruby */

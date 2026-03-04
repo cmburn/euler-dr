@@ -1,7 +1,9 @@
 /* SPDX-License-Identifier: ISC */
 
 #include "euler/app/state.h"
-#include "euler/math/ext.h"
+
+#include <cassert>
+
 #include "euler/physics/ext.h"
 #include "euler/util/ext.h"
 
@@ -42,11 +44,89 @@ state_allocate(mrb_state *mrb, const mrb_value self)
 	return mrb_obj_value(obj);
 }
 
+// static mrb_value
+// state_is_key_down(mrb_state *mrb, const mrb_value self)
+// {
+// 	const auto state = State::get(mrb)->unwrap<State>(self);
+// 	mrb_sym key_sym;
+// 	state->mrb()->get_args("n", &key_sym);
+// 	const auto down = state->is_key_down(key_sym);
+// 	return mrb_bool_value(down);
+// }
+
+static mrb_value
+state_phase(mrb_state *mrb, const mrb_value self)
+{
+	const auto state = State::get(mrb)->unwrap<State>(self);
+	switch (state->phase()) {
+	case State::Phase::Load: return EULER_SYM_VAL(load);
+	case State::Phase::Input: return EULER_SYM_VAL(input);
+	case State::Phase::Update: return EULER_SYM_VAL(update);
+	case State::Phase::Draw: return EULER_SYM_VAL(draw);
+	case State::Phase::Quit: return EULER_SYM_VAL(quit);
+	default: std::unreachable();
+	}
+}
+
+static mrb_value
+state_ticks(mrb_state *mrb, const mrb_value self)
+{
+	const auto state = State::get(mrb)->unwrap<State>(self);
+	return state->mrb()->int_value(state->ticks());
+}
+
+static mrb_value
+state_fps(mrb_state *mrb, const mrb_value self)
+{
+	const auto state = State::get(mrb)->unwrap<State>(self);
+	return state->mrb()->float_value(state->fps());
+}
+
+static mrb_value
+state_dt(mrb_state *mrb, const mrb_value self)
+{
+	const auto state = State::get(mrb)->unwrap<State>(self);
+	return state->mrb()->float_value(state->dt());
+}
+
+static mrb_value
+state_progname(mrb_state *mrb, const mrb_value self)
+{
+	const auto state = State::get(mrb)->unwrap<State>(self);
+	return state->mrb()->str_new_cstr(state->progname().c_str());
+}
+
+static mrb_value
+state_title(mrb_state *mrb, const mrb_value self)
+{
+	const auto state = State::get(mrb)->unwrap<State>(self);
+	return state->mrb()->str_new_cstr(state->title().c_str());
+}
+
 bool
 State::initialize()
 {
 	mrb()->mrb()->ud = util::WeakReference(this).wrap();
 	initialize_self();
+	if (!EULER_APP_NAMESPACE::State::preinit()) return false;
+	log()->debug("Initializing core modules");
+	/* TODO: proper physfs limiting for module load */
+	auto self = util::Reference(this);
+	auto &mods = modules();
+	assert(mods.mod != nullptr);
+	log()->debug("Initializing core modules");
+
+	// mods.graphics.mod = graphics::init(self, mods.mod);
+	// mods.gui.mod = gui::init(self, mods.mod);
+	// #ifdef EULER_MATH
+	// 	mods.math.mod = math::init(self, mods.mod);
+	// #endif
+#ifdef EULER_PHYSICS
+	mods.physics.mod = physics::init(self, mods.mod);
+#endif
+	mods.util.mod = util::init(self, mods.mod);
+	log()->debug("Core modules initialized");
+
 	if (!EULER_APP_NAMESPACE::State::initialize()) return false;
 	// auto self = util::Reference(this);
 	// 	util::init(self, mod);
@@ -136,7 +216,12 @@ State::initialize_self()
 	modules().app.state = cls;
 	mrb()->define_class_method(cls, "allocate", state_allocate,
 	    MRB_ARGS_NONE());
-	// Data_Wrap_Struct()
+	mrb()->define_method(cls, "phase", state_phase, MRB_ARGS_NONE());
+	mrb()->define_method(cls, "ticks", state_ticks, MRB_ARGS_NONE());
+	mrb()->define_method(cls, "fps", state_fps, MRB_ARGS_NONE());
+	mrb()->define_method(cls, "dt", state_dt, MRB_ARGS_NONE());
+	mrb()->define_method(cls, "progname", state_progname, MRB_ARGS_NONE());
+	mrb()->define_method(cls, "title", state_title, MRB_ARGS_NONE());
 	const auto ptr = util::WeakReference(this).wrap();
 	const auto data = mrb()->data_object_alloc(cls, ptr, &State::TYPE);
 	_self_value = mrb_obj_value(data);

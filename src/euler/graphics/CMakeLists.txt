@@ -35,7 +35,7 @@ target_link_libraries(euler_graphics PUBLIC
         euler_util
         euler_vulkan
         Vulkan2D
-        armadillo
+        eigen
         mruby
 )
 

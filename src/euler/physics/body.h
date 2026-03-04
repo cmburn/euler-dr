@@ -19,7 +19,7 @@ class World;
 
 class Body : public util::Object {
 	BIND_MRUBY("Euler::Physics::Body", Body, physics.body);
-	Body(b2BodyId id)
+	explicit Body(const b2BodyId id)
 	    : _id(id)
 	{
 	}

@@ -5,9 +5,10 @@
 
 #include <complex>
 
-#include <armadillo>
-
+#include "euler/util/ruby_state.h"
 #include "euler/util/state.h"
+#include "euler/util/types.h"
+
 
 namespace euler::util {
 template <typename T>
@@ -261,7 +262,7 @@ cast_numeric(From value)
 }
 
 inline bool
-is_complex(mrb_state *mrb, const mrb_value v)
+is_complex(const mrb_state *mrb, const mrb_value v)
 {
 	const auto state = State::get(mrb);
 	const auto complex_class = state->mrb()->class_get("Complex");
@@ -269,13 +270,10 @@ is_complex(mrb_state *mrb, const mrb_value v)
 }
 
 inline bool
-is_numeric(mrb_state *mrb, const mrb_value v)
+is_numeric(const mrb_state *mrb, const mrb_value v)
 {
 	return is_complex(mrb, v) || mrb_float_p(v) || mrb_fixnum_p(v);
 }
-
-typedef arma::Col<float>::fixed<2> Vec2;
-typedef arma::Col<uint32_t>::fixed<2> UVec2;
 
 } /* namespace euler::util */
 

@@ -9,6 +9,8 @@ using euler::util::State;
 #ifdef EULER_DRAGONRUBY
 static euler::util::Reference<State> global_state;
 
+State::~State() = default;
+
 State::State() {
 	if (global_state == nullptr) global_state = Reference(this);
 }

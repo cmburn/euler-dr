@@ -42,14 +42,8 @@ public:
 		return _mrb;
 	}
 	[[nodiscard]] util::Reference<util::Logger> log() const override;
-	[[nodiscard]] util::Reference<util::Storage>
-	user_storage() const override;
-	[[nodiscard]] util::Reference<util::Storage>
-	title_storage() const override;
 	[[nodiscard]] util::Reference<util::Image> load_image(
 	    const char *path) override;
-	void upload_image(const char *label,
-	    const util::Reference<util::Image> &img) override;
 	[[nodiscard]] tick_t ticks() const override;
 
 	const std::string &
@@ -62,6 +56,10 @@ public:
 
 	bool loop(int &exit_code);
 	float dt() const override;
+	bool is_key_down(mrb_sym sym) override;
+	bool is_mod_down(mrb_sym sym) override;
+	util::Reference<util::Image> image_from_ruby(mrb_value) override;
+	mrb_value image_to_ruby(const util::Reference<util::Image> &) override;
 
 private:
 	bool update(int &exit_code);
@@ -73,7 +71,7 @@ private:
 	void set_ivs();
 	bool check_global_state();
 	bool load_text(std::string_view source, std::string_view data);
-
+	std::unordered_map<mrb_sym, SDL_Scancode> scancodes_by_sym();
 
 	struct HaveMethod {
 		bool input : 1;
@@ -112,6 +110,7 @@ private:
 	nthread_t _thread_count = DEFAULT_THREAD_COUNT;
 	Severity _log_level = Severity::Info;
 	std::filesystem::path _file;
+	std::unordered_map<mrb_sym, SDL_Scancode> _scancodes_by_sym;
 };
 } /* namespace euler::app::native */
 

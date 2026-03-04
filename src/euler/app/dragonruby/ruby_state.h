@@ -167,8 +167,6 @@ public:
 	    ...) override;
 	mrb_value funcall_argv(mrb_value val, mrb_sym name, mrb_int argc,
 	    const mrb_value *argv) override;
-	mrb_value funcall_id(mrb_value val, mrb_sym mid, mrb_int argc,
-	    ...) override;
 	mrb_value funcall_with_block(mrb_value val, mrb_sym name, mrb_int argc,
 	    const mrb_value *argv, mrb_value block) override;
 	void garbage_collect() override;
@@ -415,6 +413,9 @@ public:
 	RClass *key_error() override;
 	RClass *float_domain_error() override;
 	bool block_given_p() override;
+	util::Error::TypeInfo error_type_info(RObject *exc) override;
+	std::string error_cause(RObject *exc) override;
+	std::string error_backtrace(RObject *exc) override;
 
 private:
 	util::WeakReference<State> _state;

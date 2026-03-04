@@ -5,9 +5,15 @@
 
 #include <thread>
 
-#include "euler/util/error.h"
 #include "euler/util/object.h"
 #include "euler/util/ruby_state.h"
+
+namespace euler::input {
+class Event;
+class Keyboard;
+class Mouse;
+class Controller;
+}
 
 namespace euler::util {
 class Error;
@@ -126,6 +132,43 @@ public:
 			RClass *version = nullptr;
 			RClass *logger = nullptr;
 			RClass *storage = nullptr;
+			RClass *event = nullptr;
+			RClass *display_event = nullptr;
+			RClass *window_event = nullptr;
+			RClass *keyboard_device_event = nullptr;
+			RClass *keyboard_event = nullptr;
+			RClass *text_editing_event = nullptr;
+			RClass *text_editing_candidates_event = nullptr;
+			RClass *text_input_event = nullptr;
+			RClass *mouse_device_event = nullptr;
+			RClass *mouse_motion_event = nullptr;
+			RClass *mouse_button_event = nullptr;
+			RClass *mouse_wheel_event = nullptr;
+			RClass *joystick_device_event = nullptr;
+			RClass *joystick_axis_motion_event = nullptr;
+			RClass *joystick_ball_motion_event = nullptr;
+			RClass *joystick_hat_motion_event = nullptr;
+			RClass *joystick_button_event = nullptr;
+			RClass *joystick_battery_updated_event = nullptr;
+			RClass *gamepad_device_event = nullptr;
+			RClass *gamepad_axis_motion_event = nullptr;
+			RClass *gamepad_button_event = nullptr;
+			RClass *gamepad_touchpad_event = nullptr;
+			RClass *gamepad_sensor_event = nullptr;
+			RClass *audio_device_event = nullptr;
+			RClass *camera_device_event = nullptr;
+			RClass *sensor_event = nullptr;
+			RClass *quit_event = nullptr;
+			RClass *user_event = nullptr;
+			RClass *touch_finger_event = nullptr;
+			RClass *pen_proximity_event = nullptr;
+			RClass *pen_touch_event = nullptr;
+			RClass *pen_motion_event = nullptr;
+			RClass *pen_button_event = nullptr;
+			RClass *pen_axis_event = nullptr;
+			RClass *render_event = nullptr;
+			RClass *drop_event = nullptr;
+			RClass *clipboard_event = nullptr;
 		} util;
 
 #ifdef EULER_MATH
@@ -170,8 +213,6 @@ public:
 	[[nodiscard]] virtual Reference<RubyState> mrb() const = 0;
 	[[nodiscard]] virtual RClass *object_class() const = 0;
 	[[nodiscard]] virtual Reference<Logger> log() const = 0;
-	[[nodiscard]] virtual Reference<Storage> user_storage() const = 0;
-	[[nodiscard]] virtual Reference<Storage> title_storage() const = 0;
 	[[nodiscard]] virtual nthread_t available_threads() const = 0;
 	[[nodiscard]] virtual tick_t ticks() const = 0;
 	[[nodiscard]] virtual tick_t last_tick() const = 0;
@@ -185,9 +226,10 @@ public:
 	virtual void set_phase(Phase phase) = 0;
 	[[nodiscard]] virtual const std::string &progname() const = 0;
 	[[nodiscard]] virtual const std::string &title() const = 0;
-	virtual void upload_image(const char *label,
-	    const Reference<Image> &img)
-	    = 0;
+	// virtual void upload_pixel_array(const char *label,
+	//     const Reference<Image> &img)
+	//     = 0;
+	virtual bool preinit() = 0;
 	virtual bool initialize() = 0;
 	virtual void tick() = 0;
 	virtual mrb_value self_value() const = 0;
@@ -196,6 +238,10 @@ public:
 	[[nodiscard]] virtual void *unwrap(mrb_value value,
 	    const mrb_data_type *type) const
 	    = 0;
+	// virtual void draw_at(const Reference<Image> &, Vec2 position, Vec2
+	// scale) = 0;
+	// virtual mrb_value image_to_ruby(const Reference<Image> &) = 0;
+	// virtual Reference<Image> image_from_ruby(mrb_value) = 0;
 
 	template <typename T>
 	[[nodiscard]] Reference<T>

@@ -6,13 +6,14 @@ set(CMAKE_C_STANDARD 17)
 
 option(EULER_DRAGONRUBY_BUILD "Build Dragonruby bindings" OFF)
 option(EULER_NATIVE_BUILD "Build native bindings" OFF)
+option(EULER_AUDIO_BUILD "Build Euler::Audio module" OFF)
 option(EULER_MATH_BUILD "Build Euler::Math module" OFF)
 option(EULER_PHYSICS_BUILD "Build Euler::Physics module" ON)
 option(EULER_DRAGONRUBY_PATH "Path to DragonRuby installation" "")
 option(EULER_GUI_BUILD "Build Euler::GUI module" ON)
 option(EULER_NET_BUILD "Build Euler::Net module" ON)
 option(EULER_GRAPHICS_BUILD "Build Euler::Graphics module" ON)
-option(EULER_EVENT_BUILD "Build Euler::Event module" ON)
+option(EULER_INPUT_BUILD "Build Euler::Input module" ON)
 option(BUILD_TESTS "Build tests" OFF)
 
 include(ExternalProject)
@@ -55,24 +56,18 @@ elseif (EULER_NATIVE_BUILD)
     add_compile_definitions(EULER_NATIVE)
 endif ()
 
-# all versions require armadillo
-set(ARMADILLO_GIT_TAG 15.2.2)
-FetchContent_Declare(armadillo
-        GIT_REPOSITORY https://gitlab.com/conradsnicta/armadillo-code.git
-        GIT_TAG ${ARMADILLO_GIT_TAG}
-        GIT_SHALLOW TRUE
-)
 option(STATIC_LIB "Build static libraries" ON)
 if (NOT STATIC_LIB)
     message(FATAL_ERROR "Euler requires STATIC_LIB to be ON")
 endif ()
-FetchContent_MakeAvailable(armadillo)
 
-add_compile_options(-O0 -g)
-
-#target_compile_definitions(armadillo PUBLIC
-#        -DARMA_MAT_PREALLOC=2
-#)
+set(EIGEN_GIT_TAG 5.0.1)
+FetchContent_Declare(eigen
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+        GIT_TAG ${EIGEN_GIT_TAG}
+        GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(eigen)
 
 if (EULER_PHYSICS_BUILD)
     set(BOX2D_GIT_TAG c05c48738fbe5c27625e36c5f0cfbdaddfc8359a)

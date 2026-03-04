@@ -1,19 +1,23 @@
 class Player
   attr_reader :position
   attr_reader :image
+  attr_reader :x
+  attr_reader :y
 
-  def initialize(position:, image:)
+  def initialize(position:, image:, x: 0.0, y: 0.0)
     @position = position
     @image = image
+    @x = x
+    @y = y
   end
 
   def movement
     x = 0.0
     y = 0.0
-    x += 1.0 if $app.keyboard.down? :d
-    y += 1.0 if $app.keyboard.down? :w
-    x -= 1.0 if $app.keyboard.down? :a
-    y -= 1.0 if $app.keyboard.down? :d
+    x += 1.0 if $app.key_down? :d
+    y += 1.0 if $app.key_down? :w
+    x -= 1.0 if $app.key_down? :a
+    y -= 1.0 if $app.key_down? :d
     normalize [x, y]
   end
 
@@ -22,10 +26,13 @@ class Player
     arr.map { |n| n / denom }
   end
 
+  def draw
+  end
+
   def update(dt)
     dx, dy = movement.map { |n| n * dt }
-    x += dx
-    y += dy
+    @x += dx
+    @y += dy
   end
 end
 
@@ -34,8 +41,8 @@ class State < Euler::Util::State
   def load
     @counter = 0
     @image = Euler::Graphics::Image.from_file(SPRITE_PATH)
-    log.info "Loaded #{@image.width} x #{@image.height} image from " +
-             SPRITE_PATH
+    # log.info "Loaded #{@image.width} x #{@image.height} image from " +
+    #          SPRITE_PATH
   end
 
 

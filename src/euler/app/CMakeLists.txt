@@ -11,8 +11,6 @@ if (EULER_DRAGONRUBY_BUILD)
             dragonruby/ruby_state.h
             dragonruby/state.cpp
             dragonruby/state.h
-            dragonruby/storage.cpp
-            dragonruby/storage.h
     )
     target_link_libraries(euler_app PUBLIC
             dragonruby
@@ -33,8 +31,6 @@ if (EULER_NATIVE_BUILD)
             native/ruby_state.h
             native/state.cpp
             native/state.h
-            native/storage.cpp
-            native/storage.h
             native/window.cpp
             native/window.h
     )
