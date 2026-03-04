@@ -4,6 +4,7 @@
 /cmake-build-*
 /dragonruby
 /font.ttf
+/vk2derror.txt
 
 # used by dragonruby
 /app/
