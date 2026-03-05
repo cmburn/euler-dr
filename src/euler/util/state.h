@@ -51,47 +51,24 @@ public:
 #endif
 		} app;
 
+#ifdef EULER_GRAPHICS
 		struct {
 			RClass *mod = nullptr;
-			RClass *base = nullptr;
-			RClass *display = nullptr;
+			RClass *animated_sprite = nullptr;
+			RClass *basic_sprite = nullptr;
+			RClass *camera = nullptr;
+			RClass *color = nullptr;
+			RClass *composite_sprite = nullptr;
+			RClass *font = nullptr;
+			RClass *image = nullptr;
+			RClass *polygon = nullptr;
+			RClass *sprite = nullptr;
+			RClass *text = nullptr;
 			RClass *window = nullptr;
-			RClass *keyboard_device = nullptr;
-			RClass *keyboard = nullptr;
-			RClass *text_editing = nullptr;
-			RClass *text_editing_candidates = nullptr;
-			RClass *text_input = nullptr;
-			RClass *mouse_device = nullptr;
-			RClass *mouse_motion = nullptr;
-			RClass *mouse_button = nullptr;
-			RClass *mouse_wheel = nullptr;
-			RClass *joystick_device = nullptr;
-			RClass *joystick_axis_motion = nullptr;
-			RClass *joystick_ball_motion = nullptr;
-			RClass *joystick_hat_motion = nullptr;
-			RClass *joystick_button = nullptr;
-			RClass *joystick_battery_updated = nullptr;
-			RClass *gamepad_device = nullptr;
-			RClass *gamepad_axis_motion = nullptr;
-			RClass *gamepad_button = nullptr;
-			RClass *gamepad_touchpad = nullptr;
-			RClass *gamepad_sensor = nullptr;
-			RClass *audio_device = nullptr;
-			RClass *camera_device = nullptr;
-			RClass *sensor = nullptr;
-			RClass *quit = nullptr;
-			RClass *user = nullptr;
-			RClass *touch_finger = nullptr;
-			RClass *pen_proximity = nullptr;
-			RClass *pen_touch = nullptr;
-			RClass *pen_motion = nullptr;
-			RClass *pen_button = nullptr;
-			RClass *pen_axis = nullptr;
-			RClass *render = nullptr;
-			RClass *drop = nullptr;
-			RClass *clipboard = nullptr;
-		} event;
+		} graphics;
+#endif
 
+#ifdef EULER_GUI
 		struct {
 			RClass *mod = nullptr;
 			RClass *button = nullptr;
@@ -110,28 +87,17 @@ public:
 			RClass *widget = nullptr;
 			RClass *window = nullptr;
 		} gui;
+#endif
 
+#ifdef EULER_NET
 		struct {
 			RClass *mod = nullptr;
-			RClass *animated_sprite = nullptr;
-			RClass *basic_sprite = nullptr;
-			RClass *camera = nullptr;
-			RClass *color = nullptr;
-			RClass *composite_sprite = nullptr;
-			RClass *font = nullptr;
-			RClass *image = nullptr;
-			RClass *polygon = nullptr;
-			RClass *sprite = nullptr;
-			RClass *text = nullptr;
-			RClass *window = nullptr;
-		} graphics;
+			RClass *sockets = nullptr;
+		} net;
+#endif
 
+#ifdef EULER_INPUT
 		struct {
-			RClass *mod = nullptr;
-			RClass *color = nullptr;
-			RClass *version = nullptr;
-			RClass *logger = nullptr;
-			RClass *storage = nullptr;
 			RClass *event = nullptr;
 			RClass *display_event = nullptr;
 			RClass *window_event = nullptr;
@@ -169,7 +135,8 @@ public:
 			RClass *render_event = nullptr;
 			RClass *drop_event = nullptr;
 			RClass *clipboard_event = nullptr;
-		} util;
+		} input;
+#endif
 
 #ifdef EULER_MATH
 		struct {
@@ -208,6 +175,13 @@ public:
 			RClass *segment = nullptr;
 		} physics;
 #endif
+
+		struct {
+			RClass *mod = nullptr;
+			RClass *color = nullptr;
+			RClass *version = nullptr;
+			RClass *logger = nullptr;
+		} util;
 	};
 
 	[[nodiscard]] virtual Reference<RubyState> mrb() const = 0;

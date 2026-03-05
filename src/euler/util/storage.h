@@ -8,7 +8,7 @@
 
 namespace euler::util {
 class Storage : public Object {
-	BIND_MRUBY("Euler::Util::Storage", Storage, util.storage);
+
 public:
 };
 } /* namespace euler::util */
