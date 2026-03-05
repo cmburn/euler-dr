@@ -23,42 +23,6 @@ if (EULER_DRAGONRUBY_BUILD)
     )
 endif ()
 
-if (EULER_NATIVE_BUILD)
-    target_sources(euler_app PUBLIC
-            native/logger.cpp
-            native/logger.h
-            native/ruby_state.cpp
-            native/ruby_state.h
-            native/state.cpp
-            native/state.h
-            native/window.cpp
-            native/window.h
-    )
-
-    target_compile_definitions(euler_app PUBLIC
-            -DEULER_NATIVE
-    )
-
-    target_include_directories(euler_app PUBLIC
-            ${CMAKE_CURRENT_SOURCE_DIR}/../../
-    )
-
-    target_link_libraries(euler_app PUBLIC
-            euler_event
-            euler_graphics
-            euler_gui
-            euler_vulkan
-            spdlog
-            physfs-static
-    )
-
-    # if vulkan_sdk env var exists, use it instead of system headers
-    if(DEFINED ENV{VULKAN_SDK})
-        set(Vulkan_INCLUDE_DIR "$ENV{VULKAN_SDK}/include")
-        include_directories(BEFORE SYSTEM $ENV{VULKAN_SDK}/include)
-    endif()
-endif ()
-
 target_link_libraries(euler_app PUBLIC
         euler_util
 )

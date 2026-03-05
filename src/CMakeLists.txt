@@ -11,12 +11,6 @@ set(EULER_DEFINITIONS
 if (EULER_DRAGONRUBY_BUILD)
     list(APPEND EULER_CFLAGS -fPIC)
     list(APPEND EULER_DEFINITIONS -DEULER_DRAGONRUBY)
-elseif (EULER_NATIVE_BUILD)
-    list(APPEND EULER_DEFINITIONS
-            -DEULER_NATIVE
-            -DEULER_GRAPHICS
-            -DEULER_VULKAN
-    )
 endif ()
 
 if (EULER_MATH_BUILD)
@@ -65,9 +59,4 @@ if (EULER_DRAGONRUBY_BUILD)
     target_compile_definitions(euler_dragonruby PUBLIC
             ${EULER_DEFINITIONS}
     )
-endif ()
-
-if (EULER_NATIVE_BUILD)
-    add_subdirectory(euler/graphics)
-    add_subdirectory(euler/vulkan)
 endif ()

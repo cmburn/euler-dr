@@ -13,16 +13,10 @@ add_library(euler_util STATIC
         math.h
         object.cpp
         object.h
-        pack.cpp
-        pack.h
         ruby_state.cpp
         ruby_state.h
         state.cpp
         state.h
-        storage.cpp
-        storage.h
-        system.cpp
-        system.h
         types.cpp
         types.h
         version.cpp

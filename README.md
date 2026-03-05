@@ -8,5 +8,3 @@ project. The other options are for features in current development that do not
 work yet.
 
 In the near future, I am working on adding math, networking, and GUI libraries.
-At some point I intend to have a native, standalone, Vulkan based backend as
-well targeting PC and Switch, but that is a long way off.

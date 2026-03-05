@@ -2,12 +2,10 @@
 
 #ifndef EULER_UTIL_VERSION_H
 #define EULER_UTIL_VERSION_H
+
 #include <cassert>
 #include <cstdint>
 #include <format>
-
-#include <mruby.h>
-#include <mruby/data.h>
 
 #include "euler/util/ext.h"
 #include "euler/util/state.h"
@@ -75,7 +73,7 @@ public:
 		_patch = patch;
 	}
 
-	std::string
+	[[nodiscard]] std::string
 	to_string() const
 	{
 		return std::format("v{}.{}.{}", _major, _minor, _patch);
