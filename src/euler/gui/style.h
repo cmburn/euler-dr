@@ -3,32 +3,15 @@
 #ifndef EULER_GUI_STYLE_H
 #define EULER_GUI_STYLE_H
 
-#include "euler/graphics/font.h"
-#include "euler/graphics/image.h"
+#include <variant>
+
+#include "euler/gui/nuklear.h"
+
 #include "euler/gui/common.h"
 #include "euler/util/color.h"
 #include "euler/util/math.h"
 #include "euler/util/object.h"
 #include "euler/util/state.h"
-
-struct nk_color;
-struct nk_style_item;
-struct nk_style_text;
-struct nk_style_button;
-struct nk_style_toggle;
-struct nk_style_selectable;
-struct nk_style_slider;
-struct nk_style_knob;
-struct nk_style_progress;
-struct nk_style_scrollbar;
-struct nk_style_edit;
-struct nk_style_property;
-struct nk_style_chart;
-struct nk_style_tab;
-struct nk_style_combo;
-struct nk_style_window_header;
-struct nk_style_window;
-struct nk_style;
 
 namespace euler::gui {
 
@@ -81,17 +64,17 @@ static_assert((sizeof(ColorTable) / sizeof(Color))
 struct Style final {
 	struct Item {
 		struct NineSlice {
-			util::Reference<graphics::Image> image;
+			util::Reference<util::Image> image;
 			uint16_t left = 0;
 			uint16_t top = 0;
 			uint16_t right = 0;
 			uint16_t bottom = 0;
 		};
 
-		std::variant<Color, util::Reference<graphics::Image>, NineSlice>
+		std::variant<Color, util::Reference<util::Image>, NineSlice>
 		    data;
 
-		nk_style_item to_nuklear(
+		[[nodiscard]] nk_style_item to_nuklear(
 		    const util::Reference<util::State> &state) const;
 	};
 
@@ -99,7 +82,7 @@ struct Style final {
 		Color color;
 		util::Vec2 padding = { 0.0f, 0.0f };
 
-		nk_style_text to_nuklear(
+		[[nodiscard]] nk_style_text to_nuklear(
 		    const util::Reference<util::State> &state) const;
 	};
 
@@ -121,7 +104,7 @@ struct Style final {
 		util::Vec2 image_padding = { 0.0f, 0.0f };
 		util::Vec2 touch_padding = { 0.0f, 0.0f };
 
-		nk_style_button to_nuklear(
+		[[nodiscard]] nk_style_button to_nuklear(
 		    const util::Reference<util::State> &state) const;
 	};
 
@@ -142,7 +125,7 @@ struct Style final {
 		float spacing = 0.0f;
 		float border = 0.0f;
 
-		nk_style_toggle to_nuklear(
+		[[nodiscard]] nk_style_toggle to_nuklear(
 		    const util::Reference<util::State> &state) const;
 	};
 
@@ -174,7 +157,7 @@ struct Style final {
 		util::Vec2 touch_padding = { 0.0f, 0.0f };
 		util::Vec2 image_padding = { 0.0f, 0.0f };
 
-		nk_style_selectable to_nuklear(
+		[[nodiscard]] nk_style_selectable to_nuklear(
 		    const util::Reference<util::State> &state) const;
 	};
 
@@ -203,7 +186,7 @@ struct Style final {
 		util::Vec2 spacing = { 0.0f, 0.0f };
 		util::Vec2 cursor_size = { 0.0f, 0.0f };
 
-		nk_style_slider to_nuklear(
+		[[nodiscard]] nk_style_slider to_nuklear(
 		    const util::Reference<util::State> &state) const;
 	};
 
@@ -227,7 +210,7 @@ struct Style final {
 		util::Vec2 padding = { 0.0f, 0.0f };
 		util::Vec2 spacing = { 0.0f, 0.0f };
 
-		nk_style_knob to_nuklear(
+		[[nodiscard]] nk_style_knob to_nuklear(
 		    const util::Reference<util::State> &state) const;
 	};
 
@@ -248,7 +231,7 @@ struct Style final {
 		float cursor_rounding;
 		util::Vec2 padding = { 0.0f, 0.0f };
 
-		nk_style_progress to_nuklear(
+		[[nodiscard]] nk_style_progress to_nuklear(
 		    const util::Reference<util::State> &state) const;
 	};
 
@@ -428,7 +411,7 @@ struct Style final {
 		    const util::Reference<util::State> &state) const;
 	};
 
-	util::Reference<graphics::Font> font;
+	util::Reference<util::Font> font;
 	Text text;
 	Button button;
 	Button contextual_button;

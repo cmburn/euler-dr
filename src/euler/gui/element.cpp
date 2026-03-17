@@ -1,10 +1,12 @@
 /* SPDX-License-Identifier: ISC */
 
 #include "euler/gui/element.h"
-#include "VK2D/Gui.h"
-#include "widget.h"
-#include "window.h"
+// #include "Context.h"
+// #include "VK2D/Gui.h"
+// #include "widget.h"
 
+#include "euler/gui/context.h"
+#include "euler/gui/widget.h"
 #include "euler/gui/row.h"
 
 euler::gui::Element::~Element() = default;
@@ -21,11 +23,10 @@ euler::gui::Element::state() const
 	return row()->widget()->gui()->state();
 }
 
-/* ReSharper disable once CppMemberFunctionMayBeStatic */
 nk_context *
 euler::gui::Element::context() const
 {
-	return vk2dGuiContext();
+	return row()->widget()->gui()->context();
 }
 
 euler::gui::Element::Element(const util::Reference<Row> &row)

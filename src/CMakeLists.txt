@@ -39,7 +39,7 @@ if (EULER_GUI_BUILD)
     add_subdirectory(euler/gui)
 endif ()
 
-
+add_subdirectory(euler/world)
 add_compile_definitions(EULER_INTERNAL_BUILD)
 
 add_subdirectory(euler/app)

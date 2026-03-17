@@ -5,6 +5,7 @@
 
 #include <string>
 
+#include "euler/util/ext.h"
 #include "euler/util/math.h"
 #include "euler/util/object.h"
 
@@ -13,6 +14,7 @@ using size_type = util::size_type;
 static constexpr auto Dynamic = util::Dynamic;
 
 class Matrix : public util::Object {
+	BIND_MRUBY("Euler::Math::Matrix", Matrix, math.matrix);
 public:
 	enum class Type {
 		Float,
@@ -24,21 +26,21 @@ public:
 		UInt32,
 		UInt64,
 	};
-	virtual Type type() const = 0;
-	virtual bool is_fixed() const = 0;
-	virtual bool is_row_vector() const = 0;
-	virtual bool is_vector() const = 0;
-	virtual size_type row_count() const = 0;
-	virtual size_type column_count() const = 0;
-	virtual util::Reference<Matrix> size() const = 0;
-	virtual std::string to_string() const = 0;
+	[[nodiscard]] virtual Type type() const = 0;
+	[[nodiscard]] virtual bool is_fixed() const = 0;
+	[[nodiscard]] virtual bool is_row_vector() const = 0;
+	[[nodiscard]] virtual bool is_vector() const = 0;
+	[[nodiscard]] virtual size_type row_count() const = 0;
+	[[nodiscard]] virtual size_type column_count() const = 0;
+	[[nodiscard]] virtual util::Reference<Matrix> size() const = 0;
+	[[nodiscard]] virtual std::string to_string() const = 0;
 };
 
 template <size_type Rows, size_type Columns> class SizedMatrix : public Matrix {
 public:
 	static_assert(Rows != Dynamic && Columns != Dynamic);
 
-	size_type
+	[[nodiscard]] size_type
 	row_count() const override
 	{
 		return Rows;

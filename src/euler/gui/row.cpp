@@ -1,12 +1,11 @@
 /* SPDX-License-Identifier: ISC */
 
 #include "euler/gui/row.h"
-#include "internal.h"
-#include "window.h"
 
+#include "euler/gui/context.h"
+#include "euler/gui/internal.h"
 #include "euler/gui/widget.h"
 #include "euler/util/ext.h"
-#include "mruby/string.h"
 
 using euler::gui::Row;
 
@@ -85,7 +84,7 @@ Row::init(const euler::util::Reference<euler::util::State> &state, RClass *mod,
 {
 	const auto klass = state->mrb()->define_class_under(mod, "Row",
 	    state->object_class());
-	MRB_SET_INSTANCE_TT(klass, MRB_TT_CDATA);
+	MRB_SET_INSTANCE_TT(klass, MRB_TT_DATA);
 	state->mrb()->define_method(klass, "button", row_button,
 	    MRB_ARGS_KEY(0, 3) | MRB_ARGS_BLOCK());
 	return klass;

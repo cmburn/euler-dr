@@ -3,10 +3,13 @@
 #ifndef EULER_GUI_BUTTON_H
 #define EULER_GUI_BUTTON_H
 
+#include <optional>
+
 #include "euler/gui/common.h"
 #include "euler/gui/element.h"
 #include "euler/gui/style.h"
 #include "euler/util/color.h"
+#include "euler/util/image.h"
 
 namespace euler::gui {
 
@@ -30,7 +33,7 @@ public:
 
 	struct Settings {
 		std::optional<std::string> label = std::nullopt;
-		util::Reference<graphics::Image> image = nullptr;
+		util::Reference<util::Image> image = nullptr;
 		util::Color color = util::COLOR_NONE;
 		Symbol symbol = Symbol::None;
 		std::optional<Style::Button> style = std::nullopt;
@@ -47,44 +50,44 @@ public:
 
 	void call(const std::function<void(util::Reference<Button> &)> &fn);
 
-	bool
+	[[nodiscard]] bool
 	is_valid() const
 	{
 		return type() != Type::Invalid;
 	}
 
-	util::Color
+	[[nodiscard]] util::Color
 	color() const
 	{
 		return _color;
 	}
 
-	const std::optional<std::string> &
+	[[nodiscard]] const std::optional<std::string> &
 	label() const
 	{
 		return _label;
 	}
 
-	Symbol
+	[[nodiscard]] Symbol
 	symbol() const
 	{
 		return _symbol;
 	}
 
-	bool
+	[[nodiscard]] bool
 	has_text() const
 	{
 		return _label.has_value();
 	}
 
-	Type type() const;
-	bool is_pressed() const;
+	[[nodiscard]] Type type() const;
+	[[nodiscard]] bool is_pressed() const;
 
 private:
-	nk_style_button style() const;
+	[[nodiscard]] nk_style_button style() const;
 
 	std::optional<std::string> _label;
-	util::Reference<graphics::Image> _image = nullptr;
+	util::Reference<util::Image> _image = nullptr;
 	std::optional<Style::Button> _style;
 	util::Color _color = util::COLOR_NONE;
 	Symbol _symbol = Symbol::None;

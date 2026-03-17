@@ -29,7 +29,7 @@ using namespace euler;
 // 	};
 // }
 //
-// static euler::util::Reference<euler::graphics::Image>
+// static euler::util::Reference<euler::util::Image>
 // image_from_nuklear(const util::Reference<util::State> &,
 //     const struct nk_image &)
 // {
@@ -39,7 +39,7 @@ using namespace euler;
 //
 // static struct nk_image
 // image_to_nuklear(const util::Reference<util::State> &,
-//     const euler::util::Reference<euler::graphics::Image> &)
+//     const euler::util::Reference<euler::util::Image> &)
 // {
 // 	// TODO: this also gets tricky
 // 	return {};
@@ -109,14 +109,14 @@ Style::Item::to_nuklear(const util::Reference<util::State> &state) const
 			},
 		};
 	}
-	if (std::holds_alternative<util::Reference<graphics::Image>>(data)) {
+	if (std::holds_alternative<util::Reference<util::Image>>(data)) {
 		return {
 			.type = NK_STYLE_ITEM_IMAGE,
 			.data = {
 				.image = gui::to_nuklear(
 				    state,
 				    std::get<
-				        util::Reference<graphics::Image>>(
+				        util::Reference<util::Image>>(
 				        data)),
 			},
 		};

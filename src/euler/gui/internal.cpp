@@ -68,7 +68,7 @@ euler::gui::to_nuklear_text(const util::Reference<util::State> &,
 
 struct nk_image
 euler::gui::to_nuklear(const util::Reference<util::State> &,
-    const util::Reference<graphics::Image> &)
+    const util::Reference<util::Image> &)
 {
 	return {};
 }

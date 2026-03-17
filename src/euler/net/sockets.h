@@ -14,10 +14,6 @@ class NetConnection;
 class Identity;
 class Message;
 
-/* We don't
- *
- */
-
 class Sockets final : public util::Object {
 public:
 	Sockets();
@@ -27,7 +23,9 @@ public:
 	util::Reference<NetConnection> connect_by_ip_address();
 	util::Reference<ListenSocket> create_listen_socket_p2p();
 	util::Reference<NetConnection> connect_p2p();
-	std::pair<util::Reference<NetConnection>, util::Reference<NetConnection>> create_socket_pair();
+	std::pair<util::Reference<NetConnection>,
+	    util::Reference<NetConnection>>
+	create_socket_pair();
 	util::Reference<Identity> identity();
 	void init_authentication();
 	mrb_sym authentication_status();
@@ -38,9 +36,8 @@ public:
 	uint16_t hosted_dedicated_server_port();
 	uint32_t hosted_dedicated_server_pop_id();
 
-
-
-	[[nodiscard]] ISteamNetworkingSockets *sockets() const
+	[[nodiscard]] ISteamNetworkingSockets *
+	sockets() const
 	{
 		return _sockets;
 	}
@@ -53,6 +50,4 @@ private:
 };
 } /* namespace euler::net */
 
-
 #endif /* EULER_NET_SOCKETS_H */
-

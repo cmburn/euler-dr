@@ -11,6 +11,10 @@ if (EULER_DRAGONRUBY_BUILD)
             dragonruby/ruby_state.h
             dragonruby/state.cpp
             dragonruby/state.h
+            dragonruby/image.cpp
+            dragonruby/image.h
+            dragonruby/window.cpp
+            dragonruby/window.h
     )
     target_link_libraries(euler_app PUBLIC
             dragonruby
@@ -36,5 +40,17 @@ endif ()
 if (EULER_PHYSICS_BUILD)
     target_link_libraries(euler_app PUBLIC
             euler_physics
+    )
+endif ()
+
+if (EULER_GUI_BUILD)
+    target_link_libraries(euler_app PUBLIC
+            euler_gui
+    )
+endif ()
+
+if (EULER_NET_BUILD)
+    target_link_libraries(euler_app PUBLIC
+            euler_net
     )
 endif ()

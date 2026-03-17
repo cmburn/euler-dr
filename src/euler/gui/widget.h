@@ -10,7 +10,7 @@
 #include "euler/util/object.h"
 
 namespace euler::gui {
-class Window;
+class Context;
 
 /* Equivalent to nk_window */
 class Widget final : public util::Object {
@@ -52,7 +52,7 @@ public:
 	static Flags read_widget_flags(mrb_state *mrb, const mrb_value arr);
 	static const Settings DEFAULT_SETTINGS;
 
-	Widget(const util::Reference<Window> &gui, ID id,
+	Widget(const util::Reference<Context> &gui, ID id,
 	    const char *title = "Widget",
 	    const Settings &settings = DEFAULT_SETTINGS);
 
@@ -69,7 +69,7 @@ public:
 	/* convenience wrapper to Window->display(this) */
 	void display();
 
-	util::Reference<Window> gui() const;
+	util::Reference<Context> gui() const;
 	const std::string &
 	title() const
 	{
@@ -131,7 +131,7 @@ private:
 	bool in_draw() const;
 	nk_context *context() const;
 
-	util::WeakReference<Window> _gui;
+	util::WeakReference<Context> _gui;
 	ID _id;
 	std::string _title;
 	Rectangle _rect;

@@ -5,9 +5,10 @@
 
 /* DO NOT INCLUDE VK2D/nuklear.h DIRECTLY!
  * Include this header instead. */
-#include <VK2D/Gui.h>
 
-#include "euler/graphics/image.h"
+#include "euler/gui/nuklear.h"
+
+#include "euler/util/image.h"
 #include "euler/gui/common.h"
 #include "euler/util/color.h"
 #include "euler/util/state.h"
@@ -16,7 +17,7 @@ namespace euler::gui {
 
 /* ReSharper disable once CppRedundantElaboratedTypeSpecifier */
 struct nk_image image_to_nuklear(const util::Reference<util::State> &,
-    const util::Reference<graphics::Image> &);
+    const util::Reference<util::Image> &);
 
 nk_color to_nuklear(const util::Reference<util::State> &state,
     util::Color color);
@@ -29,7 +30,7 @@ nk_flags to_nuklear_widget(const util::Reference<util::State> &state,
 nk_flags to_nuklear_header(const util::Reference<util::State> &state,
     Alignment align);
 struct nk_image to_nuklear(const util::Reference<util::State> &state,
-    const util::Reference<graphics::Image> &);
+    const util::Reference<util::Image> &);
 
 util::Color from_nuklear(const util::Reference<util::State> &state,
     nk_color color);

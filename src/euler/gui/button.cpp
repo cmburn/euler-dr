@@ -4,10 +4,10 @@
 
 #include "euler/gui/button.h"
 
+#include "euler/gui/context.h"
 #include "euler/gui/internal.h"
 #include "euler/gui/row.h"
 #include "euler/gui/widget.h"
-#include "euler/gui/window.h"
 #include "euler/util/error.h"
 #include "euler/util/ext.h"
 
@@ -82,7 +82,7 @@ struct IsPressedContext {
 	[[nodiscard]] bool is_pressed_symbol(euler::gui::Symbol euler_sym,
 	    euler::gui::Alignment euler_align) const;
 	[[nodiscard]] bool is_pressed_image(
-	    const euler::util::Reference<euler::graphics::Image> &euler_image,
+	    const euler::util::Reference<euler::util::Image> &euler_image,
 	    euler::gui::Alignment euler_align) const;
 };
 
@@ -133,7 +133,7 @@ IsPressedContext::is_pressed_symbol(const euler::gui::Symbol euler_sym,
 
 inline bool
 IsPressedContext::is_pressed_image(
-    const euler::util::Reference<euler::graphics::Image> &euler_image,
+    const euler::util::Reference<euler::util::Image> &euler_image,
     euler::gui::Alignment euler_align) const
 {
 	const auto image = euler::gui::to_nuklear(state, euler_image);

@@ -10,6 +10,10 @@
 #include <SDL3/SDL_pixels.h>
 #endif
 
+#ifdef EULER_GUI
+#include "euler/util/nuklear.h"
+#endif
+
 #include "euler/util/ext.h"
 #include "euler/util/object.h"
 #include "euler/util/state.h"
@@ -35,9 +39,9 @@ public:
 #endif
 
 	explicit constexpr Color(const uint32_t color = 0)
-	    : _red((color >> 24) & 0xFF)
-	    , _green((color >> 16) & 0xFF)
-	    , _blue((color >> 8) & 0xFF)
+	    : _red(color >> 24 & 0xFF)
+	    , _green(color >> 16 & 0xFF)
+	    , _blue(color >> 8 & 0xFF)
 	    , _alpha(color & 0xFF)
 	{
 	}
@@ -49,6 +53,12 @@ public:
 	    , _blue(blue)
 	    , _alpha(alpha)
 	{
+	}
+
+	std::array<uint8_t, 4>
+	rgba() const
+	{
+		return { _red, _green, _blue, _alpha };
 	}
 
 	[[nodiscard]] uint8_t
@@ -81,12 +91,60 @@ public:
 	{
 		return SDL_Color { _red, _green, _blue, _alpha };
 	}
+#elif defined(EULER_DRAGONRUBY)
+	[[nodiscard]] uint32_t
+	to_dragonruby() const
+	{
+		return _alpha << 24 | _blue << 16 | _green << 8 | _red;
+	}
+
+	[[nodiscard]]
+	static Color
+	from_dragonruby(uint32_t color)
+	{
+		const auto a = (color >> 24) & 0xFF;
+		const auto b = (color >> 16) & 0xFF;
+		const auto g = (color >> 8) & 0xFF;
+		const auto r = color & 0xFF;
+		return Color(r, g, b, a);
+	}
+
 #endif
+
+#ifdef EULER_GUI
+	static Color
+	from_nk(const nk_color color)
+	{
+		return Color(color.r, color.g, color.b, color.a);
+	}
+
+	[[nodiscard]] nk_color
+	to_nk() const
+	{
+		return nk_color { _red, _green, _blue, _alpha };
+	}
+#endif
+
+	[[nodiscard]] constexpr Color
+	gradient(const Color other, const float factor = 0.5f) const
+	{
+#define COLOR_GRADIENT(COLOR)                                                  \
+	(static_cast<uint8_t>(                                                 \
+	    std::max(((((static_cast<float>(COLOR) - other.COLOR) * factor))   \
+			 + 0.5f + static_cast<float>(other.COLOR)),            \
+		static_cast<float>(std::numeric_limits<uint8_t>::max()))))
+		const uint8_t r = COLOR_GRADIENT(_red);
+		const uint8_t g = COLOR_GRADIENT(_green);
+		const uint8_t b = COLOR_GRADIENT(_blue);
+		const uint8_t a = COLOR_GRADIENT(_alpha);
+		return Color(r, g, b, a);
+#undef COLOR_GRADIENT
+	}
 
 	[[nodiscard]] uint32_t
 	to_uint32() const
 	{
-		return (_red << 24) | (_green << 16) | (_blue << 8) | _alpha;
+		return _red << 24 | _green << 16 | _blue << 8 | _alpha;
 	}
 
 	void
@@ -149,12 +207,12 @@ private:
 	uint8_t _alpha;
 };
 
-static constexpr auto COLOR_NONE = Color(0, 0, 0, 0);
-static constexpr auto COLOR_WHITE = Color(255, 255, 255, 255);
-static constexpr auto COLOR_BLACK = Color(0, 0, 0, 255);
-static constexpr auto COLOR_RED = Color(255, 0, 0, 255);
-static constexpr auto COLOR_GREEN = Color(0, 255, 0, 255);
-static constexpr auto COLOR_BLUE = Color(0, 0, 255, 255);
+inline constexpr auto COLOR_NONE = Color(0, 0, 0, 0);
+inline constexpr auto COLOR_WHITE = Color(255, 255, 255, 255);
+inline constexpr auto COLOR_BLACK = Color(0, 0, 0, 255);
+inline constexpr auto COLOR_RED = Color(255, 0, 0, 255);
+inline constexpr auto COLOR_GREEN = Color(0, 255, 0, 255);
+inline constexpr auto COLOR_BLUE = Color(0, 0, 255, 255);
 
 } /* namespace euler::util */
 

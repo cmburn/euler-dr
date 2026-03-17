@@ -17,6 +17,7 @@ AllowAllArgumentsOnNextLine: false
 BreakAfterReturnType: AllDefinitions
 BinPackArguments: true
 BinPackParameters: true
+ForEachMacros: ['nk_foreach']
 NamespaceIndentation: None
 UseCRLF: false
 IncludeCategories:

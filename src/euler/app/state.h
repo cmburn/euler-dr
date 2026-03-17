@@ -60,6 +60,9 @@ protected:
 
 private:
 	void initialize_self();
+
+
+private:
 #ifdef EULER_PHYSICS
 	util::Reference<physics::World> _world;
 #endif

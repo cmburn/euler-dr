@@ -21,6 +21,8 @@ add_library(euler_util STATIC
         types.h
         version.cpp
         version.h
+        window.cpp
+        window.h
 )
 
 target_compile_definitions(euler_util PUBLIC
@@ -50,5 +52,14 @@ if (EULER_NATIVE_BUILD)
     target_link_libraries(euler_util PUBLIC
             mruby
             SDL3-static
+    )
+endif ()
+
+if (EULER_GUI_BUILD)
+    target_link_libraries(euler_util PUBLIC
+            nuklear
+    )
+    target_sources(euler_util PUBLIC
+            nuklear.h
     )
 endif ()

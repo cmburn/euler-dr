@@ -2,11 +2,9 @@
 
 #include "euler/gui/widget.h"
 
-#include <VK2D/nuklear_defs.h>
-
+#include "euler/gui/context.h"
 #include "euler/gui/internal.h"
 #include "euler/gui/widget.h"
-#include "euler/gui/window.h"
 #include "euler/util/ext.h"
 #include "mruby/array.h"
 #include "mruby/hash.h"
@@ -220,7 +218,7 @@ Widget::init(const euler::util::Reference<euler::util::State> &state,
 	const auto widget = state->mrb()->define_class_under(mod, "Widget",
 	    state->object_class());
 	state->modules().gui.widget = widget;
-	MRB_SET_INSTANCE_TT(widget, MRB_TT_CDATA);
+	MRB_SET_INSTANCE_TT(widget, MRB_TT_DATA);
 	state->mrb()->define_method(widget, "row", widget_row,
 	    MRB_ARGS_KEY(0, 3));
 	state->mrb()->define_method(widget, "display", widget_display,
@@ -428,7 +426,7 @@ Widget::read_widget_flags(mrb_state *mrb, const mrb_value arr)
 	return flags;
 }
 
-Widget::Widget(const util::Reference<Window> &gui, const ID id,
+Widget::Widget(const util::Reference<Context> &gui, const ID id,
     const char *title, const Settings &settings)
     : _gui(gui)
     , _id(id)
@@ -475,7 +473,7 @@ Widget::display()
 	gui()->display(util::Reference(this));
 }
 
-euler::util::Reference<euler::gui::Window>
+euler::util::Reference<euler::gui::Context>
 Widget::gui() const
 {
 	return _gui.strengthen();

@@ -3,8 +3,10 @@
 #ifndef EULER_GUI_ELEMENT_H
 #define EULER_GUI_ELEMENT_H
 
-#include "euler/graphics/window.h"
+#include <functional>
+
 #include "euler/util/object.h"
+#include "euler/gui/nuklear.h"
 
 namespace euler::gui {
 class Row;
@@ -25,7 +27,9 @@ public:
 
 	util::Reference<Row> row() const;
 	util::Reference<util::State> state() const;
-	vulkan::detail::gui_context *context() const;
+	// vulkan::detail::gui_context *context() const;
+	nk_context *context() const;
+
 
 private:
 	util::Reference<Row> _row;

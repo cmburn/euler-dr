@@ -8,18 +8,20 @@
 #include "euler/util/object.h"
 #include "euler/util/ruby_state.h"
 
-namespace euler::input {
-class Event;
-class Keyboard;
-class Mouse;
-class Controller;
+#ifdef EULER_GUI
+namespace euler::gui {
+class Context;
 }
+#endif
 
 namespace euler::util {
 class Error;
 class Logger;
 class Storage;
 class Image;
+class Color;
+class Window;
+class Font;
 
 class State : public Object {
 public:
@@ -28,7 +30,7 @@ public:
 	typedef uint64_t tick_t;
 	typedef decltype(std::thread::hardware_concurrency()) nthread_t;
 
-	enum class Runtime : bool {
+	enum class Runtime {
 		Native,
 		DragonRuby,
 	};
@@ -184,6 +186,10 @@ public:
 		} util;
 	};
 
+#ifdef EULER_GUI
+	[[nodiscard]] virtual Reference<gui::Context> gui() const = 0;
+#endif
+
 	[[nodiscard]] virtual Reference<RubyState> mrb() const = 0;
 	[[nodiscard]] virtual RClass *object_class() const = 0;
 	[[nodiscard]] virtual Reference<Logger> log() const = 0;
@@ -196,13 +202,18 @@ public:
 	[[nodiscard]] virtual mrb_value gv_state() const = 0;
 	[[nodiscard]] static Reference<State> get(const mrb_state *mrb);
 	[[nodiscard]] virtual Reference<Image> load_image(const char *path) = 0;
+	[[nodiscard]] virtual Reference<Image> create_image(const char *label,
+		int16_t w, int16_t h, Color)
+	    = 0;
+	[[nodiscard]] virtual Reference<Window> window() = 0;
+
 	[[nodiscard]] virtual Phase phase() const = 0;
 	virtual void set_phase(Phase phase) = 0;
 	[[nodiscard]] virtual const std::string &progname() const = 0;
 	[[nodiscard]] virtual const std::string &title() const = 0;
-	// virtual void upload_pixel_array(const char *label,
-	//     const Reference<Image> &img)
-	//     = 0;
+	virtual void upload_image(const char *label,
+	    const Reference<Image> &img)
+	    = 0;
 	virtual bool preinit() = 0;
 	virtual bool initialize() = 0;
 	virtual void tick() = 0;
@@ -212,6 +223,7 @@ public:
 	[[nodiscard]] virtual void *unwrap(mrb_value value,
 	    const mrb_data_type *type) const
 	    = 0;
+
 	// virtual void draw_at(const Reference<Image> &, Vec2 position, Vec2
 	// scale) = 0;
 	// virtual mrb_value image_to_ruby(const Reference<Image> &) = 0;
@@ -231,7 +243,7 @@ public:
 	wrap(Reference<T> &obj) const
 	{
 		if (obj == nullptr) return mrb_nil_value();
-		auto self = util::Reference(const_cast<State *>(this));
+		auto self = Reference(const_cast<State *>(this));
 		return obj.wrap(mrb()->mrb(), T::fetch_class(self), &T::TYPE);
 	}
 

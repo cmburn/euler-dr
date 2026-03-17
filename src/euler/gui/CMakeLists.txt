@@ -1,22 +1,32 @@
+add_library(euler_gui_nuklear STATIC
+        nuklear.cpp
+        nuklear.h
+)
+
+target_link_libraries(euler_gui_nuklear PUBLIC
+        nuklear
+        euler_util
+)
+
 add_library(euler_gui STATIC
         button.cpp
         button.h
         checkbox.cpp
         checkbox.h
-        ext.cpp
-        ext.h
         color_picker.cpp
         color_picker.h
-        internal.cpp
-        internal.h
         common.cpp
         common.h
+        context.cpp
+        context.h
         dropdown.cpp
         dropdown.h
         element.cpp
         element.h
-        window.cpp
-        window.h
+        ext.cpp
+        ext.h
+        internal.cpp
+        internal.h
         knob.cpp
         knob.h
         progress_bar.cpp
@@ -31,16 +41,19 @@ add_library(euler_gui STATIC
         slider.h
         style.cpp
         style.h
-        widget.cpp
-        widget.h
         text.cpp
         text.h
+        widget.cpp
+        widget.h
+        font.cpp
+        font.h
+        font_atlas.cpp
+        font_atlas.h
 )
 
 target_link_libraries(euler_gui PUBLIC
         euler_util
-        euler_graphics
-        mruby
+        nuklear
 )
 
 target_compile_options(euler_gui PUBLIC
@@ -50,7 +63,7 @@ target_compile_options(euler_gui PUBLIC
 target_compile_definitions(euler_gui PRIVATE
         ${EULER_DEFINITIONS}
 )
-
-target_link_libraries(euler_gui PRIVATE
-        Vulkan2D
-)
+#
+#target_include_directories(euler_gui PUBLIC
+#        ${nuklear_SOURCE_DIR}
+#)
