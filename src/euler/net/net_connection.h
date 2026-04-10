@@ -4,8 +4,8 @@
 #define EULER_NET_NET_CONNECTION_H
 
 #include <limits>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "euler/util/object.h"
 
@@ -28,7 +28,8 @@ public:
 		bool use_current_thread : 1 = false;
 		[[nodiscard]] int to_int() const;
 		SendFlags();
-		SendFlags(const util::Reference<util::State> &state, mrb_value config);
+		SendFlags(const util::Reference<util::State> &state,
+		    mrb_value config);
 	};
 
 	struct ConnectionInfo {
@@ -43,7 +44,8 @@ public:
 			[[nodiscard]] int to_int() const;
 		};
 
-		ConnectionInfo(const util::Reference<util::State> &state, mrb_value config);
+		ConnectionInfo(const util::Reference<util::State> &state,
+		    mrb_value config);
 		util::Reference<Identity> identity_remote;
 		util::Reference<ListenSocket> listen_socket;
 		util::Reference<IPAddress> address_remote;

@@ -24,7 +24,7 @@ class State final : public EULER_APP_NAMESPACE::State {
 	BIND_MRUBY("Euler::App::State", State, app.state);
 
 public:
- 	~State() override;
+	~State() override;
 	explicit State(const Arguments &args);
 	[[nodiscard]] nthread_t available_threads() const override;
 	[[nodiscard]] mrb_value gv_state() const override;
@@ -53,14 +53,14 @@ public:
 	mrb_value self_value() const override;
 
 protected:
-	[[nodiscard]] const mrb_data_type *data_type() const override
+	[[nodiscard]] const mrb_data_type *
+	data_type() const override
 	{
 		return &TYPE;
 	}
 
 private:
 	void initialize_self();
-
 
 private:
 #ifdef EULER_PHYSICS

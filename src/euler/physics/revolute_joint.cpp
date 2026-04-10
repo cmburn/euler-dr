@@ -61,7 +61,7 @@ revolute_joint_set_spring_hertz(mrb_state *mrb, mrb_value self)
 	const auto joint = state->unwrap<RevoluteJoint>(self);
 	mrb_float hertz;
 	state->mrb()->get_args("f", &hertz);
-	joint->set_spring_hertz((float)hertz);
+	joint->set_spring_hertz(static_cast<float>(hertz));
 	return mrb_nil_value();
 }
 

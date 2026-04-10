@@ -9,8 +9,6 @@
 
 namespace euler::physics {
 
-
-
 RClass *init(const util::Reference<util::State> &mrb, RClass *outer);
 
 } /* namespace euler::physics */

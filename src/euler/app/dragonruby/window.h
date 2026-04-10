@@ -14,11 +14,10 @@ public:
 	int16_t width() const override;
 	int16_t height() const override;
 	util::Reference<State> state() const;
+
 private:
 	util::WeakReference<State> _state;
 };
 } /* namespace euler::app::dragonruby */
 
-
 #endif /* EULER_APP_DRAGONRUBY_WINDOW_H */
-

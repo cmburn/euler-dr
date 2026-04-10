@@ -63,6 +63,7 @@ public:
 	virtual void display(const Location &spec) const = 0;
 	virtual Reference<Image> rotate(float theta) const = 0;
 	virtual util::Reference<Image> stretch(float x, float y) = 0;
+	virtual std::pair<int16_t, int16_t> dimensions() const = 0;
 
 	virtual void set_pixel(int16_t, int16_t, Color) = 0;
 	virtual Color pixel(int16_t, int16_t) const = 0;

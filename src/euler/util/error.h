@@ -8,7 +8,6 @@
 
 #include "euler/util/object.h"
 
-
 namespace euler::util {
 
 class RubyState;

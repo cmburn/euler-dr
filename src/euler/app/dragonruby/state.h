@@ -15,7 +15,6 @@
 #include "euler/gui/context.h"
 #endif
 
-
 namespace euler::app::dragonruby {
 class State : public util::State {
 public:
@@ -51,6 +50,8 @@ public:
 	void upload_image(const char *label,
 	    const util::Reference<util::Image> &img) override;
 
+	/* fetches the dragonruby context (current tick's args) */
+	mrb_value args() const;
 
 private:
 	util::Reference<RubyState> _ruby_state;
@@ -59,6 +60,7 @@ private:
 	util::Reference<gui::Context> _gui;
 #endif
 	util::Reference<Window> _window;
+	mrb_value _args = mrb_nil_value();
 	drb_api_t *_api;
 };
 } /* namespace euler::app::dragonruby */

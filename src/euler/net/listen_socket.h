@@ -6,15 +6,14 @@
 #include <cstdint>
 #include <steam/steamnetworkingtypes.h>
 
-#include "euler/util/object.h"
 #include "euler/net/ip_address.h"
+#include "euler/util/object.h"
 
 namespace euler::net {
 class Sockets;
 
 class ListenSocket final : public util::Object {
 public:
-
 	ListenSocket();
 	~ListenSocket() override;
 
@@ -27,6 +26,4 @@ private:
 };
 } /* namespace euler::net */
 
-
 #endif /* EULER_NET_LISTEN_SOCKET_H */
-

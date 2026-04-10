@@ -7,10 +7,6 @@
 
 namespace euler::net {
 
-
-
 } /* namespace euler::net */
 
-
 #endif /* EULER_NET_EXT_H */
-

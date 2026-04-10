@@ -5,8 +5,8 @@
 
 #include <functional>
 
-#include "euler/util/object.h"
 #include "euler/gui/nuklear.h"
+#include "euler/util/object.h"
 
 namespace euler::gui {
 class Row;
@@ -29,7 +29,6 @@ public:
 	util::Reference<util::State> state() const;
 	// vulkan::detail::gui_context *context() const;
 	nk_context *context() const;
-
 
 private:
 	util::Reference<Row> _row;

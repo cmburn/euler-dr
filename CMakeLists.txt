@@ -10,6 +10,7 @@ option(EULER_MATH_BUILD "Build Euler::Math module" OFF)
 option(EULER_NET_BUILD "Build Euler::Net module" OFF)
 option(EULER_PHYSICS_BUILD "Build Euler::Physics module" ON)
 option(EULER_WORLD_BUILD "Build Euler::World module" OFF)
+option(EULER_GRAPHICS_BUILD "Build Euler::Graphics module" ON)
 
 include(ExternalProject)
 include(FetchContent)
@@ -62,6 +63,7 @@ if (EULER_PHYSICS_BUILD)
 endif ()
 
 if (EULER_GUI_BUILD)
+    set(EULER_GRAPHICS_BUILD ON)
     set(NUKLEAR_GIT_TAG 4.12.8)
     FetchContent_Declare(nuklear
             GIT_REPOSITORY https://github.com/Immediate-Mode-UI/Nuklear/

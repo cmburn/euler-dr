@@ -29,7 +29,7 @@ motor_joint_set_linear_velocity(mrb_state *mrb, mrb_value self)
 	const auto state = euler::util::State::get(mrb);
 	const auto joint = state->unwrap<MotorJoint>(self);
 	mrb_value value;
-	state->mrb()->get_args("A", &value);
+	state->mrb()->get_args("o", &value);
 	const b2Vec2 linear_velocity
 	    = euler::physics::value_to_b2_vec(mrb, value);
 	joint->set_linear_velocity(linear_velocity);

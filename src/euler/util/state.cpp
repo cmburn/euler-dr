@@ -11,7 +11,8 @@ static euler::util::Reference<State> global_state;
 
 State::~State() = default;
 
-State::State() {
+State::State()
+{
 	if (global_state == nullptr) global_state = Reference(this);
 }
 

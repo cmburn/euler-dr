@@ -4,8 +4,8 @@
 
 #include "euler/app/dragonruby/ruby_state.h"
 
-#include <vector>
 #include <sstream>
+#include <vector>
 
 #include <mruby/hash.h>
 #include <mruby/istruct.h>
@@ -115,7 +115,8 @@ void
 RubyState::define_module_function(RClass *cla, const char *name,
     const mrb_func_t fun, const mrb_aspec aspec)
 {
-	return WRAP_CALL(_api.mrb_define_module_function(_mrb, cla, name, fun, aspec));
+	return WRAP_CALL(
+	    _api.mrb_define_module_function(_mrb, cla, name, fun, aspec));
 }
 
 void
@@ -129,7 +130,8 @@ void
 RubyState::define_class_method(RClass *cla, const char *name,
     const mrb_func_t fun, const mrb_aspec aspec)
 {
-	return WRAP_CALL(_api.mrb_define_class_method(_mrb, cla, name, fun, aspec));
+	return WRAP_CALL(
+	    _api.mrb_define_class_method(_mrb, cla, name, fun, aspec));
 }
 
 mrb_int
@@ -966,8 +968,8 @@ RubyState::debug_info_append_file(mrb_irep_debug_info *info,
     const char *filename, uint16_t *lines, const uint32_t start_pos,
     const uint32_t end_pos)
 {
-	return WRAP_CALL(_api.mrb_debug_info_append_file(_mrb, info, filename, lines,
-	    start_pos, end_pos));
+	return WRAP_CALL(_api.mrb_debug_info_append_file(_mrb, info, filename,
+	    lines, start_pos, end_pos));
 }
 
 void
@@ -1011,7 +1013,8 @@ RClass *
 RubyState::define_class_under_id(RClass *outer, const mrb_sym name,
     RClass *super)
 {
-	return WRAP_CALL(_api.mrb_define_class_under_id(_mrb, outer, name, super));
+	return WRAP_CALL(
+	    _api.mrb_define_class_under_id(_mrb, outer, name, super));
 }
 
 void
@@ -1056,7 +1059,8 @@ void
 RubyState::define_module_function_id(RClass *cla, const mrb_sym name,
     const mrb_func_t fun, const mrb_aspec aspec)
 {
-	WRAP_CALL(_api.mrb_define_module_function_id(_mrb, cla, name, fun, aspec));
+	WRAP_CALL(
+	    _api.mrb_define_module_function_id(_mrb, cla, name, fun, aspec));
 }
 
 RClass *
@@ -1075,14 +1079,16 @@ void
 RubyState::define_singleton_method(RObject *cla, const char *name,
     const mrb_func_t fun, const mrb_aspec aspec)
 {
-	WRAP_CALL(_api.mrb_define_singleton_method(_mrb, cla, name, fun, aspec));
+	WRAP_CALL(
+	    _api.mrb_define_singleton_method(_mrb, cla, name, fun, aspec));
 }
 
 void
 RubyState::define_singleton_method_id(RObject *cla, const mrb_sym name,
     const mrb_func_t fun, const mrb_aspec aspec)
 {
-	WRAP_CALL(_api.mrb_define_singleton_method_id(_mrb, cla, name, fun, aspec));
+	WRAP_CALL(
+	    _api.mrb_define_singleton_method_id(_mrb, cla, name, fun, aspec));
 }
 
 mrb_value
@@ -1294,7 +1300,8 @@ mrb_value
 RubyState::funcall_with_block(const mrb_value val, const mrb_sym name,
     const mrb_int argc, const mrb_value *argv, const mrb_value block)
 {
-	return WRAP_CALL(_api.mrb_funcall_with_block(_mrb, val, name, argc, argv, block));
+	return WRAP_CALL(
+	    _api.mrb_funcall_with_block(_mrb, val, name, argc, argv, block));
 }
 
 void
@@ -1350,7 +1357,6 @@ RubyState::get_argv()
 {
 	return WRAP_CALL(_api.mrb_get_argv(_mrb));
 }
-
 
 mrb_value
 RubyState::get_backtrace()
@@ -1758,7 +1764,8 @@ RubyState::no_method_error(const mrb_sym id, const mrb_value args,
 	va_start(ap, fmt);
 	const auto message = vformat(fmt, ap);
 	va_end(ap);
-	WRAP_CALL(_api.mrb_no_method_error(_mrb, id, args, string_cstr(message)));
+	WRAP_CALL(
+	    _api.mrb_no_method_error(_mrb, id, args, string_cstr(message)));
 }
 
 void
@@ -2032,7 +2039,8 @@ RProc *
 RubyState::proc_new_cfunc_with_env(const mrb_func_t func, const mrb_int argc,
     const mrb_value *argv)
 {
-	return WRAP_CALL(_api.mrb_proc_new_cfunc_with_env(_mrb, func, argc, argv));
+	return WRAP_CALL(
+	    _api.mrb_proc_new_cfunc_with_env(_mrb, func, argc, argv));
 }
 
 mrb_value
@@ -2051,7 +2059,8 @@ enum mrb_range_beg_len
 RubyState::range_beg_len(const mrb_value range, mrb_int *begp, mrb_int *lenp,
     const mrb_int len, const mrb_bool trunc)
 {
-	return WRAP_CALL(_api.mrb_range_beg_len(_mrb, range, begp, lenp, len, trunc));
+	return WRAP_CALL(
+	    _api.mrb_range_beg_len(_mrb, range, begp, lenp, len, trunc));
 }
 
 mrb_value
@@ -2109,8 +2118,8 @@ RubyState::rescue_exceptions(const mrb_func_t body, const mrb_value b_data,
     const mrb_func_t rescue, const mrb_value r_data, const mrb_int len,
     RClass **classes)
 {
-	return WRAP_CALL(_api.mrb_rescue_exceptions(_mrb, body, b_data, rescue, r_data,
-	    len, classes));
+	return WRAP_CALL(_api.mrb_rescue_exceptions(_mrb, body, b_data, rescue,
+	    r_data, len, classes));
 }
 
 mrb_bool
@@ -2531,7 +2540,8 @@ mrb_value
 RubyState::yield_with_class(const mrb_value b, const mrb_int argc,
     const mrb_value *argv, const mrb_value self, RClass *c)
 {
-	return WRAP_CALL(_api.mrb_yield_with_class(_mrb, b, argc, argv, self, c));
+	return WRAP_CALL(
+	    _api.mrb_yield_with_class(_mrb, b, argc, argv, self, c));
 }
 
 mrb_value
@@ -2893,12 +2903,12 @@ RubyState::error_type_info(RObject *exc)
 }
 
 static mrb_value
-obj_attr_reader(const drb_api_t &_api, mrb_state *mrb, RObject *exc, mrb_sym name)
+obj_attr_reader(const drb_api_t &_api, mrb_state *mrb, RObject *exc,
+    mrb_sym name)
 {
 	const auto value = _api.mrb_obj_value(exc);
 	return _api.mrb_funcall_argv(mrb, value, name, 0, nullptr);
 }
-
 
 static mrb_sym
 intern_static(const drb_api_t &_api, mrb_state *mrb, const char *s)

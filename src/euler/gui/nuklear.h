@@ -6,4 +6,3 @@
 #include "euler/util/nuklear.h"
 
 #endif /* EULER_GUI_NUKLEAR_H */
-

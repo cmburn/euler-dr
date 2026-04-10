@@ -32,6 +32,7 @@ public:
 private:
 	util::Reference<util::State> _state;
 	uint32_t *_data = nullptr;
+	mrb_value _pixel_buffer;
 	int16_t _width = 0;
 	int16_t _height = 0;
 	bool _own_data = false;

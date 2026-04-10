@@ -8,10 +8,7 @@
 namespace euler::net {
 class Messages final : public util::Object {
 public:
-
 };
 } /* namespace euler::net */
 
-
 #endif /* EULER_NET_MESSAGES_H */
-

@@ -200,6 +200,20 @@ public:
 		};
 	}
 
+	[[nodiscard]] Color blend(const Color other)
+	{
+		if (other.alpha() == 0) return *this;
+		const auto inv_a = 0xFF - other.alpha();
+		uint32_t r = (other.red() * other.alpha() + red() * inv_a);
+		r >>= 8;
+		uint32_t g = (other.green() * other.alpha() + green() * inv_a);
+		g >>= 8;
+		uint32_t b = (other.blue() * other.alpha() + blue() * inv_a);
+		b >>= 8;
+		const uint32_t a = (other.alpha() * other.alpha() + alpha() * inv_a);
+		return Color(r, g, b, a);
+	}
+
 private:
 	uint8_t _red;
 	uint8_t _green;

@@ -6,8 +6,8 @@
 // #include "widget.h"
 
 #include "euler/gui/context.h"
-#include "euler/gui/widget.h"
 #include "euler/gui/row.h"
+#include "euler/gui/widget.h"
 
 euler::gui::Element::~Element() = default;
 

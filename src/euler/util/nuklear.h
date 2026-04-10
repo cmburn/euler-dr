@@ -31,4 +31,3 @@
 #include <nuklear.h>
 
 #endif /* EULER_UTIL_NUKLEAR_H */
-

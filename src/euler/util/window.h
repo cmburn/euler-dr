@@ -3,9 +3,9 @@
 #ifndef EULER_UTIL_WINDOW_H
 #define EULER_UTIL_WINDOW_H
 
+#include "euler/util/ext.h"
 #include "euler/util/object.h"
 #include "euler/util/state.h"
-#include "euler/util/ext.h"
 
 namespace euler::util {
 class Window : public util::Object {
@@ -18,6 +18,4 @@ public:
 };
 } /* namespace euler::util */
 
-
 #endif /* EULER_UTIL_WINDOW_H */
-

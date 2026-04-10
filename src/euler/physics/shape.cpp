@@ -171,7 +171,7 @@ capsule_shape(mrb_state *mrb, mrb_value self)
 	const mrb_value radius_val = state->mrb()->iv_get(self, rad_sym);
 	const mrb_value center_val = state->mrb()->iv_get(self, center_sym);
 	b2Capsule capsule;
-	capsule.radius = (float)mrb_float(radius_val);
+	capsule.radius = static_cast<float>(mrb_float(radius_val));
 	if (RARRAY_LEN(center_val) != 2) {
 		state->mrb()->raise(state->mrb()->argument_error(),
 		    "center must be an array of two points");
@@ -308,7 +308,7 @@ circle_shape(mrb_state *mrb, mrb_value self)
 	const mrb_value center_val = state->mrb()->iv_get(self, center_sym);
 	return b2Circle {
 		.center = euler::physics::value_to_b2_vec(mrb, center_val),
-		.radius = (float)mrb_float(radius_val),
+		.radius = static_cast<float>(mrb_float(radius_val)),
 	};
 }
 
@@ -594,7 +594,7 @@ polygon_read_args(mrb_state *mrb)
 	static const char *KW_NAMES[] = {
 		"points",
 		"box",
-		"rounding",
+		"radius",
 		"offset",
 	};
 	enum {
@@ -936,7 +936,7 @@ shape_set_density(mrb_state *mrb, mrb_value self)
 	const auto shape = state->unwrap<Shape>(self);
 	mrb_float density;
 	state->mrb()->get_args("f", &density);
-	shape->set_density((float)density);
+	shape->set_density(static_cast<float>(density));
 	return mrb_nil_value();
 }
 
@@ -965,7 +965,7 @@ shape_set_friction(mrb_state *mrb, mrb_value self)
 	const auto shape = state->unwrap<Shape>(self);
 	mrb_float friction;
 	state->mrb()->get_args("f", &friction);
-	shape->set_friction((float)friction);
+	shape->set_friction(static_cast<float>(friction));
 	return mrb_nil_value();
 }
 
@@ -994,7 +994,7 @@ shape_set_restitution(mrb_state *mrb, mrb_value self)
 	const auto shape = state->unwrap<Shape>(self);
 	mrb_float restitution;
 	state->mrb()->get_args("f", &restitution);
-	shape->set_restitution((float)restitution);
+	shape->set_restitution(static_cast<float>(restitution));
 	return mrb_nil_value();
 }
 
@@ -1023,7 +1023,7 @@ shape_set_user_material(mrb_state *mrb, mrb_value self)
 	const auto shape = state->unwrap<Shape>(self);
 	mrb_int material;
 	state->mrb()->get_args("i", &material);
-	shape->set_user_material((uint64_t)material);
+	shape->set_user_material(static_cast<uint64_t>(material));
 	return mrb_nil_value();
 }
 
@@ -1037,7 +1037,7 @@ shape_user_material(mrb_state *mrb, mrb_value self)
 	const auto state = euler::util::State::get(mrb);
 	const auto shape = state->unwrap<Shape>(self);
 	const uint64_t material = shape->user_material();
-	return mrb_fixnum_value((mrb_int)material);
+	return mrb_fixnum_value(static_cast<mrb_int>(material));
 }
 
 /**
@@ -1077,17 +1077,19 @@ hash_to_filter(mrb_state *mrb, mrb_value hash)
 	const auto state = euler::util::State::get(mrb);
 	b2Filter filter = b2DefaultFilter();
 	if (state->mrb()->hash_key_p(hash, EULER_SYM_VAL(category_bits))) {
-		filter.categoryBits
-		    = (uint16_t)euler::physics::hash_read_int(mrb, hash,
-			EULER_SYM_VAL(category_bits), filter.categoryBits);
+		filter.categoryBits = static_cast<uint16_t>(
+		    euler::physics::hash_read_int(mrb, hash,
+			EULER_SYM_VAL(category_bits), filter.categoryBits));
 	}
 	if (state->mrb()->hash_key_p(hash, EULER_SYM_VAL(mask_bits))) {
-		filter.maskBits = (uint16_t)euler::physics::hash_read_int(mrb,
-		    hash, EULER_SYM_VAL(mask_bits), filter.maskBits);
+		filter.maskBits
+		    = static_cast<uint16_t>(euler::physics::hash_read_int(mrb,
+			hash, EULER_SYM_VAL(mask_bits), filter.maskBits));
 	}
 	if (state->mrb()->hash_key_p(hash, EULER_SYM_VAL(group_index))) {
-		filter.groupIndex = (int16_t)euler::physics::hash_read_int(mrb,
-		    hash, EULER_SYM_VAL(group_index), filter.groupIndex);
+		filter.groupIndex
+		    = static_cast<int16_t>(euler::physics::hash_read_int(mrb,
+			hash, EULER_SYM_VAL(group_index), filter.groupIndex));
 	}
 	return filter;
 }
@@ -1098,9 +1100,9 @@ filter_to_hash(mrb_state *mrb, const b2Filter *filter)
 	const auto state = euler::util::State::get(mrb);
 	const mrb_value hash = state->mrb()->hash_new_capa(3);
 	state->mrb()->hash_set(hash, EULER_SYM_VAL(category_bits),
-	    mrb_fixnum_value((mrb_int)filter->categoryBits));
+	    mrb_fixnum_value(static_cast<mrb_int>(filter->categoryBits)));
 	state->mrb()->hash_set(hash, EULER_SYM_VAL(mask_bits),
-	    mrb_fixnum_value((mrb_int)filter->maskBits));
+	    mrb_fixnum_value(static_cast<mrb_int>(filter->maskBits)));
 	state->mrb()->hash_set(hash, EULER_SYM_VAL(group_index),
 	    mrb_fixnum_value(filter->groupIndex));
 	return hash;
@@ -1235,7 +1237,7 @@ shape_ray_cast(mrb_state *mrb, mrb_value self)
 		.origin = euler::physics::value_to_b2_vec(mrb, origin),
 		.translation
 		= euler::physics::value_to_b2_vec(mrb, translation),
-		.maxFraction = (float)max_fraction,
+		.maxFraction = static_cast<float>(max_fraction),
 	};
 	const b2CastOutput output = shape->ray_cast(input);
 	const mrb_value result = state->mrb()->hash_new_capa(4);
@@ -1327,11 +1329,9 @@ shape_aabb(mrb_state *mrb, mrb_value self)
 {
 	const auto state = euler::util::State::get(mrb);
 	const auto shape = state->unwrap<Shape>(self);
-	const b2AABB aabb = shape->aabb();
-	const mrb_value upper
-	    = euler::physics::b2_vec_to_value(mrb, aabb.upperBound);
-	const mrb_value lower
-	    = euler::physics::b2_vec_to_value(mrb, aabb.lowerBound);
+	const auto [lb, ub] = shape->aabb();
+	const mrb_value upper = euler::physics::b2_vec_to_value(mrb, ub);
+	const mrb_value lower = euler::physics::b2_vec_to_value(mrb, lb);
 	const mrb_value out = state->mrb()->hash_new_capa(2);
 	state->mrb()->hash_set(out, EULER_SYM_VAL(upper_bound), upper);
 	state->mrb()->hash_set(out, EULER_SYM_VAL(lower_bound), lower);

@@ -62,7 +62,7 @@ parse_world_new_args(mrb_state *mrb)
 	assert(GRAVITY < KW_COUNT);
 	if (!mrb_undef_p(kw_values[GRAVITY])) {
 		world_def.gravity
-		   = euler::physics::value_to_b2_vec(mrb, kw_values[GRAVITY]);
+		    = euler::physics::value_to_b2_vec(mrb, kw_values[GRAVITY]);
 	}
 	if (!mrb_undef_p(kw_values[RESTITUTION_THRESHOLD])) {
 		world_def.restitutionThreshold = static_cast<float>(
@@ -1064,8 +1064,10 @@ box2d_world_init(mrb_state *mrb, RClass *mod)
 	RClass *world
 	    = state->mrb()->define_class_under(mod, "World", mrb->object_class);
 	MRB_SET_INSTANCE_TT(world, MRB_TT_DATA);
-	state->mrb()->define_class_method(world, "allocate", world_allocate, MRB_ARGS_NONE());
-	state->mrb()->define_method(world, "initialize", world_initialize, MRB_ARGS_NONE() | MRB_ARGS_KEY(0, 0));
+	state->mrb()->define_class_method(world, "allocate", world_allocate,
+	    MRB_ARGS_NONE());
+	state->mrb()->define_method(world, "initialize", world_initialize,
+	    MRB_ARGS_NONE() | MRB_ARGS_KEY(0, 0));
 	state->mrb()->define_method(world, "valid?", world_is_valid,
 	    MRB_ARGS_NONE());
 	state->mrb()->define_method(world, "step", world_step,

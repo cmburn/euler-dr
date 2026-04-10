@@ -8,9 +8,9 @@
 
 #include "euler/gui/nuklear.h"
 
-#include "euler/util/image.h"
 #include "euler/gui/common.h"
 #include "euler/util/color.h"
+#include "euler/util/image.h"
 #include "euler/util/state.h"
 
 namespace euler::gui {

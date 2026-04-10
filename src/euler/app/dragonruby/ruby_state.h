@@ -165,8 +165,8 @@ public:
 	    mrb_func_t func) override;
 	mrb_value funcall(mrb_value val, const char *name, mrb_int argc,
 	    ...) override;
-	mrb_value funcall_argv(mrb_value val, mrb_sym name, mrb_int argc,
-	    const mrb_value *argv) override;
+	mrb_value funcall_argv(mrb_value val, mrb_sym name, mrb_int argc = 0,
+	    const mrb_value *argv = nullptr) override;
 	mrb_value funcall_with_block(mrb_value val, mrb_sym name, mrb_int argc,
 	    const mrb_value *argv, mrb_value block) override;
 	void garbage_collect() override;

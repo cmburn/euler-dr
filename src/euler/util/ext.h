@@ -220,7 +220,6 @@ public:                                                                        \
 private:                                                                       \
 	static_assert(true)
 
-
 float read_hash_float(mrb_state *mrb, const mrb_value hash, const mrb_sym key,
     const float default_value = 0.0f);
 

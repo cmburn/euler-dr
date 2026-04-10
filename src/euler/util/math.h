@@ -9,7 +9,6 @@
 #include "euler/util/state.h"
 #include "euler/util/types.h"
 
-
 namespace euler::util {
 template <typename T>
 static constexpr bool

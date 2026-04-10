@@ -9,6 +9,4 @@ namespace euler::net {
 class IPAddress final : public util::Object { };
 } /* namespace euler::net */
 
-
 #endif /* EULER_NET_IP_ADDRESS_H */
-

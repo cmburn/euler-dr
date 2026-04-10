@@ -15,6 +15,7 @@ static constexpr auto Dynamic = util::Dynamic;
 
 class Matrix : public util::Object {
 	BIND_MRUBY("Euler::Math::Matrix", Matrix, math.matrix);
+
 public:
 	enum class Type {
 		Float,
