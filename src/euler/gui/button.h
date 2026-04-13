@@ -34,7 +34,7 @@ public:
 	struct Settings {
 		std::optional<std::string> label = std::nullopt;
 		util::Reference<util::Image> image = nullptr;
-		util::Color color = util::COLOR_NONE;
+		util::Color color = util::COLOR_CLEAR;
 		Symbol symbol = Symbol::None;
 		std::optional<Style::Button> style = std::nullopt;
 		Behavior behavior = Behavior::None;
@@ -89,7 +89,7 @@ private:
 	std::optional<std::string> _label;
 	util::Reference<util::Image> _image = nullptr;
 	std::optional<Style::Button> _style;
-	util::Color _color = util::COLOR_NONE;
+	util::Color _color = util::COLOR_CLEAR;
 	Symbol _symbol = Symbol::None;
 	Behavior _behavior = Behavior::None;
 	Alignment _alignment = {

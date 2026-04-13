@@ -1,6 +1,6 @@
 add_library(euler_math STATIC
-        matrix.cpp
-        matrix.h
+        math.cpp
+        math.h
 )
 
 target_link_libraries(euler_math PUBLIC

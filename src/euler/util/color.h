@@ -221,7 +221,7 @@ private:
 	uint8_t _alpha;
 };
 
-inline constexpr auto COLOR_NONE = Color(0, 0, 0, 0);
+inline constexpr auto COLOR_CLEAR = Color(0, 0, 0, 0);
 inline constexpr auto COLOR_WHITE = Color(255, 255, 255, 255);
 inline constexpr auto COLOR_BLACK = Color(0, 0, 0, 255);
 inline constexpr auto COLOR_RED = Color(255, 0, 0, 255);

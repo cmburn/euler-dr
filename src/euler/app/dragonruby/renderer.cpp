@@ -8,6 +8,13 @@ using euler::app::dragonruby::Renderer;
 
 static constexpr auto all = Eigen::placeholders::all;
 
+/*
+ * Everything gets broken down into a few functions that then get called on the
+ * DR side:
+ * - line
+ * -
+ */
+
 euler::util::Reference<euler::util::State>
 Renderer::state() const
 {
@@ -228,12 +235,12 @@ Renderer::rect_multi_color(const RectMultiColorCommand &cmd)
 	std::vector<util::Color> edge_buf;
 	const int16_t w = cmd.size(0, 0);
 	const int16_t h = cmd.size(0, 1);
-	const int16_t x = cmd.position(0, 0);
-	const int16_t y = cmd.position(0, 1);
 	const auto tl = cmd.left;
 	const auto tr = cmd.top;
 	const auto br = cmd.right;
 	const auto bl = cmd.bottom;
+
+	auto label = std::format("rect_multi_color_{}x{}", w, h);
 
 	edge_buf.reserve((2 * w) + 2 * h);
 	util::Color *edge_t = edge_buf.data();
@@ -252,31 +259,44 @@ Renderer::rect_multi_color(const RectMultiColorCommand &cmd)
 		edge_l[i] = bl.gradient(tl, factor);
 		edge_r[i] = br.gradient(tr, factor);
 	}
+	const auto canvas
+	    = state()->create_image(label.c_str(), w, h, util::COLOR_CLEAR);
+	const auto blend = [&](const int16_t x, const int16_t y,
+				     const util::Color color) -> void {
+		if (color.alpha() == 0) return;
+		const auto c = canvas->pixel(x, y).blend(color);
+		canvas->set_pixel(x, y, c);
+	};
+
 	for (int16_t i = 0; i < h; ++i) {
 		for (int16_t j = 0; j < w; ++j) {
-			const auto xi = x + j;
-			const auto yi = y + i;
 			if (i == 0) {
-				blend_pixel(xi, yi, edge_t[j]);
+				blend(j, i, edge_t[j]);
 				continue;
 			}
 			if (j == 0) {
-				blend_pixel(xi, yi, edge_b[j]);
+				blend(j, i, edge_b[j]);
 				continue;
 			}
 			const auto factor
 			    = static_cast<float>(j) / static_cast<float>(w - 1);
 			const auto color
 			    = edge_r[i].gradient(edge_l[i], factor);
-			blend_pixel(xi, yi, color);
+			blend(j, i, color);
 		}
 	}
+	const ImageCommand img_cmd = {
+		.position = cmd.position,
+		.size = cmd.size,
+		.image = canvas,
+		.color = util::COLOR_CLEAR,
+	};
+	image(img_cmd);
 }
 
 void
 Renderer::circle(const CircleCommand &cmd)
 {
-
 }
 
 void
@@ -327,6 +347,7 @@ Renderer::text(const TextCommand &cmd)
 void
 Renderer::image(const ImageCommand &cmd)
 {
+
 }
 
 mrb_value
@@ -338,7 +359,7 @@ Renderer::args() const
 void
 Renderer::thin_line(const LineCommand &cmd) const
 {
-	/* TODO */
+	mrb_value hash = ruby()->hash_new_capa(8);
 }
 
 void

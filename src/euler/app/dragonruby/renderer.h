@@ -15,9 +15,12 @@ public:
 	[[nodiscard]] int16_t width() const override;
 	[[nodiscard]] int16_t height() const override;
 	void scissor(const ScissorCommand &cmd) override;
+	//
 	void line(const LineCommand &cmd) override;
 	void curve(const CurveCommand &cmd) override;
+	//
 	void rect(const RectCommand &cmd) override;
+	//
 	void rect_filled(const RectFilledCommand &cmd) override;
 	void rect_multi_color(const RectMultiColorCommand &cmd) override;
 	void circle(const CircleCommand &cmd) override;
@@ -25,23 +28,27 @@ public:
 	void arc(const ArcCommand &cmd) override;
 	void arc_filled(const ArcFilledCommand &cmd) override;
 	void triangle(const TriangleCommand &cmd) override;
+	//
 	void triangle_filled(const TriangleFilledCommand &cmd) override;
 	void polygon(const PolygonCommand &cmd) override;
 	void polygon_filled(const PolygonFilledCommand &cmd) override;
 	void polyline(const PolylineCommand &cmd) override;
+	//
 	void text(const TextCommand &cmd) override;
+	//
 	void image(const ImageCommand &cmd) override;
+
+	std::vector<TriangleFilledCommand> tessellate(
+	    const PolygonCommand &cmd);
 
 private:
 	mrb_value args() const;
 
 	void thin_line(const LineCommand &cmd) const;
 	void blend_pixel(int16_t x, int16_t y, util::Color color);
-	void
-	set_pixel(int16_t x, int16_t y, util::Color color)
-	{
-		_canvas->set_pixel(x, y, color);
-	}
+	bool is_render_target_ready(const std::string &) const;
+	bool is_render_target_queued(const std::string &) const;
+	void merge_render_target(mrb_value hash);
 	static constexpr int16_t ZERO_I16 = 0;
 
 	template <int Rows>
@@ -50,7 +57,7 @@ private:
 	{
 		const auto w = width();
 		const auto h = height();
- 		for (auto i = 0; i < points.rows(); ++i) {
+		for (auto i = 0; i < points.rows(); ++i) {
 			auto x = points(i, 0);
 			auto y = points(i, 1);
 			points(i, 0) = std::clamp(x, ZERO_I16, w);
@@ -61,7 +68,6 @@ private:
 	util::Reference<RubyState> ruby() const;
 	util::WeakReference<RubyState> _ruby;
 	util::WeakReference<State> _state;
-	util::Reference<util::Image> _canvas;
 	struct {
 		mrb_sym h_px;
 		mrb_sym w_px;
@@ -75,6 +81,7 @@ private:
 		mrb_sym a;
 	} _symbols;
 	mrb_value _grid;
+	int16_t _curve_resolution = 22;
 };
 } /* namespace euler::app::dragonruby */
 
