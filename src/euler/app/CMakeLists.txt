@@ -15,7 +15,8 @@ if (EULER_DRAGONRUBY_BUILD)
             dragonruby/image.h
             dragonruby/window.cpp
             dragonruby/window.h
-            dragonruby/sample_ext.c
+            dragonruby/renderer.cpp
+            dragonruby/renderer.h
     )
     target_link_libraries(euler_app PUBLIC
             dragonruby

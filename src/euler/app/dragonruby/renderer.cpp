@@ -4,6 +4,8 @@
 
 #include "euler/app/dragonruby/state.h"
 
+#include "euler/gui/nuklear.h"
+
 using euler::app::dragonruby::Renderer;
 
 static constexpr auto all = Eigen::placeholders::all;
@@ -12,7 +14,7 @@ static constexpr auto all = Eigen::placeholders::all;
  * Everything gets broken down into a few functions that then get called on the
  * DR side:
  * - line
- * -
+ * - triangle
  */
 
 euler::util::Reference<euler::util::State>
@@ -80,11 +82,12 @@ Renderer::line(const LineCommand &cmd)
 		static_cast<int16_t>(std::round(p2.x() - offset_x)),
 		static_cast<int16_t>(std::round(p2.y() + offset_y)),
 	};
-	const PolygonFilledCommand polygon_cmd = {
+	const PolygonCommand polygon_cmd = {
 		.points = points,
 		.color = cmd.color,
+		.fill = true,
 	};
-	polygon_filled(polygon_cmd);
+	polygon(polygon_cmd);
 }
 
 void
@@ -196,111 +199,7 @@ Renderer::rect(const RectCommand &cmd)
 }
 
 void
-Renderer::rect_filled(const RectFilledCommand &cmd)
-{
-	const int16_t x = cmd.position(0, 0);
-	const int16_t y = cmd.position(0, 1);
-	const int16_t w = cmd.size(0, 0);
-	const int16_t h = cmd.size(0, 1);
-	if (cmd.rounding == 0) {
-		PointSet points(4, 2);
-		points(0, all) = Point { x, y };
-		points(1, all) = Point { x + w, y };
-		points(2, all) = Point { x + w, y + h };
-		points(3, all) = Point { x, y + h };
-		const PolygonFilledCommand polygon_cmd = {
-			.points = points,
-			.color = cmd.color,
-		};
-	}
-	const int16_t xc = x + cmd.rounding;
-	const int16_t yc = y + cmd.rounding;
-	const int16_t wc = static_cast<int16_t>(w - 2 * cmd.rounding);
-	const int16_t hc = static_cast<int16_t>(h - 2 * cmd.rounding);
-	PointSet points(4, 2);
-	points(0, all) = Point { xc, yc };
-	points(1, all) = Point { xc + wc, yc };
-	points(2, all) = Point { xc + w, yc + hc };
-	points(3, all) = Point { xc, yc + hc };
-	const PolygonFilledCommand polygon_cmd = {
-		.points = points,
-		.color = cmd.color,
-	};
-	polygon_filled(polygon_cmd);
-}
-
-void
-Renderer::rect_multi_color(const RectMultiColorCommand &cmd)
-{
-	std::vector<util::Color> edge_buf;
-	const int16_t w = cmd.size(0, 0);
-	const int16_t h = cmd.size(0, 1);
-	const auto tl = cmd.left;
-	const auto tr = cmd.top;
-	const auto br = cmd.right;
-	const auto bl = cmd.bottom;
-
-	auto label = std::format("rect_multi_color_{}x{}", w, h);
-
-	edge_buf.reserve((2 * w) + 2 * h);
-	util::Color *edge_t = edge_buf.data();
-	util::Color *edge_b = edge_buf.data() + w;
-	util::Color *edge_l = edge_buf.data() + (w * 2);
-	util::Color *edge_r = edge_buf.data() + (w * 2) + h;
-	for (int16_t i = 0; i < w; ++i) {
-		const auto factor
-		    = static_cast<float>(i) / static_cast<float>(w - 1);
-		edge_t[i] = tr.gradient(tl, factor);
-		edge_b[i] = br.gradient(bl, factor);
-	}
-	for (int16_t i = 0; i < h; ++i) {
-		const auto factor
-		    = static_cast<float>(i) / static_cast<float>(h - 1);
-		edge_l[i] = bl.gradient(tl, factor);
-		edge_r[i] = br.gradient(tr, factor);
-	}
-	const auto canvas
-	    = state()->create_image(label.c_str(), w, h, util::COLOR_CLEAR);
-	const auto blend = [&](const int16_t x, const int16_t y,
-				     const util::Color color) -> void {
-		if (color.alpha() == 0) return;
-		const auto c = canvas->pixel(x, y).blend(color);
-		canvas->set_pixel(x, y, c);
-	};
-
-	for (int16_t i = 0; i < h; ++i) {
-		for (int16_t j = 0; j < w; ++j) {
-			if (i == 0) {
-				blend(j, i, edge_t[j]);
-				continue;
-			}
-			if (j == 0) {
-				blend(j, i, edge_b[j]);
-				continue;
-			}
-			const auto factor
-			    = static_cast<float>(j) / static_cast<float>(w - 1);
-			const auto color
-			    = edge_r[i].gradient(edge_l[i], factor);
-			blend(j, i, color);
-		}
-	}
-	const ImageCommand img_cmd = {
-		.position = cmd.position,
-		.size = cmd.size,
-		.image = canvas,
-		.color = util::COLOR_CLEAR,
-	};
-	image(img_cmd);
-}
-
-void
 Renderer::circle(const CircleCommand &cmd)
-{
-}
-
-void
-Renderer::circle_filled(const CircleFilledCommand &cmd)
 {
 }
 
@@ -310,17 +209,7 @@ Renderer::arc(const ArcCommand &cmd)
 }
 
 void
-Renderer::arc_filled(const ArcFilledCommand &cmd)
-{
-}
-
-void
 Renderer::triangle(const TriangleCommand &cmd)
-{
-}
-
-void
-Renderer::triangle_filled(const TriangleFilledCommand &cmd)
 {
 }
 
@@ -330,12 +219,7 @@ Renderer::polygon(const PolygonCommand &cmd)
 }
 
 void
-Renderer::polygon_filled(const PolygonFilledCommand &cmd)
-{
-}
-
-void
-Renderer::polyline(const PolylineCommand &cmd)
+Renderer::polyline(const MultilineCommand &cmd)
 {
 }
 
@@ -362,10 +246,3 @@ Renderer::thin_line(const LineCommand &cmd) const
 	mrb_value hash = ruby()->hash_new_capa(8);
 }
 
-void
-Renderer::blend_pixel(const int16_t x, const int16_t y, const util::Color color)
-{
-	if (color.alpha() == 0) return;
-	const auto c = _canvas->pixel(x, y).blend(color);
-	set_pixel(x, y, c);
-}

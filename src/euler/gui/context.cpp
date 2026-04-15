@@ -320,7 +320,7 @@ Context::render()
 				points.emplace_back(casted->points[i].x,
 				    casted->points[i].y);
 			}
-			const Renderer::PolylineCommand polyline = {
+			const Renderer::MultilineCommand polyline = {
 				.line_thickness = casted->line_thickness,
 				.points = std::move(points),
 				.color = util::Color::from_nk(casted->color),

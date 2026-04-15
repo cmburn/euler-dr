@@ -21,34 +21,24 @@ public:
 	//
 	void rect(const RectCommand &cmd) override;
 	//
-	void rect_filled(const RectFilledCommand &cmd) override;
-	void rect_multi_color(const RectMultiColorCommand &cmd) override;
 	void circle(const CircleCommand &cmd) override;
-	void circle_filled(const CircleFilledCommand &cmd) override;
 	void arc(const ArcCommand &cmd) override;
-	void arc_filled(const ArcFilledCommand &cmd) override;
 	void triangle(const TriangleCommand &cmd) override;
 	//
-	void triangle_filled(const TriangleFilledCommand &cmd) override;
 	void polygon(const PolygonCommand &cmd) override;
-	void polygon_filled(const PolygonFilledCommand &cmd) override;
-	void polyline(const PolylineCommand &cmd) override;
+	void polyline(const MultilineCommand &cmd) override;
 	//
 	void text(const TextCommand &cmd) override;
 	//
 	void image(const ImageCommand &cmd) override;
 
-	std::vector<TriangleFilledCommand> tessellate(
-	    const PolygonCommand &cmd);
+	std::vector<TriangleCommand> tessellate(const PolygonCommand &cmd);
 
 private:
 	mrb_value args() const;
 
 	void thin_line(const LineCommand &cmd) const;
 	void blend_pixel(int16_t x, int16_t y, util::Color color);
-	bool is_render_target_ready(const std::string &) const;
-	bool is_render_target_queued(const std::string &) const;
-	void merge_render_target(mrb_value hash);
 	static constexpr int16_t ZERO_I16 = 0;
 
 	template <int Rows>

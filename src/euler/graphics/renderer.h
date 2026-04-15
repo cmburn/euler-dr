@@ -11,10 +11,15 @@
 #include "euler/util/object.h"
 #include "euler/util/state.h"
 
+#ifndef DEFAULT_CURVE_SEGMENTS
+#define DEFAULT_CURVE_SEGMENTS 22
+#endif
+
 namespace euler::graphics {
 class Renderer : public util::Object {
 	BIND_MRUBY("Euler::Graphics::Renderer", Renderer, graphics.renderer);
 public:
+	static constexpr int16_t DEFAULT_SEGMENTS = DEFAULT_CURVE_SEGMENTS;
 	/* TODO: we do not currently use a render context, but we absolutely
 	 *       need to. */
 	[[nodiscard]] virtual util::Reference<util::State> state() const = 0;
@@ -30,85 +35,54 @@ public:
 	};
 	struct LineCommand {
 		Line points;
-		uint16_t line_thickness;
 		util::Color color;
+		uint16_t line_thickness = 1;
 	};
 	struct CurveCommand {
-		uint16_t line_thickness;
 		Eigen::Matrix<int16_t, 4, 2> points;
 		util::Color color;
-		int16_t segments;
+		int16_t segments = DEFAULT_SEGMENTS;
+		uint16_t line_thickness = 1;
 	};
 	struct RectCommand {
-		uint16_t rounding;
-		uint16_t line_thickness;
 		Point position;
 		Size size;
 		util::Color color;
-	};
-	struct RectFilledCommand {
-		uint16_t rounding;
-		Point position;
-		Size size;
-		util::Color color;
-	};
-	struct RectMultiColorCommand {
-		Point position;
-		Size size;
-		util::Color left;
-		util::Color top;
-		util::Color bottom;
-		util::Color right;
+		uint16_t rounding = 0;
+		uint16_t line_thickness = 1;
+		bool fill = false;
 	};
 	struct CircleCommand {
 		Point center;
-		uint16_t line_thickness;
 		Size size;
 		util::Color color;
-	};
-	struct CircleFilledCommand {
-		Point center;
-		Size size;
-		util::Color color;
+		uint16_t segments = DEFAULT_SEGMENTS;
+		uint16_t line_thickness = 1;
+		bool fill = false;
 	};
 	struct ArcCommand {
 		Point center;
 		uint16_t radius;
-		uint16_t line_thickness;
 		Eigen::Matrix<float, 1, 2> angles;
 		util::Color color;
-	};
-	struct ArcFilledCommand {
-		Point center;
-		uint16_t radius;
-		Eigen::Matrix<float, 1, 2> angles;
-		util::Color color;
+		uint16_t line_thickness = 1;
+		uint16_t segments = DEFAULT_SEGMENTS;
+		bool fill = false;
 	};
 	struct TriangleCommand {
-		uint16_t line_thickness;
 		Eigen::Matrix<int16_t, 3, 2> points;
 		util::Color color;
-	};
-	struct TriangleFilledCommand {
-		Eigen::Matrix<int16_t, 3, 2> points;
-		util::Color color;
+		uint16_t line_thickness = 1;
+		bool fill = false;
 	};
 	struct PolygonCommand {
-		uint16_t line_thickness;
 		PointSet points;
 		util::Color color;
-	};
-	struct PolygonFilledCommand {
-		PointSet points;
-		util::Color color;
-	};
-	struct PolylineCommand {
-		uint16_t line_thickness;
-		PointSet points;
-		util::Color color;
+		uint16_t line_thickness = 1;
+		bool fill = false;
 	};
 	struct TextCommand {
-		// util::Reference<Font> font;
+		util::Reference<util::Font> font;
 		util::Color background;
 		util::Color foreground;
 		Point position;
@@ -126,17 +100,10 @@ public:
 	virtual void line(const LineCommand &cmd) = 0;
 	virtual void curve(const CurveCommand &cmd) = 0;
 	virtual void rect(const RectCommand &cmd) = 0;
-	virtual void rect_filled(const RectFilledCommand &cmd) = 0;
-	virtual void rect_multi_color(const RectMultiColorCommand &cmd) = 0;
 	virtual void circle(const CircleCommand &cmd) = 0;
-	virtual void circle_filled(const CircleFilledCommand &cmd) = 0;
 	virtual void arc(const ArcCommand &cmd) = 0;
-	virtual void arc_filled(const ArcFilledCommand &cmd) = 0;
 	virtual void triangle(const TriangleCommand &cmd) = 0;
-	virtual void triangle_filled(const TriangleFilledCommand &cmd) = 0;
 	virtual void polygon(const PolygonCommand &cmd) = 0;
-	virtual void polygon_filled(const PolygonFilledCommand &cmd) = 0;
-	virtual void polyline(const PolylineCommand &cmd) = 0;
 	virtual void text(const TextCommand &cmd) = 0;
 	virtual void image(const ImageCommand &cmd) = 0;
 };
