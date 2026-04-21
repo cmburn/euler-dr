@@ -117,6 +117,13 @@ if (EULER_DRAGONRUBY_BUILD)
             ${EULER_DRAGONRUBY_PATH}/include
     )
     set(MRUBY_VERSION 3.0.0)
+    set(EARCUT_GIT_TAG f36ced7e50254738c4e5af1a239f5fb7b1094007)
+    FetchContent_Declare(earcut
+            GIT_REPOSITORY https://github.com/mapbox/earcut.hpp
+            GIT_TAG ${EARCUT_GIT_TAG}
+            GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(earcut)
 endif ()
 
 message(STATUS "Euler configuration:")

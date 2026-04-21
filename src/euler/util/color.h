@@ -200,7 +200,8 @@ public:
 		};
 	}
 
-	[[nodiscard]] Color blend(const Color other)
+	[[nodiscard]] Color
+	blend(const Color other)
 	{
 		if (other.alpha() == 0) return *this;
 		const auto inv_a = 0xFF - other.alpha();
@@ -210,9 +211,12 @@ public:
 		g >>= 8;
 		uint32_t b = (other.blue() * other.alpha() + blue() * inv_a);
 		b >>= 8;
-		const uint32_t a = (other.alpha() * other.alpha() + alpha() * inv_a);
+		const uint32_t a
+		    = (other.alpha() * other.alpha() + alpha() * inv_a);
 		return Color(r, g, b, a);
 	}
+
+	std::string hex_string() const;
 
 private:
 	uint8_t _red;
@@ -229,5 +233,13 @@ inline constexpr auto COLOR_GREEN = Color(0, 255, 0, 255);
 inline constexpr auto COLOR_BLUE = Color(0, 0, 255, 255);
 
 } /* namespace euler::util */
+
+template <> struct std::hash<euler::util::Color> {
+	std::size_t
+	operator()(const euler::util::Color &color) const noexcept
+	{
+		return color.to_uint32();
+	}
+};
 
 #endif /* EULER_UTIL_COLOR_H */

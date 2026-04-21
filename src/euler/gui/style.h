@@ -5,9 +5,8 @@
 
 #include <variant>
 
-#include "euler/gui/nuklear.h"
-
 #include "euler/gui/common.h"
+#include "euler/gui/nuklear.h"
 #include "euler/util/color.h"
 #include "euler/util/math.h"
 #include "euler/util/object.h"
@@ -57,7 +56,7 @@ struct ColorTable {
 };
 
 static_assert((sizeof(ColorTable) / sizeof(Color))
-	== ColorTable::ATTRIBUTE_COUNT,
+        == ColorTable::ATTRIBUTE_COUNT,
     "ColorTable does not match Nuklear color table size");
 
 /* Each GUI instance is associated with a Style. */

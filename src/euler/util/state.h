@@ -201,6 +201,7 @@ public:
 	    = 0;
 #endif
 
+	[[nodiscard]] virtual Runtime runtime() const = 0;
 	[[nodiscard]] virtual Reference<RubyState> mrb() const = 0;
 	[[nodiscard]] virtual RClass *object_class() const = 0;
 	[[nodiscard]] virtual Reference<Logger> log() const = 0;

@@ -111,3 +111,21 @@ State::upload_image(const char *label, const util::Reference<util::Image> &img)
 	_api->drb_upload_pixel_array(label, dr_img->_width, dr_img->_height,
 	    static_cast<const uint32_t *>(dr_img->_data));
 }
+
+mrb_value
+State::args() const
+{
+	return _args;
+}
+
+euler::util::Reference<euler::graphics::Renderer>
+State::renderer() const
+{
+	return _renderer;
+}
+
+State::Runtime
+State::runtime() const
+{
+	return Runtime::DragonRuby;
+}

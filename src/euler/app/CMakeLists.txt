@@ -20,6 +20,7 @@ if (EULER_DRAGONRUBY_BUILD)
     )
     target_link_libraries(euler_app PUBLIC
             dragonruby
+            earcut_hpp
     )
     target_include_directories(euler_app PUBLIC
             ${EULER_DRAGONRUBY_PATH}/include

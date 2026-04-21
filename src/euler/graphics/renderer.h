@@ -23,8 +23,8 @@ public:
 	/* TODO: we do not currently use a render context, but we absolutely
 	 *       need to. */
 	[[nodiscard]] virtual util::Reference<util::State> state() const = 0;
-	[[nodiscard]] virtual int16_t width() const = 0;
-	[[nodiscard]] virtual int16_t height() const = 0;
+	// [[nodiscard]] virtual int16_t width() const = 0;
+	// [[nodiscard]] virtual int16_t height() const = 0;
 	using Point = Eigen::Matrix<int16_t, 1, 2>;
 	using Size = Point;
 	using Line = Eigen::Matrix<int16_t, 2, 2>;
@@ -56,7 +56,6 @@ public:
 		Point center;
 		Size size;
 		util::Color color;
-		uint16_t segments = DEFAULT_SEGMENTS;
 		uint16_t line_thickness = 1;
 		bool fill = false;
 	};
@@ -66,7 +65,6 @@ public:
 		Eigen::Matrix<float, 1, 2> angles;
 		util::Color color;
 		uint16_t line_thickness = 1;
-		uint16_t segments = DEFAULT_SEGMENTS;
 		bool fill = false;
 	};
 	struct TriangleCommand {

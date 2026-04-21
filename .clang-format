@@ -2,7 +2,7 @@ BasedOnStyle: WebKit
 ColumnLimit: 80
 PointerAlignment: Right
 TabWidth: 8
-UseTab: Always
+UseTab: ForIndentation
 IndentWidth: 8
 AccessModifierOffset: -8
 AlignTrailingComments: true

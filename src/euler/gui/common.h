@@ -5,6 +5,8 @@
 
 #include <cstdint>
 
+#include "euler/util/color.h"
+
 namespace euler::gui {
 
 enum class Symbol {

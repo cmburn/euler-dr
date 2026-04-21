@@ -10,6 +10,7 @@
 #include "euler/util/image.h"
 #include "euler/util/object.h"
 #include "euler/util/state.h"
+#include "renderer.h"
 #include "window.h"
 #ifdef EULER_GUI_BUILD
 #include "euler/gui/context.h"
@@ -53,6 +54,10 @@ public:
 	/* fetches the dragonruby context (current tick's args) */
 	mrb_value args() const;
 
+	[[nodiscard]] util::Reference<graphics::Renderer>
+	renderer() const override;
+	[[nodiscard]] Runtime runtime() const override;
+
 private:
 	util::Reference<RubyState> _ruby_state;
 	util::Reference<Logger> _log;
@@ -60,6 +65,7 @@ private:
 	util::Reference<gui::Context> _gui;
 #endif
 	util::Reference<Window> _window;
+	util::Reference<Renderer> _renderer;
 	mrb_value _args = mrb_nil_value();
 	drb_api_t *_api;
 };
