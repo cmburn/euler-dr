@@ -70,6 +70,7 @@ public:
 	virtual void blend_pixel(int16_t, int16_t, Color) = 0;
 	virtual uint32_t *raw_data() = 0;
 	virtual const uint32_t *raw_data() const = 0;
+	virtual std::string label() const = 0;
 };
 } /* namespace euler::util */
 

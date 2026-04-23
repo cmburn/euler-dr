@@ -198,11 +198,11 @@ Color::read(mrb_state *mrb, mrb_value value)
 #define READ_COLOR(OUT, NAME1, NAME2)                                          \
 	do {                                                                   \
 		if (state->mrb()->hash_key_p(value,                            \
-			mrb_symbol_value(EULER_SYM(NAME1)))) {                 \
+		        mrb_symbol_value(EULER_SYM(NAME1)))) {                 \
 			OUT = mrb_integer(state->mrb()->hash_get(hash,         \
 			    mrb_symbol_value(EULER_SYM(NAME1))));              \
 		} else if (state->mrb()->hash_key_p(value,                     \
-			       mrb_symbol_value(EULER_SYM(NAME2)))) {          \
+		               mrb_symbol_value(EULER_SYM(NAME2)))) {          \
 			OUT = mrb_integer(state->mrb()->hash_get(hash,         \
 			    mrb_symbol_value(EULER_SYM(NAME2))));              \
 		}                                                              \
@@ -234,8 +234,32 @@ std::string
 Color::hex_string() const
 {
 	std::stringstream ss;
-	ss << std::hex << std::setw(2) << std::setfill('0')
-	   << red() << green() << blue() << alpha();
+	ss << std::hex << std::setw(2) << std::setfill('0') << red() << green()
+	   << blue() << alpha();
 	return ss.str();
 }
+
+mrb_value
+Color::to_hash(mrb_state *mrb) const
+{
+	const auto state = State::get(mrb);
+	const auto hash = state->mrb()->hash_new_capa(4);
+	store_hash(mrb, hash);
+	return hash;
+}
+
+void
+Color::store_hash(mrb_state *mrb, mrb_value hash) const
+{
+	const auto state = State::get(mrb);
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(r),
+	    state->mrb()->int_value(red()));
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(g),
+	    state->mrb()->int_value(green()));
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(b),
+	    state->mrb()->int_value(blue()));
+	state->mrb()->hash_set(hash, EULER_SYM_VAL(a),
+	    state->mrb()->int_value(alpha()));
+}
+
 

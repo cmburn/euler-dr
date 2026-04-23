@@ -7,7 +7,9 @@
 
 #include <Eigen/Eigen>
 
+#include "euler/math/math.h"
 #include "euler/util/color.h"
+#include "euler/util/font.h"
 #include "euler/util/object.h"
 #include "euler/util/state.h"
 
@@ -25,13 +27,14 @@ public:
 	[[nodiscard]] virtual util::Reference<util::State> state() const = 0;
 	// [[nodiscard]] virtual int16_t width() const = 0;
 	// [[nodiscard]] virtual int16_t height() const = 0;
-	using Point = Eigen::Matrix<int16_t, 1, 2>;
-	using Size = Point;
+	using Vec2i16 = math::Vec2<int16_t>;
+	using Vec2f = math::Vec2<float>;
+
 	using Line = Eigen::Matrix<int16_t, 2, 2>;
 	using PointSet = Eigen::Matrix<int16_t, Eigen::Dynamic, 2>;
 	struct ScissorCommand {
-		Point position;
-		Size size;
+		Vec2i16 position;
+		Vec2i16 size;
 	};
 	struct LineCommand {
 		Line points;
@@ -45,22 +48,22 @@ public:
 		uint16_t line_thickness = 1;
 	};
 	struct RectCommand {
-		Point position;
-		Size size;
+		Vec2i16 position;
+		Vec2i16 size;
 		util::Color color;
 		uint16_t rounding = 0;
 		uint16_t line_thickness = 1;
 		bool fill = false;
 	};
 	struct CircleCommand {
-		Point center;
-		Size size;
+		Vec2i16 center;
+		Vec2i16 size;
 		util::Color color;
 		uint16_t line_thickness = 1;
 		bool fill = false;
 	};
 	struct ArcCommand {
-		Point center;
+		Vec2i16 center;
 		uint16_t radius;
 		Eigen::Matrix<float, 1, 2> angles;
 		util::Color color;
@@ -83,16 +86,16 @@ public:
 		util::Reference<util::Font> font;
 		util::Color background;
 		util::Color foreground;
-		Point position;
-		Size size;
+		Vec2i16 position;
+		Vec2i16 size;
 		float height;
 		std::string text;
 	};
 	struct ImageCommand {
-		Point position;
-		Size size;
+		Vec2i16 position;
+		Vec2i16 size;
 		util::Reference<util::Image> image;
-		util::Color color;
+		std::optional<util::Color> color;
 	};
 	virtual void scissor(const ScissorCommand &cmd) = 0;
 	virtual void line(const LineCommand &cmd) = 0;

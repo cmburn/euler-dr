@@ -28,10 +28,12 @@ public:
 	    const Transform &) const override;
 	util::Reference<util::Image> rotate(float theta) const override;
 	util::Reference<util::Image> stretch(float x, float y) override;
+	std::string label() const override;
 
 private:
 	util::Reference<util::State> _state;
 	uint32_t *_data = nullptr;
+	std::string _label;
 	mrb_value _pixel_buffer;
 	int16_t _width = 0;
 	int16_t _height = 0;

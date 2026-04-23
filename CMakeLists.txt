@@ -10,7 +10,7 @@ option(EULER_MATH_BUILD "Build Euler::Math module" ON)
 option(EULER_NET_BUILD "Build Euler::Net module" OFF)
 option(EULER_PHYSICS_BUILD "Build Euler::Physics module" ON)
 option(EULER_WORLD_BUILD "Build Euler::World module" OFF)
-option(EULER_GRAPHICS_BUILD "Build Euler::Graphics module" OFF)
+option(EULER_GRAPHICS_BUILD "Build Euler::Graphics module" ON)
 
 include(ExternalProject)
 include(FetchContent)

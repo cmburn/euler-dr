@@ -104,3 +104,8 @@ euler::app::dragonruby::Image::stretch(float, float)
 	// TODO
 	return nullptr;
 }
+std::string
+euler::app::dragonruby::Image::label() const
+{
+	return _label;
+}

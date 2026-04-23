@@ -218,6 +218,9 @@ public:
 
 	std::string hex_string() const;
 
+	[[nodiscard]] mrb_value to_hash(mrb_state *mrb) const;
+	void store_hash(mrb_state *mrb, mrb_value hash) const;
+
 private:
 	uint8_t _red;
 	uint8_t _green;

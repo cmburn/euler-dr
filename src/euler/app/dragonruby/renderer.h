@@ -32,14 +32,16 @@ public:
 
 private:
 	struct PointCommand {
-		Point position;
+		Vec2i16 position;
 		int16_t radius;
 		util::Color color;
 	};
 
+
+
 	void draw_line(const std::function<bool(PointCommand &)> &fn);
 
-	void draw_uploaded(const std::string &label, Point position);
+	void draw_uploaded(const std::string &label, Vec2i16 position);
 
 	mrb_value args() const;
 	mrb_sym color_sym(util::Color);
@@ -66,7 +68,7 @@ private:
 	    const std::string &label);
 	void upload_image(const std::string &label, const util::Reference<util::Image> &image);
 
-	void send_to_output(mrb_sym sym, mrb_value value);
+	void push_output(mrb_sym sym, mrb_value value);
 
 	mrb_sym register_color(util::Color color);
 
@@ -78,8 +80,18 @@ private:
 		mrb_sym w_px = MRB_Qnil;
 		mrb_sym x = MRB_Qnil;
 		mrb_sym y = MRB_Qnil;
+		mrb_sym x1 = MRB_Qnil;
+		mrb_sym y1 = MRB_Qnil;
 		mrb_sym x2 = MRB_Qnil;
 		mrb_sym y2 = MRB_Qnil;
+		mrb_sym x3 = MRB_Qnil;
+		mrb_sym y3 = MRB_Qnil;
+		mrb_sym source_x = MRB_Qnil;
+		mrb_sym source_y = MRB_Qnil;
+		mrb_sym source_x2 = MRB_Qnil;
+		mrb_sym source_y2 = MRB_Qnil;
+		mrb_sym source_x3 = MRB_Qnil;
+		mrb_sym source_y3 = MRB_Qnil;
 		mrb_sym r = MRB_Qnil;
 		mrb_sym g = MRB_Qnil;
 		mrb_sym b = MRB_Qnil;
@@ -91,11 +103,21 @@ private:
 		mrb_sym anchor_y = MRB_Qnil;
 		mrb_sym outputs = MRB_Qnil;
 		mrb_sym sprites = MRB_Qnil;
+		mrb_sym borders = MRB_Qnil;
+		mrb_sym lines = MRB_Qnil;
 		mrb_sym lshift = MRB_Qnil;
+		mrb_sym angle = MRB_Qnil;
+		mrb_sym angle_anchor_x = MRB_Qnil;
+		mrb_sym angle_anchor_y = MRB_Qnil;
+		mrb_sym solid = MRB_Qnil;
+		mrb_sym size_enum = MRB_Qnil;
+		mrb_sym font = MRB_Qnil;
+		mrb_sym text = MRB_Qnil;
 	} _symbols;
 	int16_t _width = 0;
 	int16_t _height = 0;
 	mrb_value _render_target = mrb_nil_value();
+	mrb_value _self = mrb_nil_value();
 	std::unordered_map<util::Color, mrb_sym> _colors;
 	std::unordered_map<std::string, util::Reference<util::Image>> _uploaded;
 	util::Reference<util::Image> _canvas;

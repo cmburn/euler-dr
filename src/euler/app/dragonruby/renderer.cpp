@@ -8,29 +8,30 @@
 
 #include "euler/app/dragonruby/ruby_state.h"
 #include "euler/app/dragonruby/state.h"
+
 #include "euler/graphics/renderer.h"
 
 using euler::app::dragonruby::Renderer;
 
 static constexpr auto all = Eigen::placeholders::all;
 
-#define STASH_INT(HASH, KEY, VALUE)                                            \
+#define STASH_VALUE(HASH, KEY, VALUE)                                          \
 	do {                                                                   \
 		ruby()->hash_set(HASH, ruby()->symbol_value(_symbols.KEY),     \
-		    ruby()->int_value(VALUE));                                 \
+		    (VALUE));                                                  \
 	} while (0)
+
+#define STASH_INT(HASH, KEY, VALUE)                                            \
+	STASH_VALUE(HASH, KEY, ruby()->int_value(VALUE))
 
 #define STASH_STR(HASH, KEY, VALUE)                                            \
-	do {                                                                   \
-		ruby()->hash_set(HASH, ruby()->symbol_value(_symbols.KEY),     \
-		    ruby()->str_new_cstr(VALUE));                              \
-	} while (0)
+	STASH_VALUE(HASH, KEY, ruby()->str_new_cstr(VALUE))
 
 #define STASH_FLOAT(HASH, KEY, VALUE)                                          \
-	do {                                                                   \
-		ruby()->hash_set(HASH, ruby()->symbol_value(_symbols.KEY),     \
-		    ruby()->float_value(VALUE));                               \
-	} while (0)
+	STASH_VALUE(HASH, KEY, ruby()->float_value(VALUE))
+
+#define STASH_SYM(HASH, KEY, VALUE)                                            \
+	STASH_VALUE(HASH, KEY, ruby()->symbol_value(_symbols.VALUE))
 
 Renderer::~Renderer() = default;
 
@@ -51,35 +52,74 @@ Renderer::scissor(const ScissorCommand &cmd)
 void
 Renderer::line(const LineCommand &cmd)
 {
-	if (cmd.line_thickness == 1) {
-		thin_line(cmd);
+	Vec2i16 p1 = cmd.points(0, all);
+	Vec2i16 p2 = cmd.points(1, all);
+	const auto th = cmd.line_thickness;
+	if (th == 1) {
+		const auto hash = ruby()->hash_new_capa(8);
+		STASH_INT(hash, x1, p1(0, 0));
+		STASH_INT(hash, y1, p1(0, 1));
+		STASH_INT(hash, x2, p2(0, 0));
+		STASH_INT(hash, y2, p2(0, 1));
+		push_output(_symbols.lines, hash);
 		return;
 	}
-	Point p1 = cmd.points(0, all);
-	Point p2 = cmd.points(1, all);
-	const int16_t r = cmd.line_thickness / 2;
-	PolygonCommand poly = {
-		.points = PointSet(4, 2),
-		.color = cmd.color,
-		.line_thickness = 1,
-		.fill = true,
-	};
-	const auto dx = p2.x() - p1.x();
-	const auto dy = p2.y() - p1.y();
-	const auto theta = std::atan2f(dy, dx);
-	const auto offset_x = std::cosf(theta) * r;
-	const auto offset_y = std::sinf(theta) * r;
-	poly.points(0, all) = Point { p1.x() - offset_x, p1.y() - offset_y };
-	poly.points(1, all) = Point { p1.x() + offset_x, p1.y() + offset_y };
-	poly.points(2, all) = Point { p2.x() + offset_x, p2.y() + offset_y };
-	poly.points(3, all) = Point { p2.x() - offset_x, p2.y() - offset_y };
-	polygon(poly);
+	const Vec2i16 l = p2 - p1;
+	const float len = math::length(l);
+	const float angle = math::rad2deg(math::angle(l));
+	const float normal = std::fmod(angle + 90.0f, 360.0f);
+	Vec2f vec = p1.cast<float>()
+	    - math::deg2vec(normal) * (static_cast<float>(th) / 2);
+	/* adjust y value due to how solids get rendered */
+	vec(0, 1) += 2;
+	const auto hash = ruby()->hash_new_capa(12);
+	STASH_FLOAT(hash, x, vec(0, 0));
+	STASH_FLOAT(hash, y, vec(0, 1));
+	STASH_FLOAT(hash, angle, angle);
+	STASH_FLOAT(hash, angle_anchor_x, 0.0f);
+	STASH_FLOAT(hash, angle_anchor_y, 0.0f);
+	STASH_SYM(hash, path, solid);
+	STASH_FLOAT(hash, w, len);
+	STASH_FLOAT(hash, h, th);
+	cmd.color.store_hash(ruby()->mrb(), hash);
+	push_output(_symbols.sprites, hash);
 }
 
 void
-Renderer::curve(const CurveCommand &)
+Renderer::curve(const CurveCommand &cmd)
 {
-	/* TODO */
+	static constexpr int CURVE_SEGMENTS = 22;
+	static constexpr float STEP = 1.0f / CURVE_SEGMENTS;
+	const Vec2i16 p1 = cmd.points(0, all);
+	const Vec2i16 p2 = cmd.points(1, all);
+	const Vec2i16 p3 = cmd.points(2, all);
+	const Vec2i16 p4 = cmd.points(3, all);
+	Vec2i16 last = p1;
+	LineCommand line_cmd = {
+		.points = {},
+		.color = cmd.color,
+		.line_thickness = cmd.line_thickness,
+	};
+	for (int i = 1; i <= CURVE_SEGMENTS; ++i) {
+		const float t = i * STEP;
+		const float u = 1 - t;
+		const float w1 = u * u * u;
+		const float w2 = 3 * u * u * t;
+		const float w3 = 3 * u * t * t;
+		const float w4 = t * t * t;
+		const float x = w1 * p1(0, 0) + w2 * p2(0, 0) + w3 * p3(0, 0)
+		    + w4 * p4(0, 0);
+		const float y = w1 * p1(0, 1) + w2 * p2(0, 1) + w3 * p3(0, 1)
+		    + w4 * p4(0, 1);
+		const Vec2i16 point = {
+			static_cast<int16_t>(x),
+			static_cast<int16_t>(y),
+		};
+		line_cmd.points(0, all) = last;
+		line_cmd.points(1, all) = point;
+		line(line_cmd);
+		last = point;
+	}
 }
 
 void
@@ -88,308 +128,223 @@ Renderer::rect(const RectCommand &cmd)
 	const int16_t x = cmd.position(0, 0);
 	const int16_t y = cmd.position(0, 1);
 	const int16_t w = cmd.size(0, 0);
-	const int16_t h = cmd.size(0, 1);
-	if (cmd.rounding == 0) {
-		PointSet points(4, 2);
-		points(0, all) = Point { x, y };
-		points(1, all) = Point { x + w, y };
-		points(2, all) = Point { x + w, y + h };
-		points(3, all) = Point { x, y + h };
-		const PolygonCommand polygon_cmd = {
-			.points = points,
-			.color = cmd.color,
-			.line_thickness = cmd.line_thickness,
-		};
-		polygon(polygon_cmd);
-		return;
+	const int16_t h = cmd.size(1, 0);
+	const uint16_t r = cmd.rounding;
+	const auto fill = cmd.fill;
+	if (r == 0) {
+		const auto hash = ruby()->hash_new_capa(cmd.fill ? 9 : 8);
+		STASH_INT(hash, x, x);
+		STASH_INT(hash, y, y);
+		STASH_INT(hash, w, w);
+		STASH_INT(hash, h, h);
+		cmd.color.store_hash(ruby()->mrb(), hash);
+		if (fill) {
+			STASH_SYM(hash, path, solid);
+			push_output(_symbols.sprites, hash);
+		} else {
+			push_output(_symbols.borders, hash);
+		}
 	}
-	const int16_t xc = x + cmd.rounding;
-	const int16_t yc = y + cmd.rounding;
-	const auto wc = static_cast<int16_t>(w - 2 * cmd.rounding);
-	const auto hc = static_cast<int16_t>(h - 2 * cmd.rounding);
-	LineCommand line_cmd = {
-		.points = {},
-		.color = cmd.color,
-		.line_thickness = cmd.line_thickness,
-	};
-	line_cmd.points(0, all) = Point { xc, y };
-	line_cmd.points(1, all) = Point { xc + wc, y };
-	line(line_cmd);
-	line_cmd.points(0, all) = Point { x + w, yc };
-	line_cmd.points(1, all) = Point { x + w, yc + hc };
-	line(line_cmd);
-	line_cmd.points(0, all) = Point { xc, y + h };
-	line_cmd.points(1, all) = Point { xc + wc, y + h };
-	line(line_cmd);
-	line_cmd.points(0, all) = Point { x, yc };
-	line_cmd.points(1, all) = Point { x, yc + hc };
-	line(line_cmd);
+	const int16_t xc = x + r;
+	int16_t yc = y + r;
+	const int16_t wc = w - 2 * r;
+	const int16_t hc = h - 2 * r;
+	const uint16_t th = cmd.line_thickness;
+	const uint16_t hth = th / 2;
+	if (fill) {
+		RectCommand rect_cmd = {
+			.position = {},
+			.size = {},
+			.color = cmd.color,
+			.rounding = 0,
+			.line_thickness = th,
+			.fill = fill,
+		};
+		rect_cmd.position = Vec2i16 { x, yc };
+		rect_cmd.size = Vec2i16 { w, hc };
+		rect(rect_cmd);
+		rect_cmd.position = Vec2i16 { xc, y };
+		rect_cmd.size = Vec2i16 { wc, h };
+		rect(rect_cmd);
+	} else {
+		LineCommand line_cmd = {
+			.points = {},
+			.color = cmd.color,
+			.line_thickness = th,
+		};
+		line_cmd.points(0, all) = Vec2i16 { xc, y + hth };
+		line_cmd.points(1, all) = Vec2i16 { xc + wc, y + hth };
+		line(line_cmd);
+		line_cmd.points(0, all) = Vec2i16 { x + w - hth, yc };
+		line_cmd.points(1, all) = Vec2i16 { x + w - hth, yc + hc };
+		line(line_cmd);
+		line_cmd.points(0, all) = Vec2i16 { xc, y + h - th };
+		line_cmd.points(1, all) = Vec2i16 { xc + wc, y + h - th };
+		line(line_cmd);
+		line_cmd.points(0, all) = Vec2i16 { x + hth, yc };
+		line_cmd.points(1, all) = Vec2i16 { x + hth, yc + hc };
+		line(line_cmd);
+	}
 	ArcCommand arc_cmd = {
 		.center = {},
-		.radius = cmd.rounding,
+		.radius = r,
 		.angles = {},
 		.color = cmd.color,
-		.line_thickness = cmd.line_thickness,
+		.line_thickness = th,
+		.fill = fill,
 	};
-	arc_cmd.center = { xc, yc };
-	arc_cmd.angles = { 180, 270 };
+	if (fill) yc += 2;
+	arc_cmd.center = Vec2i16 { xc, yc };
+	arc_cmd.angles = Vec2f { 180.0f, 270.0f };
 	arc(arc_cmd);
-	arc_cmd.center = { xc + wc, yc };
-	arc_cmd.angles = { 270, 0 };
+	arc_cmd.center = Vec2i16 { xc + wc, yc };
+	arc_cmd.angles = Vec2f { 270.0f, 360.0f };
 	arc(arc_cmd);
-	arc_cmd.center = { xc + wc, yc + hc };
-	arc_cmd.angles = { 0, 90 };
+	arc_cmd.center = Vec2i16 { xc + wc, yc + hc };
+	arc_cmd.angles = Vec2f { 0.0f, 90.0f };
 	arc(arc_cmd);
-	arc_cmd.center = { xc, yc + hc };
-	arc_cmd.angles = { 90, 180 };
+	arc_cmd.center = Vec2i16 { xc, yc + hc };
+	arc_cmd.angles = Vec2f { 90.0f, 180.0f };
 	arc(arc_cmd);
-}
-
-static std::string
-name_circle(const Renderer::CircleCommand &cmd)
-{
-	const int16_t w = cmd.size(0, 0);
-	const int16_t h = cmd.size(0, 1);
-	const auto col = cmd.color.hex_string();
-	if (cmd.fill) {
-		return std::format("euler_circle_{}x{}_{}", w, h, col);
-	}
-	return std::format("euler_circle_{}x{}_{}_{}px", w, h, col,
-	    cmd.line_thickness);
 }
 
 void
 Renderer::circle(const CircleCommand &cmd)
 {
-	auto name = name_circle(cmd);
-	if (!_uploaded.contains(name)) {
-		auto canvas = draw_circle(cmd, name);
-		state()->upload_image(name.c_str(), canvas);
+	const char *path = cmd.fill ? "sprites/circle/solid.png"
+	                            : "sprites/circle/outline.png";
+	const auto hash = ruby()->hash_new_capa(11);
+	STASH_INT(hash, x, cmd.center(0, 0));
+	STASH_INT(hash, y, cmd.center(0, 1));
+	STASH_STR(hash, path, path);
+	STASH_FLOAT(hash, anchor_x, 0.5f);
+	STASH_FLOAT(hash, anchor_y, 0.5f);
+	const int16_t w = cmd.size(0, 0);
+	const int16_t h = cmd.size(1, 0);
+	if (cmd.fill) {
+		STASH_INT(hash, w, w);
+		STASH_INT(hash, h, h);
+		cmd.color.store_hash(ruby()->mrb(), hash);
+		push_output(_symbols.sprites, hash);
+	} else {
+		for (int th = 0; th <= cmd.line_thickness; ++th) {
+			STASH_INT(hash, w, w - 2 * th);
+			STASH_INT(hash, h, h - 2 * th);
+			cmd.color.store_hash(ruby()->mrb(), hash);
+			push_output(_symbols.sprites, ruby()->hash_dup(hash));
+		}
 	}
-	draw_uploaded(name, cmd.center);
 }
 
 void
-Renderer::arc(const ArcCommand &)
+Renderer::arc(const ArcCommand &cmd)
 {
-	/* TODO */
+	float a = cmd.angles(0, 0);
+	float b = cmd.angles(0, 1);
+	a = std::fmod(a, 360.0f);
+	b = std::fmod(b, 360.0f);
+	if (a < 0) a += 360.0f;
+	if (b < 0) b += 360.0f;
+	const auto fill = cmd.fill || cmd.line_thickness >= cmd.radius;
+	if (b - a >= 360.0f) {
+		const auto d = cmd.radius * 2;
+		circle(CircleCommand {
+		    .center = cmd.center,
+		    .size = { d, d },
+		    .color = cmd.color,
+		    .line_thickness = cmd.line_thickness,
+		    .fill = fill,
+		});
+		return;
+	}
+	float sweep = std::ceilf(b - a);
+	if (std::abs(sweep) < 1) return;
+	if (sweep < 0) sweep += 360.0f;
+	const float theta = a;
+	assert(sweep <= 360.0f);
+	char path[32] = {};
+	const auto hash = ruby()->hash_new_capa(12);
+	STASH_INT(hash, x, cmd.center(0, 0));
+	STASH_INT(hash, y, cmd.center(0, 1));
+	STASH_FLOAT(hash, anchor_x, 0.5f);
+	STASH_FLOAT(hash, anchor_y, 0.5f);
+	STASH_FLOAT(hash, angle, theta);
+	cmd.color.store_hash(ruby()->mrb(), hash);
+	const auto d = cmd.radius * 2;
+	if (fill) {
+		snprintf(path, sizeof(path), "sprites/wedge/wedge_%03d.png",
+		    static_cast<int>(sweep));
+		STASH_STR(hash, path, path);
+		STASH_INT(hash, w, d);
+		STASH_INT(hash, h, d);
+		push_output(_symbols.sprites, hash);
+	} else {
+		snprintf(path, sizeof(path), "sprites/arc/arc_%03d.png",
+		    static_cast<int>(sweep));
+		STASH_STR(hash, path, path);
+		for (int th = 0; th <= cmd.line_thickness; ++th) {
+			STASH_INT(hash, w, d - 2 * th);
+			STASH_INT(hash, h, d - 2 * th);
+			push_output(_symbols.sprites, ruby()->hash_dup(hash));
+		}
+	}
 }
 
 void
-Renderer::triangle(const TriangleCommand &)
+Renderer::triangle(const TriangleCommand &cmd)
 {
-	/* TODO */
+	const Vec2i16 p1 = cmd.points(0, all);
+	const Vec2i16 p2 = cmd.points(1, all);
+	const Vec2i16 p3 = cmd.points(2, all);
+	const auto hash = ruby()->hash_new_capa(17);
+	STASH_INT(hash, x, p1(0, 0));
+	STASH_INT(hash, y, p1(0, 1));
+	STASH_INT(hash, x2, p2(0, 0));
+	STASH_INT(hash, y2, p2(0, 1));
+	STASH_INT(hash, x3, p3(0, 0));
+	STASH_INT(hash, y3, p3(0, 1));
+	STASH_INT(hash, source_x, p1(0, 0));
+	STASH_INT(hash, source_y, p1(0, 1));
+	STASH_INT(hash, source_x2, p2(0, 0));
+	STASH_INT(hash, source_y2, p2(0, 1));
+	STASH_INT(hash, source_x3, p3(0, 0));
+	STASH_INT(hash, source_y3, p3(0, 1));
+	STASH_SYM(hash, path, solid);
+	cmd.color.store_hash(ruby()->mrb(), hash);
+	push_output(_symbols.sprites, hash);
 }
 
 void
 Renderer::polygon(const PolygonCommand &cmd)
 {
-	const auto n = cmd.points.rows();
-	if (n < 3) return;
-	if (cmd.fill) {
-		for (const auto &t : triangulate(cmd)) triangle(t);
-		return;
-	}
-	if (n == 3) {
-		const TriangleCommand triangle_cmd = {
-			.points = cmd.points,
-			.color = cmd.color,
-			.line_thickness = cmd.line_thickness,
-			.fill = false,
-		};
-		triangle(triangle_cmd);
-		return;
-	}
-	LineCommand line_cmd = {
-		.points = {},
-		.color = cmd.color,
-		.line_thickness = cmd.line_thickness,
-	};
-	Point prev = cmd.points(0, all);
-	for (int i = 1; i < n; ++i) {
-		const auto curr = cmd.points(i, all);
-		line_cmd.points(0, all) = prev;
-		line_cmd.points(1, all) = curr;
-		line(line_cmd);
-		prev = curr;
-	}
-	const auto curr = cmd.points(0, all);
-	line_cmd.points(0, all) = prev;
-	line_cmd.points(1, all) = curr;
-	line(line_cmd);
-}
-
-void
-Renderer::text(const TextCommand &)
-{
 	/* TODO */
 }
 
+/* TODO: currently background color is ignored */
 void
-Renderer::image(const ImageCommand &)
+Renderer::text(const TextCommand &cmd)
 {
-	/* TODO */
-}
-
-void
-Renderer::draw_line(const std::function<bool(PointCommand &)> &fn)
-{
-	PointCommand cmd;
-	while (fn(cmd)) {
-		const auto r = cmd.radius;
-		const auto x = cmd.position(0, 0);
-		const auto y = cmd.position(0, 1);
-		const auto color = cmd.color;
-		const CircleCommand circ_cmd = {
-			.center = { x, y },
-			.size = { r, r },
-			.color = color,
-			.line_thickness = 1,
-			.fill = true,
-		};
-		circle(circ_cmd);
-	}
+	const auto hash = ruby()->hash_new_capa(9);
+	STASH_INT(hash, x, cmd.position(0, 0));
+	STASH_INT(hash, y, cmd.position(0, 1));
+	STASH_INT(hash, size_enum, (cmd.height - 22) / 2);
+	STASH_STR(hash, text, cmd.text.c_str());
+	cmd.foreground.store_hash(ruby()->mrb(), hash);
+	STASH_STR(hash, font, cmd.font->path().c_str());
+	push_output(_symbols.sprites, hash);
 }
 
 void
-Renderer::draw_uploaded(const std::string &label, Point position)
+Renderer::image(const ImageCommand &cmd)
 {
-	auto hash = ruby()->hash_new_capa(7);
-	auto [w, h] = _uploaded.at(label)->dimensions();
-	STASH_INT(hash, x, position.x());
-	STASH_INT(hash, y, position.y());
-	STASH_INT(hash, w, w);
-	STASH_INT(hash, h, h);
-	STASH_STR(hash, path, label.c_str());
-	STASH_FLOAT(hash, anchor_x, 0.5f);
-	STASH_FLOAT(hash, anchor_y, 0.5f);
-	send_to_output(_symbols.sprites, hash);
-}
-
-mrb_value
-Renderer::args() const
-{
-	return state().cast_to<State>()->args();
-}
-
-mrb_sym
-Renderer::color_sym(const util::Color color)
-{
-	if (const auto c = _colors.find(color); c != _colors.end()) [[likely]]
-		return c->second;
-	return register_color(color);
-}
-
-std::vector<Renderer::TriangleCommand>
-Renderer::triangulate(const PolygonCommand &cmd)
-{
-	using Triangle = Eigen::Matrix<int16_t, 3, 2>;
-	const auto n = cmd.points.rows();
-	std::vector<Triangle> points;
-	points.reserve(n - 2);
-	(void)points;
-	return {};
-}
-
-void
-Renderer::thin_line(const LineCommand &cmd)
-{
-	const auto hash = ruby()->hash_new_capa(8);
-	STASH_INT(hash, x, cmd.points(0, 0));
-	STASH_INT(hash, y, cmd.points(0, 1));
-	STASH_INT(hash, x2, cmd.points(1, 0));
-	STASH_INT(hash, y2, cmd.points(1, 1));
-	STASH_INT(hash, r, cmd.color.red());
-	STASH_INT(hash, g, cmd.color.green());
-	STASH_INT(hash, b, cmd.color.blue());
-	STASH_INT(hash, a, cmd.color.alpha());
-	auto args = this->args();
-	ruby()->funcall_argv(args, _symbols.outputs);
-}
-
-void
-Renderer::filled_circle(const CircleCommand &cmd,
-    const util::Reference<util::Image> &canvas)
-{
-	const int16_t w = cmd.size(0, 0);
-	const int16_t h = cmd.size(0, 1);
-	const int16_t a = w / 2;
-	const int16_t b = h / 2;
-	int16_t x = 0;
-	int16_t y = b;
-	const auto cx = cmd.center(0, 0);
-	const auto cy = cmd.center(0, 1);
-	const auto base_y = cy - b;
-	auto dx = 2 * b * b * x;
-	auto dy = 2 * a * a * y;
-	auto d1 = (b * b) - (a * a * b) + (0.25 * a * a);
-
-	std::vector filled(h + 1, false);
-	auto spans = Eigen::Matrix<int16_t, Eigen::Dynamic, 2>(h + 1, 2);
-	const auto update_span = [&](int16_t y, int16_t x1, int16_t x2) {
-		assert(y >= base_y);
-		const auto idx = y - base_y;
-		assert(idx >= 0);
-		assert(idx < spans.rows());
-		assert(idx < static_cast<int>(filled.size()));
-		if (filled[idx]) {
-			spans(idx, 0) = std::min(spans(idx, 0), x1);
-			spans(idx, 1) = std::max(spans(idx, 1), x2);
-			return;
-		}
-		spans(idx, 0) = x1;
-		spans(idx, 1) = x2;
-		filled[idx] = true;
-	};
-	while (dx < dy) {
-		update_span(cy + y, cx - x, cx + x);
-		update_span(cy - y, cx - x, cx + x);
-		++x;
-		dx += 2 * b * b;
-		if (d1 < 0) {
-			d1 += dx + (b * b);
-			continue;
-		}
-		--y;
-		dy -= 2 * a * a;
-		d1 += dx - dy + (b * b);
-	}
-	auto d2 = (b * b * (x + 0.5) * (x + 0.5)) + (a * a * (y - 1) * (y - 1))
-	    - (a * a * b * b);
-	while (y >= 0) {
-		update_span(cy + y, cx - x, cx + x);
-		update_span(cy - y, cx - x, cx + x);
-		y -= 1;
-		dy -= 2 * a * a;
-		if (d2 > 0) {
-			d2 += (a * a) - dy;
-			continue;
-		}
-		++x;
-		dx += 2 * b * b;
-		d2 += dx - dy + (a * a);
-	}
-	for (auto i = 0; i < spans.rows(); ++i) {
-		if (!filled[i]) continue;
-		const auto y = base_y + i;
-		const auto x1 = spans(i, 0);
-		const auto x2 = spans(i, 1);
-		for (auto x = x1; x <= x2; ++x)
-			canvas->set_pixel(x, y, cmd.color);
-	}
-}
-
-mrb_value
-Renderer::grid()
-{
-	const auto cls = ruby()->module_get("Grid");
-	return ruby()->obj_value(cls);
-}
-
-mrb_value
-Renderer::render_target()
-{
-	return _render_target;
+	const auto hash = ruby()->hash_new_capa(9);
+	STASH_INT(hash, x, cmd.position(0, 0));
+	STASH_INT(hash, y, cmd.position(0, 1));
+	STASH_INT(hash, w, cmd.size(0, 0));
+	STASH_INT(hash, h, cmd.size(0, 1));
+	STASH_STR(hash, path, cmd.image->label().c_str());
+	if (cmd.color.has_value()) cmd.color->store_hash(ruby()->mrb(), hash);
+	push_output(_symbols.sprites, hash);
 }
 
 void
@@ -400,96 +355,6 @@ Renderer::update_size()
 	_width = mrb_fixnum(w);
 	const auto h = ruby()->funcall_argv(grid, _symbols.h_px);
 	_height = mrb_fixnum(h);
-}
-
-euler::util::Reference<euler::util::Image>
-Renderer::draw_circle(const CircleCommand &cmd, const std::string &label)
-{
-	const int16_t w = cmd.size(0, 0);
-	const int16_t h = cmd.size(0, 1);
-	auto canvas
-	    = state()->create_image(label.c_str(), w, h, util::COLOR_CLEAR);
-	if (cmd.fill) {
-		filled_circle(cmd, canvas);
-		return canvas;
-	}
-	const int16_t a = w / 2;
-	const int16_t b = h / 2;
-	int16_t x = 0;
-	int16_t y = b;
-	const auto cx = cmd.center(0, 0);
-	const auto cy = cmd.center(0, 1);
-	auto dx = 2 * b * b * x;
-	auto dy = 2 * a * a * y;
-	auto d1 = (b * b) - (a * a * b) + (0.25 * a * a);
-
-	CircleCommand pc = {
-			// .position = { 0, 0 },
-			// .radius = static_cast<int16_t>(cmd.line_thickness / 2),
-			.center = { },
-			.size = {
-				static_cast<int16_t>(cmd.line_thickness),
-				static_cast<int16_t>(cmd.line_thickness),
-			},
-			.color = cmd.color,
-			.line_thickness = 1,
-			.fill = true,
-		};
-	while (dx < dy) {
-		pc.center = Point { cx + x, cy + y };
-		filled_circle(pc, canvas);
-		pc.center = Point { cx - x, cy + y };
-		filled_circle(pc, canvas);
-		pc.center = Point { cx + x, cy - y };
-		filled_circle(pc, canvas);
-		pc.center = Point { cx - x, cy - y };
-		filled_circle(pc, canvas);
-		if (d1 < 0) {
-			d1 += dx + (b * b);
-			continue;
-		}
-		--y;
-		dy -= 2 * a * a;
-		d1 += dx - dy + (b * b);
-	}
-	auto d2 = (b * b * (x + 0.5) * (x + 0.5)) + (a * a * (y - 1) * (y - 1))
-	    - (a * a * b * b);
-	while (y >= 0) {
-		pc.center = Point { cx + x, cy + y };
-		filled_circle(pc, canvas);
-		pc.center = Point { cx - x, cy + y };
-		filled_circle(pc, canvas);
-		pc.center = Point { cx + x, cy - y };
-		filled_circle(pc, canvas);
-		pc.center = Point { cx - x, cy - y };
-		filled_circle(pc, canvas);
-		y -= 1;
-		dy -= 2 * a * a;
-		if (d2 > 0) {
-			d2 += (a * a) - dy;
-			continue;
-		}
-		++x;
-		dx += 2 * b * b;
-		d2 += dx - dy + (a * a);
-	}
-	return canvas;
-}
-
-void
-Renderer::send_to_output(mrb_sym sym, mrb_value value)
-{
-	const auto val = ruby()->funcall_argv(render_target(), sym);
-	ruby()->funcall_argv(val, _symbols.lshift, 1, &value);
-}
-
-mrb_sym
-Renderer::register_color(const util::Color color)
-{
-	const auto str = std::format("euler_color_{}", color.hex_string());
-	auto sym = ruby()->intern(str.data(), str.size());
-	_colors.insert({ color, sym });
-	return sym;
 }
 
 euler::util::Reference<euler::app::dragonruby::RubyState>
