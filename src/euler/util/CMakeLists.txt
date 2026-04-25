@@ -40,6 +40,7 @@ target_link_libraries(euler_util PUBLIC
 # TODO: not this
 target_include_directories(euler_util PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}/../../_deps/eigen-src
+        ${CMAKE_CURRENT_BINARY_DIR}/../../_deps/nuklear-src
 )
 
 if (EULER_DRAGONRUBY_BUILD)

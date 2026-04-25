@@ -95,7 +95,7 @@ Context::next_widget_id()
 void
 Context::render()
 {
-	using Renderer = graphics::Renderer;
+	using Renderer = graphics::Target;
 	const nk_command *cmd = nullptr;
 	nk_foreach (cmd, &_context) {
 		switch (cmd->type) {

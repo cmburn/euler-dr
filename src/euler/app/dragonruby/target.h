@@ -5,7 +5,7 @@
 
 #include <unordered_set>
 
-#include "euler/graphics/renderer.h"
+#include "euler/graphics/Target.h"
 #include "euler/util/image.h"
 #include "euler/util/object.h"
 
@@ -13,7 +13,7 @@ namespace euler::app::dragonruby {
 class RubyState;
 class State;
 
-class Renderer final : public graphics::Renderer {
+class Renderer final : public graphics::Target {
 public:
 	~Renderer() override;
 	[[nodiscard]] util::Reference<util::State> state() const override;

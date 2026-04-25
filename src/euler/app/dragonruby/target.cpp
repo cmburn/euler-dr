@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: ISC */
 
-#include "euler/app/dragonruby/renderer.h"
+#include "euler/app/dragonruby/target.h"
 
 #include <iomanip>
 
@@ -9,7 +9,7 @@
 #include "euler/app/dragonruby/ruby_state.h"
 #include "euler/app/dragonruby/state.h"
 
-#include "euler/graphics/renderer.h"
+#include "euler/graphics/Target.h"
 
 using euler::app::dragonruby::Renderer;
 

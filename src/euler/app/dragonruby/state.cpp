@@ -118,7 +118,7 @@ State::args() const
 	return _args;
 }
 
-euler::util::Reference<euler::graphics::Renderer>
+euler::util::Reference<euler::graphics::Target>
 State::renderer() const
 {
 	return _renderer;

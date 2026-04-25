@@ -16,7 +16,7 @@ class Context;
 
 #ifdef EULER_GRAPHICS
 namespace euler::graphics {
-class Renderer;
+class Target;
 }
 #endif
 
@@ -62,7 +62,7 @@ public:
 #ifdef EULER_GRAPHICS
 		struct {
 			RClass *mod = nullptr;
-			RClass *renderer = nullptr;
+			RClass *target = nullptr;
 			RClass *animated_sprite = nullptr;
 			RClass *basic_sprite = nullptr;
 			RClass *camera = nullptr;
@@ -197,7 +197,7 @@ public:
 	[[nodiscard]] virtual Reference<gui::Context> gui() const = 0;
 #endif
 #ifdef EULER_GRAPHICS
-	[[nodiscard]] virtual Reference<graphics::Renderer> renderer() const
+	[[nodiscard]] virtual Reference<graphics::Target> renderer() const
 	    = 0;
 #endif
 

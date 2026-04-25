@@ -6,7 +6,7 @@
 #include <deque>
 #include <functional>
 
-#include "euler/graphics/renderer.h"
+#include "euler/graphics/Target.h"
 #include "euler/gui/button.h"
 #include "euler/gui/font.h"
 #include "euler/gui/widget.h"
@@ -70,7 +70,7 @@ private:
 	util::WeakReference<util::State> _state;
 	Widget::ID _widget_counter = 0;
 	nk_context _context = {};
-	util::Reference<graphics::Renderer> _renderer;
+	util::Reference<graphics::Target> _renderer;
 
 	// nk_font_atlas _atlas = {};
 	// util::Color _clear_color = util::COLOR_BLACK;

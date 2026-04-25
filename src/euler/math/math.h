@@ -10,6 +10,7 @@
 namespace euler::math {
 
 template <typename T> using Vec2 = Eigen::Matrix<T, 1, 2>;
+template <typename T> using Mat2 = Eigen::Matrix<T, 2, 2>;
 
 template <typename T>
 static inline float angle(Vec2<T> v)
