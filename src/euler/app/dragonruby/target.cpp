@@ -9,9 +9,9 @@
 #include "euler/app/dragonruby/ruby_state.h"
 #include "euler/app/dragonruby/state.h"
 
-#include "euler/graphics/Target.h"
+#include "euler/graphics/target.h"
 
-using euler::app::dragonruby::Renderer;
+using euler::app::dragonruby::Target;
 
 static constexpr auto all = Eigen::placeholders::all;
 
@@ -33,16 +33,16 @@ static constexpr auto all = Eigen::placeholders::all;
 #define STASH_SYM(HASH, KEY, VALUE)                                            \
 	STASH_VALUE(HASH, KEY, ruby()->symbol_value(_symbols.VALUE))
 
-Renderer::~Renderer() = default;
+Target::~Target() = default;
 
 euler::util::Reference<euler::util::State>
-Renderer::state() const
+Target::state() const
 {
 	return _state.strengthen().cast_to<util::State>();
 }
 
 void
-Renderer::scissor(const ScissorCommand &cmd)
+Target::scissor(const ScissorCommand &cmd)
 {
 	(void)cmd;
 	/* This is a no-op for DragonRuby */
@@ -50,7 +50,7 @@ Renderer::scissor(const ScissorCommand &cmd)
 }
 
 void
-Renderer::line(const LineCommand &cmd)
+Target::line(const LineCommand &cmd)
 {
 	Vec2i16 p1 = cmd.points(0, all);
 	Vec2i16 p2 = cmd.points(1, all);
@@ -86,7 +86,7 @@ Renderer::line(const LineCommand &cmd)
 }
 
 void
-Renderer::curve(const CurveCommand &cmd)
+Target::curve(const CurveCommand &cmd)
 {
 	static constexpr int CURVE_SEGMENTS = 22;
 	static constexpr float STEP = 1.0f / CURVE_SEGMENTS;
@@ -123,7 +123,7 @@ Renderer::curve(const CurveCommand &cmd)
 }
 
 void
-Renderer::rect(const RectCommand &cmd)
+Target::rect(const RectCommand &cmd)
 {
 	const int16_t x = cmd.position(0, 0);
 	const int16_t y = cmd.position(0, 1);
@@ -209,7 +209,7 @@ Renderer::rect(const RectCommand &cmd)
 }
 
 void
-Renderer::circle(const CircleCommand &cmd)
+Target::circle(const CircleCommand &cmd)
 {
 	const char *path = cmd.fill ? "sprites/circle/solid.png"
 	                            : "sprites/circle/outline.png";
@@ -237,7 +237,7 @@ Renderer::circle(const CircleCommand &cmd)
 }
 
 void
-Renderer::arc(const ArcCommand &cmd)
+Target::arc(const ArcCommand &cmd)
 {
 	float a = cmd.angles(0, 0);
 	float b = cmd.angles(0, 1);
@@ -291,7 +291,7 @@ Renderer::arc(const ArcCommand &cmd)
 }
 
 void
-Renderer::triangle(const TriangleCommand &cmd)
+Target::triangle(const TriangleCommand &cmd)
 {
 	const Vec2i16 p1 = cmd.points(0, all);
 	const Vec2i16 p2 = cmd.points(1, all);
@@ -315,14 +315,14 @@ Renderer::triangle(const TriangleCommand &cmd)
 }
 
 void
-Renderer::polygon(const PolygonCommand &cmd)
+Target::polygon(const PolygonCommand &)
 {
 	/* TODO */
 }
 
 /* TODO: currently background color is ignored */
 void
-Renderer::text(const TextCommand &cmd)
+Target::text(const TextCommand &cmd)
 {
 	const auto hash = ruby()->hash_new_capa(9);
 	STASH_INT(hash, x, cmd.position(0, 0));
@@ -335,7 +335,7 @@ Renderer::text(const TextCommand &cmd)
 }
 
 void
-Renderer::image(const ImageCommand &cmd)
+Target::image(const ImageCommand &cmd)
 {
 	const auto hash = ruby()->hash_new_capa(9);
 	STASH_INT(hash, x, cmd.position(0, 0));
@@ -348,7 +348,7 @@ Renderer::image(const ImageCommand &cmd)
 }
 
 void
-Renderer::update_size()
+Target::update_size()
 {
 	const auto grid = this->grid();
 	const auto w = ruby()->funcall_argv(grid, _symbols.w_px);
@@ -358,7 +358,7 @@ Renderer::update_size()
 }
 
 euler::util::Reference<euler::app::dragonruby::RubyState>
-Renderer::ruby() const
+Target::ruby() const
 {
 	return _ruby.strengthen();
 }

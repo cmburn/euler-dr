@@ -7,6 +7,8 @@ add_library(euler_util STATIC
         ext.h
         image.cpp
         image.h
+        image_loader.cpp
+        image_loader.h
         logger.cpp
         logger.h
         math.cpp
@@ -56,7 +58,7 @@ if (EULER_NATIVE_BUILD)
     )
 endif ()
 
-if (EULER_GUI_BUILD)
+if (EULER_GRAPHICS_BUILD)
     target_link_libraries(euler_util PUBLIC
             nuklear
     )

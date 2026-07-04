@@ -10,7 +10,7 @@
 #include <SDL3/SDL_pixels.h>
 #endif
 
-#ifdef EULER_GUI
+#ifdef EULER_GRAPHICS
 #include "euler/util/nuklear.h"
 #endif
 
@@ -38,7 +38,9 @@ public:
 	}
 #endif
 
-	explicit constexpr Color(const uint32_t color = 0)
+	constexpr Color() : Color(0) {}
+
+	explicit constexpr Color(const uint32_t color)
 	    : _red(color >> 24 & 0xFF)
 	    , _green(color >> 16 & 0xFF)
 	    , _blue(color >> 8 & 0xFF)
@@ -111,7 +113,7 @@ public:
 
 #endif
 
-#ifdef EULER_GUI
+#ifdef EULER_GRAPHICS
 	static Color
 	from_nk(const nk_color color)
 	{

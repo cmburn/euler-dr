@@ -4,15 +4,14 @@
 #define EULER_GRAPHICS_USER_INTERFACE_H
 
 #include <functional>
+#include <optional>
 #include <unordered_map>
 #include <variant>
-#include <optional>
 
 #include "euler/graphics/nuklear.h"
 #include "euler/math/math.h"
 #include "euler/util/color.h"
 #include "euler/util/object.h"
-
 
 namespace euler::graphics {
 class Target;
@@ -24,10 +23,12 @@ public:
 	struct Rectangle {
 		Vec2 position;
 		Vec2 size;
+		struct nk_rect to_nk() const;
+		static Rectangle from_nk(struct nk_rect rect);
 	};
 	using Glyph = std::array<char, NK_UTF_SIZE>;
 	using Rune = uint32_t;
-	using Callback = std::function<void()>;
+	// using Callback = std::function<void()>;
 
 	enum class Symbol {
 		None,
@@ -54,6 +55,7 @@ public:
 		enum class Vertical : uint16_t { Top, Middle, Bottom };
 		Horizontal horizontal = Horizontal::Center;
 		Vertical vertical = Vertical::Middle;
+		nk_flags to_nk() const;
 	};
 
 	enum class MouseButton {
@@ -62,7 +64,52 @@ public:
 		Right,
 		Double,
 	};
-	
+
+	enum class Heading {
+		Up,
+		Right,
+		Down,
+		Left,
+	};
+
+	enum class Key {
+		None,
+		Shift,
+		Ctrl,
+		Delete,
+		Enter,
+		Tab,
+		Backspace,
+		Copy,
+		Cut,
+		Paste,
+		Up,
+		Down,
+		Left,
+		Right,
+		TextInsertMode,
+		TextReplaceMode,
+		TextResetMode,
+		TextLineStart,
+		TextLineEnd,
+		TextStart,
+		TextEnd,
+		TextUndo,
+		TextRedo,
+		TextSelectAll,
+		TextWordLeft,
+		TextWordRight,
+		ScrollStart,
+		ScrollEnd,
+		ScrollDown,
+		ScrollUp,
+	};
+
+	using Icon = std::variant<util::Reference<util::Image>, Symbol>;
+
+	using Visual
+	    = std::variant<util::Reference<util::Image>, Symbol, util::Color>;
+
 	struct ColorTable {
 		util::Color text;
 		util::Color window;
@@ -496,6 +543,7 @@ public:
 		bool background : 1 = false;
 		bool scale_left : 1 = false;
 		bool no_input : 1 = false;
+		nk_flags to_nk() const;
 	};
 
 	struct Settings {
@@ -503,7 +551,7 @@ public:
 		Flags flags;
 	};
 
-	struct WindowSettings {
+	struct Window {
 		const char *name;
 		const char *title;
 		Rectangle bounds;
@@ -564,7 +612,6 @@ public:
 		}
 	};
 
-
 	struct Button {
 		/* If 'None', go with whatever is the current global option */
 		enum class Behavior : uint8_t {
@@ -581,37 +628,117 @@ public:
 		};
 
 		std::optional<std::string> label;
-		util::Reference<util::Image> image;
+		std::optional<Icon> icon;
 		util::Color color;
-		Symbol symbol = Symbol::None;
-		std::optional<Style::Button> style;
 		Behavior behavior = Behavior::None;
 		Alignment alignment = {};
 	};
 
 	struct Option {
 		std::string text;
-		Flags widget_flags;
-		Flags text_flags;
+		Alignment widget_alignment;
+		Alignment text_alignment;
 		bool active;
 	};
 
-	struct Slide {
-
+	struct Selectable {
+		std::string text;
+		Alignment alignment;
+		std::optional<Icon> icon;
+		bool active;
 	};
 
-	// };
-	//
-	// struct Radio {
-	// 	std::string label;
-	// 	Flags widget_flags;
-	// 	Flags text_alignment;
-	// 	bool active;
-	// };
-	//
-	// struct Selectable {
-	//
-	// };
+	struct Slider {
+		float min;
+		float value;
+		float max;
+		float step;
+	};
+
+	struct Knob {
+		float min;
+		float value;
+		float max;
+		float step;
+		Heading zero_direction;
+		float dead_zone_degrees;
+	};
+
+	struct Progress {
+		size_t current;
+		size_t max;
+		bool modifiable;
+	};
+
+	struct Property {
+		std::string name;
+		double min;
+		double value;
+		double max;
+		double step;
+		float inc_per_pixel;
+	};
+
+	struct Chart {
+		enum class Type : bool {
+			Lines,
+			Column,
+		};
+		std::optional<util::Color> color;
+		std::optional<util::Color> highlight;
+		int count;
+		float min;
+		float max;
+		Type type;
+	};
+
+	struct Popup {
+		enum class Type : bool {
+			Static,
+			Dynamic,
+		};
+		std::string title;
+		Flags flags;
+		Rectangle bounds;
+		Type type;
+	};
+
+	struct Combobox {
+		std::vector<std::string> values;
+		int selected;
+		int item_height;
+		Vec2 size;
+	};
+
+	struct AbstractCombobox {
+		std::optional<std::string> selected;
+		std::optional<Visual> visual;
+		util::Vec2 size;
+	};
+
+	struct AbstractComboboxItem {
+		std::string item;
+		Icon icon;
+		Flags alignment;
+	};
+
+	struct Contextual {
+		Vec2 position;
+		Flags flags;
+		Rectangle trigger_bounds;
+	};
+
+	struct ContextualItem {
+		std::string text;
+		std::optional<Icon> icon;
+		Flags flags;
+	};
+
+	struct Menu {
+		std::string title;
+		std::optional<Icon> icon;
+		Flags flags;
+	};
 
 	/*
 	 * Not yet implemented:
@@ -631,16 +758,17 @@ public:
 	 */
 
 	/* input */
-	void input(const Callback &fn);
+	void input_begin();
 	void input_motion(int x, int y);
-	void input_key(int key);
+	void input_key(Key key, bool down);
 	void input_button(MouseButton button, int x, int y, bool down);
 	void input_scroll(Vec2 val);
 	void input_char(char c);
 	void input_glyph(Glyph glyph);
 
 	/* window */
-	bool window(const WindowSettings &window, const Callback &fn);
+	bool begin(const Window &window);
+	void end();
 	Rectangle window_bounds();
 	Vec2 window_position();
 	Vec2 window_size();
@@ -653,12 +781,11 @@ public:
 	Vec2i window_scroll();
 	bool window_has_focus();
 	bool window_is_hovered();
-	bool window_is_collapsed();
-	bool window_is_closed();
-	bool window_is_hidden();
-	bool window_is_active();
+	bool window_is_collapsed(const char *name);
+	bool window_is_closed(const char *name);
+	bool window_is_hidden(const char *name);
+	bool window_is_active(const char *name);
 	bool window_is_any_hovered();
-	bool window_is_any_active();
 	bool item_is_any_active();
 	void window_set_bounds(const char *name, Rectangle bounds);
 	void window_set_position(const char *name, Vec2 position);
@@ -667,37 +794,41 @@ public:
 	void window_set_scroll(Vec2i offset);
 	void window_close(const char *name);
 	void window_collapse(const char *name, CollapseState state);
-	void window_show(const char *name);
+	void window_show(const char *name, ShowState state);
 	void rule_horizontal(util::Color color, bool rounding);
 
 	/* layout */
 	void layout_set_min_row_height(float height);
-	void layout_reset_min_row_height(float height);
+	void layout_reset_min_row_height();
 	Rectangle layout_widget_bounds();
 	float layout_ratio_from_pixel(float pixel_width);
 	void layout_row_dynamic(float height, int cols);
 	void layout_row_static(float height, int item_width, int cols);
-	void layout_row(LayoutFormat fmt, float row_height, int cols,
-	    const Callback &fn);
+	// void layout_row(LayoutFormat fmt, float row_height, int cols,
+	//     const Callback &fn);
+	void layout_row_begin(LayoutFormat fmt, float row_height, int cols);
+	void layout_row_end();
 	void layout_row_push(float value);
-	void layout_row_template(float row_height, const Callback &fn);
+	void layout_row_template_begin(float row_height);
 	void layout_row_template_push_dynamic();
 	void layout_row_template_push_variable(float min_width);
 	void layout_row_template_push_static(float width);
-	void layout_space(LayoutFormat fmt, float height, int widget_count,
-	    const Callback &fn);
+	void layout_space_begin(LayoutFormat fmt, float height,
+	    int widget_count);
 	void layout_space_push(Rectangle bounds);
+	void layout_space_end();
 	Rectangle layout_space_bounds();
 	Vec2 layout_space_to_screen(Vec2 vec);
 	Vec2 layout_space_to_local(Vec2 vec);
-	Vec2 layout_space_rect_to_screen(Rectangle bounds);
-	Vec2 layout_space_rect_to_local(Rectangle bounds);
+	Rectangle layout_space_rect_to_screen(Rectangle bounds);
+	Rectangle layout_space_rect_to_local(Rectangle bounds);
 	void spacer();
 
 	/* group */
-	bool group(const GroupSettings &group, const Callback &fn);
-	bool group_scrolled(const GroupSettings &group, Vec2i &offset,
-	    const Callback &fn);
+	bool group_begin(const GroupSettings &group);
+	void group_end();
+	bool group_scrolled_begin(const GroupSettings &group, Vec2i &offset);
+	void group_scrolled_end();
 	Vec2i group_scroll(const char *id);
 	void group_set_scroll(const char *id, Vec2i offset);
 
@@ -713,31 +844,78 @@ public:
 	float widget_width();
 	float widget_height();
 	bool widget_is_hovered();
-	bool widget_is_mouse_clicked();
-	bool widget_has_mouse_click_down();
+	bool widget_is_mouse_clicked(MouseButton button);
+	bool widget_has_mouse_click_down(MouseButton button, bool down);
 	void spacing(int cols);
 	void widget_disable_begin();
 	void widget_disable_end();
 
 	/* text */
 
-	void text(const char *text, Flags flags);
-	void text_colored(const char *text, Flags flags, util::Color color);
+	void text(const char *text, Alignment flags);
+	void text_colored(const char *text, Alignment flags, util::Color color);
 	void text_wrap(const char *text);
 	void text_wrap_colored(const char *text, util::Color color);
+
+	/* image */
 	void image(const util::Reference<util::Image> &image);
 	void image_color(const util::Reference<util::Image> &image,
 	    util::Color color);
 
-	/* elements */
+	/* basic elements */
 	bool button(const Button &button);
 	bool checkbox(const Option &checkbox);
 	bool radio(const Option &radio);
-	bool selectable(const Option &selectable);
+	bool selectable(const Selectable &selectable);
+	float slider(const Slider &slider);
+	float knob(const Knob &knob);
+	size_t progress(const Progress &progress);
+	util::Color color_picker(util::Color color);
+	double property(const Property &property);
+	void tooltip(const char *text);
 
+	/* chart */
+	bool chart_begin(const Chart &chart);
+	void chart_add_slot(const Chart &chart);
+	void chart_push(float value, int pos = -1);
+	void chart_end();
+	void plot(Chart::Type type, const std::function<float(int index)> &fn,
+	    int count, int offset);
+
+	/* popup */
+	bool popup_begin(const Popup &popup);
+	void popup_close();
+	void popup_end();
+	Vec2i popup_get_scroll();
+	void popup_set_scroll(Vec2i scroll);
+
+	/* TODO: text edit */
+
+	/* combobox */
+	int combobox(const Combobox &combo);
+	bool combobox_begin(const AbstractCombobox &combo);
+	bool combobox_item(const AbstractComboboxItem &item);
+	void combobox_end();
+
+	/* contextual */
+	bool contextual(const Contextual &contextual);
+	bool contextual_item(const ContextualItem &item);
+	void contextual_end();
+
+	/* menu */
+	bool menu_begin(const Menu &menu);
+	bool menu_item(const Menu &item);
+	void menu_end();
+
+	util::Reference<util::State> state() const;
+	util::Reference<util::RubyState> ruby() const;
+	util::Reference<Target> target() const;
+
+	const Style &style() const { return _style; }
 
 private:
 	nk_context _context = {};
+	Style _style = {};
 	std::unordered_map<mrb_sym, nk_key> _key_map;
 	util::WeakReference<Target> _target;
 };

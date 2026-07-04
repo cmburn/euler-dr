@@ -12,6 +12,7 @@
 #include "euler/util/font.h"
 #include "euler/util/object.h"
 #include "euler/util/state.h"
+#include "euler/util/image.h"
 #include "euler/graphics/user_interface.h"
 
 #ifndef DEFAULT_CURVE_SEGMENTS
@@ -22,6 +23,7 @@ namespace euler::graphics {
 class Target : public util::Object {
 	BIND_MRUBY("Euler::Graphics::Target", Target, graphics.target);
 public:
+	~Target() override = default;
 	static constexpr int16_t DEFAULT_SEGMENTS = DEFAULT_CURVE_SEGMENTS;
 	/* TODO: we do not currently use a render context, but we absolutely
 	 *       need to. */
@@ -112,14 +114,19 @@ public:
 	virtual void render(mrb_value target,
 		std::function<void(const util::Reference<UserInterface> &)> ui) = 0;
 
+	virtual struct nk_image to_nk(const util::Reference<util::Image> &image) = 0;
+
+
+
+
 protected:
-	void frame();
 
 
 
 
 private:
 	util::Reference<UserInterface> _ui;
+	util::Reference<util::State> _state;
 
 };
 } /* namespace euler::graphics */

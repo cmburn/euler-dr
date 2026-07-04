@@ -3,6 +3,8 @@ add_library(euler_graphics STATIC
         target.h
         user_interface.cpp
         user_interface.h
+        nuklear.cpp
+        nuklear.h
 )
 
 target_link_libraries(euler_graphics PUBLIC

@@ -12,6 +12,9 @@
 #define NK_INCLUDE_DEFAULT_FONT
 #define NK_KEYSTATE_BASED_INPUT
 
+#include <cassert>
+#include <cstring>
+
 #if __STDC_VERSION__ >= 202311L || defined(__cplusplus)
 #define NK_STATIC_ASSERT(...) static_assert(__VA_ARGS__, #__VA_ARGS__)
 #elif __STDC_VERSION__ >= 201112L

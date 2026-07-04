@@ -26,11 +26,11 @@ public:
 
 	struct Transform {
 		struct {
-			float x;
-			float y;
+			float x = 0.0;
+			float y = 0.0;
 		} scale;
-		float theta;
-		bool
+		float theta = 0.0;
+		[[nodiscard]] bool
 		is_stable() const
 		{
 			return scale.x == 1.0f && scale.y == 1.0f

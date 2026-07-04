@@ -6,7 +6,7 @@
 #include <deque>
 #include <functional>
 
-#include "euler/graphics/Target.h"
+#include "euler/graphics/target.h"
 #include "euler/gui/button.h"
 #include "euler/gui/font.h"
 #include "euler/gui/widget.h"

@@ -5,7 +5,7 @@
 
 #include <unordered_set>
 
-#include "euler/graphics/Target.h"
+#include "euler/graphics/target.h"
 #include "euler/util/image.h"
 #include "euler/util/object.h"
 
@@ -13,12 +13,10 @@ namespace euler::app::dragonruby {
 class RubyState;
 class State;
 
-class Renderer final : public graphics::Target {
+class Target final : public graphics::Target {
 public:
-	~Renderer() override;
+	~Target() override;
 	[[nodiscard]] util::Reference<util::State> state() const override;
-	// [[nodiscard]] int16_t width() const override;
-	// [[nodiscard]] int16_t height() const override;
 	void scissor(const ScissorCommand &cmd) override;
 	void line(const LineCommand &cmd) override;
 	void curve(const CurveCommand &cmd) override;
@@ -73,6 +71,15 @@ private:
 	mrb_sym register_color(util::Color color);
 
 	util::Reference<RubyState> ruby() const;
+
+public:
+	void render(mrb_value target,
+	    std::function<void(
+	        const util::Reference<graphics::UserInterface> &)>
+	        ui) override;
+	struct nk_image to_nk(const util::Reference<util::Image> &image) override;
+
+private:
 	util::WeakReference<RubyState> _ruby;
 	util::WeakReference<State> _state;
 	struct {

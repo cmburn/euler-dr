@@ -21,6 +21,7 @@ class Target;
 #endif
 
 namespace euler::util {
+class ImageLoader;
 class Error;
 class Logger;
 class Storage;
@@ -213,10 +214,8 @@ public:
 	[[nodiscard]] virtual tick_t total_ticks() const = 0;
 	[[nodiscard]] virtual mrb_value gv_state() const = 0;
 	[[nodiscard]] static Reference<State> get(const mrb_state *mrb);
-	[[nodiscard]] virtual Reference<Image> load_image(const char *path) = 0;
-	[[nodiscard]] virtual Reference<Image> create_image(const char *label,
-	    int16_t w, int16_t h, Color)
-	    = 0;
+	[[nodiscard]] virtual Reference<ImageLoader> image_loader() = 0;
+
 	[[nodiscard]] virtual Reference<Window> window() = 0;
 
 	[[nodiscard]] virtual Phase phase() const = 0;

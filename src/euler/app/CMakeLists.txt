@@ -28,6 +28,16 @@ if (EULER_DRAGONRUBY_BUILD)
     target_compile_definitions(euler_app PUBLIC
             -DEULER_DRAGONRUBY
     )
+elseif (EULER_NATIVE_BUILD)
+    target_sources(euler_app PUBLIC
+            native/state.cpp
+            native/state.h
+            native/ruby_state.cpp
+            native/ruby_state.h
+    )
+    add_executable(euler
+            native/main.cpp
+    )
 endif ()
 
 target_link_libraries(euler_app PUBLIC
@@ -46,9 +56,9 @@ if (EULER_PHYSICS_BUILD)
     )
 endif ()
 
-if (EULER_GUI_BUILD)
+if (EULER_GRAPHICS_BUILD)
     target_link_libraries(euler_app PUBLIC
-            euler_gui
+            euler_graphics
     )
 endif ()
 

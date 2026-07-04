@@ -65,7 +65,7 @@ private:
 	util::Reference<gui::Context> _gui;
 #endif
 	util::Reference<Window> _window;
-	util::Reference<Renderer> _renderer;
+	util::Reference<target> _renderer;
 	mrb_value _args = mrb_nil_value();
 	drb_api_t *_api;
 };
