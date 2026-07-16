@@ -49,16 +49,16 @@ endif ()
 set(EIGEN_GIT_TAG 5.0.1)
 FetchContent_Declare(eigen
         GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-        GIT_TAG ${EIGEN_GIT_TAG}
+        GIT_COMMIT ${EIGEN_GIT_TAG}
         GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(eigen)
 
 if (EULER_PHYSICS_BUILD)
-    set(BOX2D_GIT_TAG 5778d748bb06fdabcd46cb0d56646d8b2d6a4be7)
+    set(BOX2D_GIT_TAG c05c48738fbe5c27625e36c5f0cfbdaddfc8359a)
     FetchContent_Declare(box2d
             GIT_REPOSITORY https://github.com/erincatto/box2d
-            GIT_TAG ${BOX2D_GIT_TAG}
+            GIT_COMMIT ${BOX2D_GIT_TAG}
             GIT_SHALLOW TRUE
     )
     FetchContent_MakeAvailable(box2d)

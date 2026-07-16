@@ -30,13 +30,22 @@ if (EULER_DRAGONRUBY_BUILD)
     )
 elseif (EULER_NATIVE_BUILD)
     target_sources(euler_app PUBLIC
+            native/logger.cpp
+            native/logger.h
+            native/renderer.cpp
+            native/renderer.h
             native/state.cpp
             native/state.h
             native/ruby_state.cpp
             native/ruby_state.h
+            native/window.cpp
+            native/window.h
     )
     add_executable(euler
             native/main.cpp
+    )
+    target_link_libraries(euler_app PUBLIC
+            euler_vulkan
     )
 endif ()
 

@@ -65,4 +65,6 @@ if (EULER_DRAGONRUBY_BUILD)
     target_compile_definitions(euler_dragonruby PUBLIC
             ${EULER_DEFINITIONS}
     )
+elseif (EULER_NATIVE_BUILD)
+    add_subdirectory(euler/vulkan)
 endif ()
