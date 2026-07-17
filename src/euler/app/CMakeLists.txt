@@ -44,6 +44,9 @@ elseif (EULER_NATIVE_BUILD)
     add_executable(euler
             native/main.cpp
     )
+    target_link_libraries(euler PUBLIC
+            euler_app
+    )
     target_link_libraries(euler_app PUBLIC
             euler_vulkan
     )

@@ -51,12 +51,17 @@ if (EULER_DRAGONRUBY_BUILD)
     )
 endif ()
 
-if (EULER_NATIVE_BUILD)
-    target_link_libraries(euler_util PUBLIC
-            mruby
-            SDL3-static
-    )
-endif ()
+target_link_libraries(euler_util PUBLIC
+        mruby
+        SDL3-static
+)
+#
+#if (EULER_NATIVE_BUILD)
+#    target_link_libraries(euler_util PUBLIC
+#            mruby
+#            SDL3-static
+#    )
+#endif ()
 
 if (EULER_GRAPHICS_BUILD)
     target_link_libraries(euler_util PUBLIC
