@@ -5,6 +5,7 @@
 #include <cassert>
 
 #include "euler/physics/ext.h"
+#include "euler/util/logger.h"
 #include "euler/util/ext.h"
 
 #ifndef EULER_GV_STATE

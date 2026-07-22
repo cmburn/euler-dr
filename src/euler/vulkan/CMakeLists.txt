@@ -17,6 +17,6 @@ add_library(euler_vulkan STATIC
 
 target_link_libraries(euler_vulkan PUBLIC
         euler_util
-        armadillo
-        VK2D
+        eigen
+        Vulkan2D
 )

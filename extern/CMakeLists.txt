@@ -82,4 +82,7 @@ if (EULER_NATIVE_BUILD)
     )
 
     add_subdirectory(Vulkan2D)
+    target_include_directories(Vulkan2D PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan2D
+    )
 endif ()

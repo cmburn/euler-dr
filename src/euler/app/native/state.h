@@ -6,8 +6,13 @@
 #include "euler/util/state.h"
 
 namespace euler::app::native {
-class State final : public util::State {
+class State : public util::State {
 public:
+	struct Arguments {
+
+	};
+
+	State(const Arguments &);
 	[[nodiscard]] util::Reference<graphics::Target>
 	renderer() const override;
 	[[nodiscard]] Runtime runtime() const override;
@@ -43,6 +48,10 @@ public:
 
 protected:
 	const mrb_data_type *data_type() const override;
+
+public:
+	[[nodiscard]] util::Reference<util::ImageLoader>
+	image_loader() override;
 
 private:
 

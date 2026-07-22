@@ -28,18 +28,19 @@ bool
 euler::vulkan::Surface::draw(int &exit_code,
     const std::function<bool(int &)> &fn)
 {
-	vk2dRendererStartFrame(util::COLOR_BLACK.to_float_array().data());
+	// vk2dRendererStartFrame(util::COLOR_BLACK.to_float_array().data());
 	try {
 		render_debug_overlay();
 		const auto result = fn(exit_code);
-		vk2dRendererEndFrame();
+		vk2dRendererPresent();
 		return result;
 	} catch (const std::exception &e) {
 		log()->error("Unhandled exception in frame: {}", e.what());
 	} catch (...) {
 		log()->error("Unknown exception in frame");
 	}
-	vk2dRendererEndFrame();
+	vk2dRendererPresent();
+
 	return false;
 }
 

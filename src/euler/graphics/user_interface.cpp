@@ -1,9 +1,8 @@
 /* SPDX-License-Identifier: ISC */
 
-#include "user_interface.h"
 #include "euler/graphics/user_interface.h"
-#include "renderer.h"
 
+#include "euler/graphics/target.h"
 #include "euler/util/image.h"
 
 using euler::graphics::UserInterface;
@@ -1002,7 +1001,6 @@ UserInterface::combobox_begin(const AbstractCombobox &combo)
 bool
 UserInterface::combobox_item(const AbstractComboboxItem &item)
 {
-
 }
 
 void

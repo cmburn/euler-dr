@@ -79,6 +79,7 @@ private:
 	Modules _modules = {};
 	mrb_value _self_value = mrb_nil_value();
 };
+
 } /* namespace euler::app */
 
 #endif /* EULER_APP_STATE_H */

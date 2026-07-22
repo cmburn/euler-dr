@@ -10,7 +10,7 @@
 
 namespace euler::vulkan::detail {
 #ifdef EULER_INTERNAL_BUILD
-typedef VK2DTexture *texture_pointer;
+typedef VK2DTexture texture_pointer;
 typedef VK2DLogger logger;
 typedef nk_context gui_context;
 typedef VK2DShader shader_pointer;
@@ -20,7 +20,6 @@ typedef void logger;
 typedef void gui_context;
 typedef void *shader_pointer;
 #endif
-
 
 } /* namespace euler::vulkan::detail */
 

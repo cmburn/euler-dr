@@ -26,15 +26,18 @@ if (NOT EULER_DRAGONRUBY_BUILD AND NOT EULER_NATIVE_BUILD)
     endif ()
 endif ()
 
+if (EULER_DRAGONRUBY_BUILD)
+    message(STATUS "Building DragonRuby runtime bindings")
+    add_compile_definitions(EULER_DRAGONRUBY)
+elseif (EULER_NATIVE_BUILD)
+    add_compile_definitions(EULER_NATIVE)
+endif ()
+
 add_subdirectory(src)
 
 set(BUILD_SHARED_LIBS OFF)
 add_compile_definitions(EULER_GV_STATE="${EULER_GV_STATE}")
 
-if (EULER_DRAGONRUBY_BUILD)
-    message(STATUS "Building DragonRuby runtime bindings")
-    add_compile_definitions(EULER_DRAGONRUBY)
-endif ()
 
 option(STATIC_LIB "Build static libraries" ON)
 if (NOT STATIC_LIB)
