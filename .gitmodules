@@ -1,0 +1,30 @@
+[submodule "extern/eigen"]
+	path = extern/eigen
+	url = https://gitlab.com/libeigen/eigen
+[submodule "extern/mruby"]
+	path = extern/mruby
+	url = https://github.com/mruby/mruby
+[submodule "extern/Vulkan2D"]
+	path = extern/Vulkan2D
+	url = https://github.com/cmburn/Vulkan2D
+[submodule "extern/box2d"]
+	path = extern/box2d
+	url = https://github.com/erincatto/box2d
+[submodule "extern/SDL3"]
+	path = extern/SDL3
+	url = https://github.com/libsdl-org/SDL/
+[submodule "extern/physfs"]
+	path = extern/physfs
+	url = https://github.com/icculus/physfs/
+[submodule "extern/nlohmann-json"]
+	path = extern/nlohmann-json
+	url = https://github.com/nlohmann/json
+[submodule "extern/Nuklear"]
+	path = extern/Nuklear
+	url = https://github.com/Immediate-Mode-UI/Nuklear
+[submodule "extern/GameNetworkingSockets"]
+	path = extern/GameNetworkingSockets
+	url = https://github.com/ValveSoftware/GameNetworkingSockets
+[submodule "extern/protobuf"]
+	path = extern/protobuf
+	url = https://github.com/protocolbuffers/protobuf
